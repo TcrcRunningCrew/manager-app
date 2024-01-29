@@ -1,13 +1,20 @@
 import NextAuth from "next-auth"
 import KakaoProvider from "next-auth/providers/kakao";
+import GithubProvider from "next-auth/providers/github";
 
 export const authOptions = {
   // Configure one or more authentication providers
   providers: [
     KakaoProvider({
-      clientId: 'dfb4d0fc3581c8d049c2ed2b751ac90f',
-      clientSecret: 'u2Dd6KmkWsNGXNLtKMe0kmoS8PEnfkV8'
-    })
+      clientId: process.env.KAKAO_CLIENT_ID || '',
+      clientSecret: process.env.KAKAO_CLIENT_SECRET || ''
+
+    }),
+    GithubProvider({
+      clientId: process.env.GITHUB_ID || '',
+      clientSecret: process.env.GITHUB_SECRET || '',
+    }),
+
   ]
 }
 
