@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from "react";
-import {supabase} from "@/config/supabaseClient";
+import { supabase } from "@/config/supabaseClient";
 import BackButton from "@/components/common/backButton";
 import MonthNavigation from "@/components/common/MonthNavigation";
 
-
 interface User {
-    name: string;
-    age: number;
-    meetingCount: number;
-  }
+  name: string;
+  age: number;
+  meetingCount: number;
+}
 
 export default function Founder() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [users, setUsers] = useState<User[]>([]);
 
-  //날짜 설정 부분
   const changeMonth = (increment: number) => {
     const newMonth = new Date(currentMonth);
     newMonth.setMonth(newMonth.getMonth() + increment);
@@ -22,27 +20,20 @@ export default function Founder() {
   };
 
   useEffect(() => {
-    let year = currentMonth.getFullYear();
-    let month = currentMonth.getMonth() + 1;
-    
     const dateFormat = (date: Date) => {
-        let dateFormat2 =
-          date.getFullYear() +
-          "-" +
-          (date.getMonth() + 1 < 9
-            ? "0" + (date.getMonth() + 1)
-            : date.getMonth() + 1) +
-          "-" +
-          (date.getDate() < 9 ? "0" + date.getDate() : date.getDate());
-        return dateFormat2;
-      };
-    
-
-    let startday = dateFormat(new Date(year, month - 1, 1)); //startday:  2024-01-01
-    let endday = dateFormat(new Date(year, month, 0)); //endday:  2024-01-31
+      const pad = (value: number) => (value < 10 ? `0${value}` : `${value}`);
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+        date.getDate()
+      )}`;
+    };
 
     const fetchUsersAndMeetings = async () => {
-      let { data: activeUsers, error: userError } = await supabase
+      const year = currentMonth.getFullYear();
+      const month = currentMonth.getMonth() + 1;
+      const startday = dateFormat(new Date(year, month - 1, 1));
+      const endday = dateFormat(new Date(year, month, 0));
+
+      const { data: activeUsers, error: userError } = await supabase
         .from("users")
         .select("name, age")
         .eq("activation", true);
@@ -53,13 +44,13 @@ export default function Founder() {
       }
 
       if (!activeUsers) {
-        console.error("No active users found."); // Handle the case where activeUsers is null
+        console.error("No active users found.");
         return;
       }
 
       const usersWithFoundCounts = await Promise.all(
         activeUsers.map(async (user) => {
-          let { data: userData, error: getError } = await supabase
+          const { data: userData, error: getError } = await supabase
             .from("meeting")
             .select("*", { count: "exact" })
             .eq("name", user.name)
@@ -68,8 +59,8 @@ export default function Founder() {
             .lte("meeting_date", endday);
 
           if (getError) {
-            console.error(getError.message); // Logging the error for debugging
-            return { ...user, meetingCount: 0 }; // Return user with meetingCount set to 0 in case of an error
+            console.error(getError.message);
+            return { ...user, meetingCount: 0 };
           }
 
           const meetingCount = userData ? userData.length : 0;
@@ -77,7 +68,6 @@ export default function Founder() {
         })
       );
 
-      // meetingCount가 0인 사용자 제외
       const filteredUsers = usersWithFoundCounts.filter(
         (user) => user.meetingCount > 0
       );
@@ -87,7 +77,6 @@ export default function Founder() {
 
     fetchUsersAndMeetings();
   }, [currentMonth]);
-
   return (
     <div className='dark flex flex-col justify-between  h-screen bg-gray-800 text-white'>
       <header className='flex items-center justify-between px-6 py-4 bg-blue-500'>
