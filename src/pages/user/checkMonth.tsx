@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect } from "react";
-import MonthNavigation from "../common/MonthNavigation";
-import BackButton from "../common/backButton";
-import supabase from "../config/supabaseClient";
+import {supabase} from "@/config/supabaseClient";
+import BackButton from "@/components/common/backButton";
+import MonthNavigation from "@/components/common/MonthNavigation";
+import {useIsMounted} from "@toss/react";
 
 interface User {
   name: string;
@@ -11,6 +12,8 @@ interface User {
 }
 
 export default function Participation() {
+  const isMounted = useIsMounted();
+
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
   const [users, setUsers] = useState<User[]>([]);
 
@@ -21,6 +24,7 @@ export default function Participation() {
   };
 
   useEffect(() => {
+    if (!isMounted) return;
     let year = currentMonth.getFullYear();
     let month = currentMonth.getMonth() + 1;
   

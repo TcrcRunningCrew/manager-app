@@ -1,7 +1,7 @@
-import MonthNavigation from "../common/MonthNavigation";
-import BackButton from "../common/backButton";
-import supabase from "../config/supabaseClient";
 import React, { useState, useEffect } from "react";
+import {supabase} from "@/config/supabaseClient";
+import BackButton from "@/components/common/backButton";
+import MonthNavigation from "@/components/common/MonthNavigation";
 
 
 interface User {
