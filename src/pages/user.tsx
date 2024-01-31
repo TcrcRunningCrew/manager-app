@@ -1,28 +1,21 @@
 import React, { useState, useEffect } from "react";
-import BackButton from "../../components/common/backButton";
-import CustomModal from "../../components/common/CustomModal";
-import { supabase } from "../../utils/supabaseClient";
+import BackButton from "../components/common/backButton";
+import CustomModal from "../components/common/CustomModal";
+import { supabase } from "../utils/supabaseClient";
 import { useRouter } from "next/router";
-
-export default function Checkout() {
+import { useSession } from "next-auth/react";
+export default function Userinfoform() {
   const router = useRouter();
 
+  const { data: session } = useSession(); // Get the user's session data
+
   const [username, setUsername] = useState<string>("");
-  const [participationDate, setParticipationDate] = useState<string>("");
-  const [activation, setActivation] = useState<string>("1");
-  const [location, setLocation] = useState<string>("1");
-  const [isFounder, setIsFounder] = useState<boolean>(false);
   const [userAge, setUserAge] = useState<string>("");
   const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   const [successModalIsOpen, setSuccessModalIsOpen] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
-
-  useEffect(() => {
-    const currentDate = new Date().toISOString().split("T")[0];
-    setParticipationDate(currentDate);
-  }, []);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -34,18 +27,6 @@ export default function Checkout() {
         break;
       case "userAge":
         setUserAge(value);
-        break;
-      case "participationDate":
-        setParticipationDate(value);
-        break;
-      case "activation":
-        setActivation(value);
-        break;
-      case "location":
-        setLocation(value);
-        break;
-      case "isFounder":
-        setIsFounder(value === "2");
         break;
       default:
         break;
@@ -84,14 +65,10 @@ export default function Checkout() {
       .eq("age", userAge);
 
     if (data && data.length > 0) {
-      const { error } = await supabase.from("meeting").insert([
+      const { error } = await supabase.from("users").insert([
         {
           name: username,
           age: userAge,
-          meeting_date: participationDate,
-          activation,
-          location,
-          founder: isFounder,
         },
       ]);
 
@@ -113,7 +90,7 @@ export default function Checkout() {
           {" "}
           <span>T C R C</span>
           <br />
-          <span>출석체크</span>
+          <span>회원가입</span>
         </h1>
         <BackButton />
       </header>
@@ -154,87 +131,12 @@ export default function Checkout() {
           </div>
 
           <div className='flex flex-col p-1'>
-            <label
-              className='mb-2 font-bold text-left  text-white'
-              htmlFor='date'
-            >
-              참여일
-            </label>
-            <input
-              className='form-input py-2 px-3 focus:outline-none  border rounded-md'
-              id='date'
-              type='date'
-              value={participationDate}
-              onChange={handleInputChange}
-            />
-          </div>
-
-          <div className='flex flex-col p-1'>
-            <label
-              className='mb-2 font-bold text-left  text-white'
-              htmlFor='type'
-            >
-              운동종류
-            </label>
-            <select
-              className='form-input py-2 px-3 focus:outline-none  border rounded-md'
-              onChange={handleInputChange}
-              value={activation}
-            >
-              <option value='1'>러닝</option>
-              <option value='2'>등산</option>
-              <option value='3'>자전거</option>
-              <option value='4'>기타</option>
-            </select>
-          </div>
-
-          <div className='flex flex-col p-1'>
-            <label
-              className='mb-2 font-bold text-left  text-white'
-              htmlFor='location'
-            >
-              장소
-            </label>
-            <select
-              onChange={handleInputChange}
-              value={location}
-              className='form-input py-2 px-3 focus:outline-none  border rounded-md'
-            >
-              <option value='1'>태평_탄천</option>
-              <option value='2'>서현_황새울공원</option>
-              <option value='3'>야탑_탄천종합운동장</option>
-              <option value='4'>모란_성남종합운동장</option>
-              <option value='5'>위례</option>
-              <option value='6'>정자</option>
-              <option value='7'>판교</option>
-              <option value='8'>그 외</option>
-            </select>
-          </div>
-
-          <div className='flex flex-col p-1'>
-            <label
-              className='mb-2 font-bold text-left  text-white'
-              htmlFor='isFounder'
-            >
-              개설자여부
-            </label>
-            <select
-              onChange={handleInputChange}
-              value={isFounder ? "true" : "false"}
-              className='form-input py-2 px-3 focus:outline-none  border rounded-md'
-            >
-              <option value='false'>모임 개설자 X</option>
-              <option value='true'>모임 개설자 O</option>
-            </select>
-          </div>
-
-          <div className='flex flex-col p-1'>
             <label></label>
             <button
               onClick={handleSubmit}
               className='text-white bg-green-500 border-0 py-3 px-8 focus:outline-none hover:bg-green-600 rounded text-lg'
             >
-              출석체크
+              회원가입
             </button>
           </div>
           <CustomModal

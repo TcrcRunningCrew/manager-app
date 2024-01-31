@@ -1,9 +1,11 @@
-import { useRouter } from 'next/router';
+import { useRouter } from "next/router";
+import { signIn } from "next-auth/react";
+
 
 export default function Home() {
   const router = useRouter();
 
-  const navigateTo = (path:any) => {
+  const navigateTo = (path: any) => {
     router.push(path);
   };
 
@@ -26,40 +28,45 @@ export default function Home() {
       <main className='flex flex-col space-y-4 shadow-lg w-full max-w-xs'>
         <button
           className='font-bold p-4 bg-blue-500 text-white text-center rounded-md hover:bg-blue-700 transform hover:scale-105 transition-transform duration-200 shadow-lg'
-          onClick={() => navigateTo('/user/checkMonth')}
+          onClick={() => navigateTo("/user/checkMonth")}
         >
           참여랭킹
         </button>
         <button
           className='font-bold p-4 bg-blue-500 text-white text-center rounded-md hover:bg-blue-700 transform hover:scale-105 transition-transform duration-200 shadow-lg'
-          onClick={() => navigateTo('/user/founder')}
+          onClick={() => navigateTo("/user/founder")}
         >
           개설랭킹
         </button>
         <button
           className='font-bold p-4 bg-green-500 text-white text-center rounded-md hover:bg-green-700 transform hover:scale-105 transition-transform duration-200 shadow-lg'
-          onClick={() => navigateTo('/user/checkout')}
+          onClick={() => navigateTo("/user/checkout")}
         >
           출석체크
         </button>
-        <button
-          className='font-bold p-4 bg-green-500 text-white text-center rounded-md hover:bg-green-700 transform hover:scale-105 transition-transform duration-200 shadow-lg'
-          onClick={() => navigateTo('/signup')}
-        >
-          회원가입
-        </button>
-        <button
-          className='font-bold p-4 bg-green-500 text-white text-center rounded-md hover:bg-green-700 transform hover:scale-105 transition-transform duration-200 shadow-lg'
-          onClick={() => navigateTo('/login')}
-        >
-          로그인
-        </button>
+
+        {/* <button
+            className='font-bold p-4 bg-green-500 text-white text-center rounded-md hover:bg-green-700 transform hover:scale-105 transition-transform duration-200 shadow-lg'
+            onClick={() => navigateTo("/signup")}
+          >
+            회원가입
+          </button> */}
+
+        <div className='font-bold p-4 bg-yellow-500 text-white text-center rounded-md hover:bg-green-700 transform hover:scale-105 transition-transform duration-200 shadow-lg'>
+          <button onClick={() => signIn("kakao")}>카카오 로그인</button>
+        </div>
+        {/* <button
+            className='font-bold p-4 bg-green-500 text-white text-center rounded-md hover:bg-green-700 transform hover:scale-105 transition-transform duration-200 shadow-lg'
+            onClick={() => navigateTo("/login")}
+          >
+            로그인
+          </button> */}
       </main>
     </div>
   );
 }
 
-function BellIcon(props:any) {
+function BellIcon(props: any) {
   return (
     <svg
       {...props}
@@ -79,7 +86,7 @@ function BellIcon(props:any) {
   );
 }
 
-function UserIcon(props:any) {
+function UserIcon(props: any) {
   return (
     <svg
       {...props}
