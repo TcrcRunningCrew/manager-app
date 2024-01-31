@@ -1,21 +1,39 @@
-import NextAuth, {NextAuthOptions} from "next-auth"
-import KakaoProvider from "next-auth/providers/kakao";
-import GithubProvider from "next-auth/providers/github";
+import NextAuth from "next-auth"
+import KakaoProvider from "next-auth/providers/kakao"
+import { supabase } from '../../../utils/supabaseClient';
 
-export const authOptions = {
-  secret: process.env.NEXT_AUTH_SECRET,
-  debug: true,
-  // Configure one or more authentication providers
+export default NextAuth({
   providers: [
     KakaoProvider({
-      clientId: process.env.KAKAO_CLIENT_ID || '',
-      clientSecret: process.env.KAKAO_CLIENT_SECRET || ''
-    }),
-    GithubProvider({
-      clientId: process.env.GITHUB_ID || '',
-      clientSecret: process.env.GITHUB_SECRET || '',
-    }),
-  ]
-} satisfies NextAuthOptions
+      clientId: process.env.KAKAO_CLIENT_ID ||"",
+      clientSecret: process.env.KAKAO_CLIENT_SECRET||""
+    })
+  ],
+  callbacks: {
+    async signIn({ user, account, profile, email, credentials }) {
+      console.log('user: ', user);
+      console.log('user.email: ',user.email);
+      // 사용자가 처음 로그인하는 경우 확인
 
-export default NextAuth(authOptions)
+      const { data, error } = await supabase
+        .from('user')
+        .select('*')
+        .eq('email', user.email)
+        .single();
+
+      if (error || !data) {
+        return '/signup';
+      }
+
+      return true;
+    },
+    async session({ session, user }) {
+      if (user) {
+        // 사용자 정보를 세션 객체에 추가합니다.
+        session.user = {...session.user, ...user};
+      }
+      return session;
+    }
+    
+  }
+})

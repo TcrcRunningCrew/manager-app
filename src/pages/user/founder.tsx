@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { supabase } from "@/config/supabaseClient";
+import { supabase } from "@/utils/supabaseClient";
 import BackButton from "@/components/common/backButton";
 import MonthNavigation from "@/components/common/MonthNavigation";
 
@@ -108,7 +108,7 @@ export default function Founder() {
             <tbody className='border-0'>
               {users.map((user, index) => (
                 <tr
-                className='border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted'
+                  className='border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted'
                   key={index}
                 >
                   <td className='p-4 align-middle'>{index + 1}</td>
