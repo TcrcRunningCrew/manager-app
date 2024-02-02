@@ -3,7 +3,6 @@ import { supabase } from "@/utils/supabaseClient";
 import BackButton from "@/components/common/backButton";
 import MonthNavigation from "@/components/common/MonthNavigation";
 import { useIsMounted } from "@toss/react";
-import ProtectedPage from "@/components/common/protectpage";
 
 interface User {
   name: string;
