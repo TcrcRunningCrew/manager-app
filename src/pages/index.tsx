@@ -89,11 +89,11 @@ export default function Home() {
             </div>
           </>
         )}
-        <CustomModal
+        {/* <CustomModal
           isOpen={modalIsOpen}
           onRequestClose={closeModal}
           errorMessage={errorMessage}
-        />
+        /> */}
         {/* <CustomModal
           isOpen={successModalIsOpen}
           onRequestClose={closeSuccessModal}
