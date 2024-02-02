@@ -38,12 +38,11 @@ export default function Home() {
 
   const closeSuccessModal = async () => {
     setSuccessModalIsOpen(false);
-    signIn("kakao") 
+    signIn("kakao");
   };
 
   const login = () => {
-    
-   openSuccessModalWithMessage(
+    openSuccessModalWithMessage(
       "이메일 정보 동의를 필수로 해주시길 부탁드립니다."
     );
   };
