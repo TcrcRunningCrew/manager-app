@@ -1,7 +1,8 @@
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { signIn, useSession } from "next-auth/react";
-// import CustomModal from "../components/common/customModal";
+import CustomModal from "../components/common/CustomModal";
+import React from "react";
 
 export default function Home() {
   const router = useRouter();
@@ -89,16 +90,16 @@ export default function Home() {
             </div>
           </>
         )}
-        {/* <CustomModal
+        <CustomModal
           isOpen={modalIsOpen}
           onRequestClose={closeModal}
           errorMessage={errorMessage}
-        /> */}
-        {/* <CustomModal
+        />
+        <CustomModal
           isOpen={successModalIsOpen}
           onRequestClose={closeSuccessModal}
           errorMessage={message}
-        /> */}
+        />
       </main>
     </div>
   );
