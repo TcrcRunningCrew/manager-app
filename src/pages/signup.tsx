@@ -2,10 +2,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { supabase } from "../utils/supabaseClient";
 import { useSession } from "next-auth/react";
-
 import BackButton from "../components/common/backButton";
-import CustomModal from "../components/common/customModal";
-
+import CustomModal from "../components/common/CustomModal";
 export default function Signup() {
   const [name, setName] = useState<string>("");
   const [birthYear, setBirthYear] = useState<string>("");

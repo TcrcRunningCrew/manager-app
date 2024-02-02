@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import CustomModal from "../../components/common/customModal";
+import CustomModal from "../../components/common/CustomModal"
 import Header from "../../components/common/header";
 
-import { supabase } from "@/utils/supabaseClient";
+import { supabase } from "../../utils/supabaseClient";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 
