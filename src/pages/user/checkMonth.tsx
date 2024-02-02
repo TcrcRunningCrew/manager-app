@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/utils/supabaseClient";
-import BackButton from "@/components/common/backButton";
-import MonthNavigation from "@/components/common/MonthNavigation";
+import MonthNavigation from "@/components/common/monthNavigation";
+import Header from "@/components/common/header";
 import { useIsMounted } from "@toss/react";
 
 interface User {
@@ -41,62 +41,50 @@ export default function Participation() {
 
     let startday = dateFormat(new Date(year, month - 1, 1));
     let endday = dateFormat(new Date(year, month, 0));
-
     const fetchUsersAndMeetings = async () => {
-      let { data: activeUsers, error: userError } = await supabase
-        .from("users")
-        .select("name, age")
-        .eq("activation", true);
+      try {
+        const { data: usersAndMeetings, error } = await supabase
+          .from("user")
+          .select("name, age, meetings(*)")
+          .eq("activation", true)
+          .gte("meetings.meeting_date", startday)
+          .lte("meetings.meeting_date", endday);
 
-      if (userError) {
-        console.error(userError.message);
-        return;
+        if (error) {
+          console.error(error.message);
+          return;
+        }
+
+        if (!usersAndMeetings || !usersAndMeetings.length) {
+          console.error("No active users found.");
+          return;
+        }
+
+        // Define the accumulator type explicitly
+        const filteredUsers = usersAndMeetings
+          .reduce<
+            { name: any; age: any; meetings: any[]; meetingCount: number }[]
+          >((acc, user) => {
+            const meetingCount = user.meetings ? user.meetings.length : 0;
+            if (meetingCount > 0) {
+              acc.push({ ...user, meetingCount });
+            }
+            return acc;
+          }, [])
+          .sort((a, b) => b.meetingCount - a.meetingCount);
+
+        setUsers(filteredUsers);
+      } catch (error) {
+        console.error(error);
       }
-
-      if (!activeUsers) {
-        console.error("No active users found."); // Handle the case where activeUsers is null
-        return;
-      }
-
-      const usersWithMeetingCounts = await Promise.all(
-        activeUsers.map(async (user) => {
-          let { data: userMeetings, error: meetingError } = await supabase
-            .from("meeting")
-            .select("*", { count: "exact" })
-            .eq("name", user.name)
-            .gte("meeting_date", startday)
-            .lte("meeting_date", endday);
-
-          if (meetingError) {
-            console.error(meetingError.message);
-            return { ...user, meetingCount: 0 };
-          }
-
-          const meetingCount = userMeetings ? userMeetings.length : 0;
-          return { ...user, meetingCount: meetingCount };
-        })
-      );
-
-      const filteredUsers = usersWithMeetingCounts.filter(
-        (user) => user.meetingCount > 0
-      );
-
-      setUsers(filteredUsers.sort((a, b) => b.meetingCount - a.meetingCount));
     };
 
     fetchUsersAndMeetings();
-  }, [currentMonth]);
+  }, [currentMonth, isMounted]);
+
   return (
     <div className='dark flex flex-col justify-between  h-screen bg-gray-800 text-white'>
-      <header className='flex items-center justify-between px-4 py-3 bg-blue-500'>
-        <h1 className='text-1xl font-bold text-white-900'>
-          {" "}
-          <span>T C R C</span>
-          <br />
-          <span>참여랭킹</span>
-        </h1>
-        <BackButton />
-      </header>
+       <Header bgColor={"bg-blue-500"} text1={"T C R C"} text2={"참여랭킹"} />
       <MonthNavigation currentMonth={currentMonth} changeMonth={changeMonth} />
       <main className='flex-1 overflow-y-auto p-3 bg-gray-800'>
         <div className='rounded-lg overflow-hidden bg-gray-700 p-4 pt-1 mx-auto w-full sm:w-3/4 md:w-3/4 lg:w-2/3 xl:w-1/2'>
