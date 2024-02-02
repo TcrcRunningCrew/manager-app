@@ -1,18 +1,29 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { supabase } from "../utils/supabaseClient";
+import { supabase } from "@//utils/supabaseClient";
 import { useSession } from "next-auth/react";
-import BackButton from "../components/common/backButton";
-import CustomModal from "../components/common/CustomModal";
+
+import BackButton from "@/components/common/backButton";
+import CustomModal from "@/components/common/customModal";
 
 export default function Signup() {
-  const [name, setName] = useState("");
-  const [birthYear, setBirthYear] = useState("");
-  const [email, setEmail] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const { data: session, status } = useSession();
+  const [name, setName] = useState<string>("");
+  const [birthYear, setBirthYear] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
   const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+
+  const [nameErrorMessage, setNameErrorMessage] = useState<string>("");
+  const [emailErrorMessage, setEmailErrorMessage] = useState<string>("");
+  const [birthYearErrorMessage, setBirthYearErrorMessage] =
+    useState<string>("");
+
+  const [successModalIsOpen, setSuccessModalIsOpen] = useState<boolean>(false);
+  const [message, setMessage] = useState<string>("");
+
+  const { data: session, status } = useSession();
+  console.log("signup session: ", session);
+
   const router = useRouter();
 
   useEffect(() => {
@@ -20,14 +31,33 @@ export default function Signup() {
       setName(session.user.name || "");
       setEmail(session.user.email || "");
     }
-  }, [session, status]);
-  
+
+    const emailRegEx =
+    /^[a-zA-Z0-9+-\_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
+    const nameRegex = /^.{2,5}$/; // 문자열이며 2글자 이상에서 5글자이내
+    const birthdayYearRegex = /^\d{2}$/; //숫자형태의 문자열이며 2글자여야한다.
+
+    const nameCheck = nameRegex.test(name);
+    const emailCheck = emailRegEx.test(email);
+    const birthdayYearCheck = birthdayYearRegex.test(birthYear);
+
+    nameCheck == true
+      ? setNameErrorMessage("")
+      : setNameErrorMessage("이름의 양식을 확인바랍니다.");
+    emailCheck == true
+      ? setEmailErrorMessage("")
+      : setEmailErrorMessage("이메일 양식확인 바랍니다.");
+    birthdayYearCheck == true
+      ? setBirthYearErrorMessage("")
+      : setBirthYearErrorMessage("태어난년생 뒷자기 2글자");
+
+    if (nameCheck && birthdayYearCheck && emailCheck) {
+      setModalIsOpen(true);
+      setErrorMessage("이름, 이메일, 년생 확인 바랍니다"); // 에러 메시지 설정
+    }
+  }, [session, status, name, email, birthYear]);
 
   async function signUpUser() {
-    // 사용자 가입 처리
-
-    // 여기에서 Supabase를 사용하여 추가 정보를 저장합니다.
-    // 예를 들어, 사용자의 이름과 년생을 저장하는 코드를 추가할 수 있습니다.
     const { data, error } = await supabase
       .from("user")
       .insert([{ name, birthYear, email, activation: true }])
@@ -35,48 +65,60 @@ export default function Signup() {
 
     if (error) {
       console.error(error);
-    } else {
-      router.push("/");
     }
 
     // 에러 처리
     if (error) {
-      setModalIsOpen(true); // 모달 열기
-      setErrorMessage("회원가입 에러 발생, 운영진에게 문의하세요."); // 에러 메시지 설정
-      return; // 함수 종료
+      setModalIsOpen(true);
+      setErrorMessage("회원가입 에러 발생, 운영진에게 문의하세요.");
+      return;
     }
 
     return data;
   }
 
-  const emailRegEx =
-    /^[A-Za-z0-9]([-_.]?[A-Za-z0-9])*@[A-Za-z0-9]([-_.]?[A-Za-z0-9])*\.[A-Za-z]{10,11}$/i;
-  const passwordRegEx = /^[A-Za-z0-9]{8,20}$/;
-
-  const handleBirthYear = (e: any) => {
-    setBirthYear(e.target.value);
-  };
-
-  const handleName = (e: any) => {
-    setName(e.target.value);
-  };
-
-  const handleEmail = (e: any) => {
-    setEmail(e.target.value);
-  };
-
   const closeModal = () => {
     setModalIsOpen(false);
   };
 
+  const closeSuccessModal = () => {
+    setSuccessModalIsOpen(false);
+    router.push("/");
+  };
+
   const handleSubmit = async () => {
-
-    if(name && email && birthYear){
-      setModalIsOpen(true); // 모달 열기
-      setErrorMessage("이름, 이메일, 년생 확인 바랍니다"); // 에러 메시지 설정
+    if (
+      nameErrorMessage == "" &&
+      emailErrorMessage == "" &&
+      birthYearErrorMessage == ""
+    ) {
+      await signUpUser();
+      openSuccessModalWithMessage("회원가입 완료");
     }
+  };
 
-    await signUpUser();
+  const openSuccessModalWithMessage = (message: string) => {
+    setSuccessModalIsOpen(true);
+    setMessage(message);
+  };
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    switch (name) {
+      case "name":
+        setName(value);
+        break;
+      case "birthYear":
+        setBirthYear(value);
+        break;
+      case "email":
+        setEmail(value);
+        break;
+      default:
+        break;
+    }
   };
 
   return (
@@ -104,9 +146,10 @@ export default function Signup() {
               type='text'
               name='name'
               value={name}
-              onChange={handleName}
+              onChange={handleInputChange}
               placeholder='홍길동'
             />
+            <p className='text-white'>{nameErrorMessage}</p>
           </div>
 
           <div className='flex flex-col p-1'>
@@ -121,26 +164,10 @@ export default function Signup() {
               type='number'
               name='birthYear'
               value={birthYear}
-              onChange={handleBirthYear}
+              onChange={handleInputChange}
               placeholder='94'
             />
-          </div>
-
-          <div className='flex flex-col p-1'>
-            <label
-              className='font-bold mb-2 text-left text-white'
-              htmlFor='name'
-            >
-              휴대폰번호 뒷번호 4자리
-            </label>
-            <input
-              className='form-input py-2 px-3 focus:outline-none  border rounded-md'
-              type='number'
-              name='phoneNumber'
-              value={phoneNumber}
-              onChange={handleBirthYear}
-              placeholder='94'
-            />
+            <p className='text-white'>{birthYearErrorMessage}</p>
           </div>
 
           <div className='flex flex-col p-1'>
@@ -155,10 +182,10 @@ export default function Signup() {
               type='text'
               name='email'
               value={email}
-              onChange={handleEmail}
+              onChange={handleInputChange}
               placeholder='abc@gmail.com'
             />
-            {/* {emailError ? <p className='text-white'>{emailError}</p> : null} */}
+            <p className='text-white'>{emailErrorMessage}</p>
           </div>
 
           <div className='flex flex-col p-1'>
@@ -174,6 +201,11 @@ export default function Signup() {
             isOpen={modalIsOpen}
             onRequestClose={closeModal}
             errorMessage={errorMessage}
+          />
+          <CustomModal
+            isOpen={successModalIsOpen}
+            onRequestClose={closeSuccessModal}
+            errorMessage={message}
           />
         </div>
       </main>

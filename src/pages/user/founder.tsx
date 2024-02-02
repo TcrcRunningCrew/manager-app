@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/utils/supabaseClient";
-import BackButton from "@/components/common/backButton";
-import MonthNavigation from "@/components/common/MonthNavigation";
+import MonthNavigation from "@/components/common/monthNavigation";
+import Header from "@/components/common/header";
 
 interface User {
   name: string;
@@ -34,7 +34,7 @@ export default function Founder() {
       const endday = dateFormat(new Date(year, month, 0));
 
       const { data: activeUsers, error: userError } = await supabase
-        .from("users")
+        .from("user")
         .select("name, age")
         .eq("activation", true);
 
@@ -79,15 +79,7 @@ export default function Founder() {
   }, [currentMonth]);
   return (
     <div className='dark flex flex-col justify-between  h-screen bg-gray-800 text-white'>
-      <header className='flex items-center justify-between px-6 py-4 bg-blue-500'>
-        <h1 className='text-1xl font-bold text-white-900'>
-          {" "}
-          <span>T C R C</span>
-          <br />
-          <span>개설랭킹</span>
-        </h1>
-        <BackButton />
-      </header>
+      <Header bgColor={"bg-blue-500"} text1={"T C R C"} text2={"개설랭킹"} />
       <MonthNavigation currentMonth={currentMonth} changeMonth={changeMonth} />
       <main className='flex-1 overflow-y-auto p-3 bg-gray-800'>
         <div className='rounded-lg overflow-hidden bg-gray-700 p-4 pt-1 mx-auto w-full sm:w-3/4 md:w-3/4 lg:w-2/3 xl:w-1/2'>

@@ -1,15 +1,47 @@
 import { useRouter } from "next/router";
-import { signIn,useSession } from "next-auth/react";
+import { useState } from "react";
+import { signIn, useSession } from "next-auth/react";
+import CustomModal from "@/components/common/customModal";
 
 export default function Home() {
   const router = useRouter();
 
+  const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+
+  const [successModalIsOpen, setSuccessModalIsOpen] = useState<boolean>(false);
+  const [message, setMessage] = useState<string>("");
+  
   const navigateTo = (path: any) => {
     router.push(path);
   };
 
   const { data: session } = useSession();
+  console.log('session: ', session);
 
+  const loginChecked = (buttonName: String) => {
+    if (session && session.user && session.user.name && session.user.email) {
+      navigateTo(`/user/${buttonName}`);
+    } else {
+      setModalIsOpen(true); // 모달 열기
+      setErrorMessage("로그인 및 회원가입 이후 이용가능"); // 에러 메시지 설정
+    }
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+  };
+
+
+    const openSuccessModalWithMessage = (message: string) => {
+    setSuccessModalIsOpen(true);
+    setMessage(message);
+  };
+
+  const closeSuccessModal = () => {
+    setSuccessModalIsOpen(false);
+    router.push("/");
+  };
 
   return (
     <div
@@ -30,29 +62,39 @@ export default function Home() {
       <main className='flex flex-col space-y-4 shadow-lg w-full max-w-xs'>
         <button
           className='font-bold p-4 bg-blue-500 text-white text-center rounded-md hover:bg-blue-700 transform hover:scale-105 transition-transform duration-200 shadow-lg'
-          onClick={() => navigateTo("/user/checkMonth")}
+          onClick={() => loginChecked("checkMonth")}
         >
           참여랭킹
         </button>
         <button
           className='font-bold p-4 bg-blue-500 text-white text-center rounded-md hover:bg-blue-700 transform hover:scale-105 transition-transform duration-200 shadow-lg'
-          onClick={() => navigateTo("/user/founder")}
+          onClick={() => loginChecked("founder")}
         >
           개설랭킹
         </button>
         <button
           className='font-bold p-4 bg-green-500 text-white text-center rounded-md hover:bg-green-700 transform hover:scale-105 transition-transform duration-200 shadow-lg'
-          onClick={() => navigateTo("/user/checkout")}
+          onClick={() => loginChecked("checkout")}
         >
           출석체크
         </button>
         {!session && (
           <>
-            <div className='font-bold p-4 bg-yellow-500 text-white text-center rounded-md hover:bg-green-700 transform hover:scale-105 transition-transform duration-200 shadow-lg'>
-              <button onClick={() => signIn("kakao")}>카카오 로그인</button>
+            <div className='font-bold p-4 bg-yellow-500 text-white text-center rounded-md hover:bg-yellow-600 transform hover:scale-105 transition-transform duration-200 shadow-lg'>
+              <button onClick={()=>signIn("kakao")}>카카오 로그인</button>
             </div>
           </>
         )}
+        <CustomModal
+          isOpen={modalIsOpen}
+          onRequestClose={closeModal}
+          errorMessage={errorMessage}
+        />
+              <CustomModal
+            isOpen={successModalIsOpen}
+            onRequestClose={closeSuccessModal}
+            errorMessage={message}
+          />
       </main>
     </div>
   );

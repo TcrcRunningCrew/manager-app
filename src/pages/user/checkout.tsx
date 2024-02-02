@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
-import BackButton from "../../components/common/backButton";
-import CustomModal from "../../components/common/CustomModal";
-import { supabase } from "../../utils/supabaseClient";
+import CustomModal from "@/components/common/customModal";
+import Header from "@/components/common/header";
+
+import { supabase } from "@/utils/supabaseClient";
 import { useRouter } from "next/router";
+import { useSession } from "next-auth/react";
 
 export default function Checkout() {
   const router = useRouter();
@@ -10,6 +12,7 @@ export default function Checkout() {
   const [username, setUsername] = useState<string>("");
   const [participationDate, setParticipationDate] = useState<string>("");
   const [activation, setActivation] = useState<string>("1");
+  const [userEmail, setEmail] = useState<string>("");
   const [location, setLocation] = useState<string>("1");
   const [isFounder, setIsFounder] = useState<boolean>(false);
   const [userAge, setUserAge] = useState<string>("");
@@ -19,10 +22,18 @@ export default function Checkout() {
   const [successModalIsOpen, setSuccessModalIsOpen] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
 
+  const { data: session, status } = useSession();
+
   useEffect(() => {
+    if (session && status === "authenticated" && session.user) {
+      setUsername(session.user.name || "");
+      setEmail(session.user.email || "");
+      console.log("session: ", session);
+    }
+
     const currentDate = new Date().toISOString().split("T")[0];
     setParticipationDate(currentDate);
-  }, []);
+  }, [session, status]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -72,8 +83,8 @@ export default function Checkout() {
   };
 
   const handleSubmit = async () => {
-    if (!username || !userAge) {
-      openModalWithMessage("이름과 년생을 확인해주세요");
+    if (!username) {
+      openModalWithMessage("이름을 확인해주세요");
       return;
     }
 
@@ -87,7 +98,7 @@ export default function Checkout() {
       const { error } = await supabase.from("meeting").insert([
         {
           name: username,
-          age: userAge,
+          email: userEmail,
           meeting_date: participationDate,
           activation,
           location,
@@ -108,35 +119,25 @@ export default function Checkout() {
 
   return (
     <div className='dark flex flex-col justify-between  h-screen bg-gray-800 text-black'>
-      <header className='flex items-center justify-between px-6 py-4 bg-green-500 text-white'>
-        <h1 className='text-1xl font-bold text-white-900'>
-          {" "}
-          <span>T C R C</span>
-          <br />
-          <span>출석체크</span>
-        </h1>
-        <BackButton />
-      </header>
+      <Header bgColor={"bg-green-500"} text1={"T C R C"} text2={"출석체크"} />
       <main className='flex-1 overflow-y-auto p-3 bg-gray-800'>
         <div className='rounded-lg overflow-hidden bg-gray-700 p-4 pt-1 mx-auto w-full sm:w-3/4 md:w-3/4 lg:w-2/3 xl:w-1/2'>
           <div className='flex flex-col p-1'>
-            <label
-              className='font-bold mb-2 text-left text-white'
-              htmlFor='name'
-            >
+            <label className=' mb-2 text-left text-white' htmlFor='name'>
               이름
             </label>
             <input
-              className='form-input py-2 px-3 focus:outline-none  border rounded-md'
+              className='font-bold form-input py-2 px-3 focus:outline-none border rounded-md opacity-100 text-white'
               type='text'
               name='username'
               value={username}
               onChange={handleInputChange}
               placeholder='홍길동'
+              disabled
             />
           </div>
 
-          <div className='flex flex-col p-1'>
+          {/* <div className='flex flex-col p-1'>
             <label
               className='font-bold mb-2 text-left text-white'
               htmlFor='name'
@@ -151,7 +152,7 @@ export default function Checkout() {
               onChange={handleInputChange}
               placeholder='94'
             />
-          </div>
+          </div> */}
 
           <div className='flex flex-col p-1'>
             <label
