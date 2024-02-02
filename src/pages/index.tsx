@@ -11,13 +11,12 @@ export default function Home() {
 
   const [successModalIsOpen, setSuccessModalIsOpen] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
-  
+
   const navigateTo = (path: any) => {
     router.push(path);
   };
 
   const { data: session } = useSession();
-  console.log('session: ', session);
 
   const loginChecked = (buttonName: String) => {
     if (session && session.user && session.user.name && session.user.email) {
@@ -32,15 +31,21 @@ export default function Home() {
     setModalIsOpen(false);
   };
 
-
-    const openSuccessModalWithMessage = (message: string) => {
+  const openSuccessModalWithMessage = async (message: string) => {
     setSuccessModalIsOpen(true);
     setMessage(message);
   };
 
-  const closeSuccessModal = () => {
+  const closeSuccessModal = async () => {
     setSuccessModalIsOpen(false);
-    router.push("/");
+    signIn("kakao") 
+  };
+
+  const login = () => {
+    
+   openSuccessModalWithMessage(
+      "이메일 정보 동의를 필수로 해주시길 부탁드립니다."
+    );
   };
 
   return (
@@ -81,7 +86,7 @@ export default function Home() {
         {!session && (
           <>
             <div className='font-bold p-4 bg-yellow-500 text-white text-center rounded-md hover:bg-yellow-600 transform hover:scale-105 transition-transform duration-200 shadow-lg'>
-              <button onClick={()=>signIn("kakao")}>카카오 로그인</button>
+              <button onClick={() => login()}>카카오 로그인</button>
             </div>
           </>
         )}
@@ -90,11 +95,11 @@ export default function Home() {
           onRequestClose={closeModal}
           errorMessage={errorMessage}
         />
-              <CustomModal
-            isOpen={successModalIsOpen}
-            onRequestClose={closeSuccessModal}
-            errorMessage={message}
-          />
+        <CustomModal
+          isOpen={successModalIsOpen}
+          onRequestClose={closeSuccessModal}
+          errorMessage={message}
+        />
       </main>
     </div>
   );
