@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import CustomModal from "@/components/common/customModal";
-import Header from "@/components/common/header";
+import CustomModal from "../../components/common/customModal";
+import Header from "../../components/common/header";
 
 import { supabase } from "@/utils/supabaseClient";
 import { useRouter } from "next/router";

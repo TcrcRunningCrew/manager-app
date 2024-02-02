@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { supabase } from "@//utils/supabaseClient";
+import { supabase } from "../utils/supabaseClient";
 import { useSession } from "next-auth/react";
 
-import BackButton from "@/components/common/backButton";
-import CustomModal from "@/components/common/customModal";
+import BackButton from "../components/common/backButton";
+import CustomModal from "../components/common/customModal";
 
 export default function Signup() {
   const [name, setName] = useState<string>("");
@@ -32,8 +32,7 @@ export default function Signup() {
       setEmail(session.user.email || "");
     }
 
-    const emailRegEx =
-    /^[a-zA-Z0-9+-\_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
+    const emailRegEx = /^[a-zA-Z0-9+-\_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
     const nameRegex = /^.{2,5}$/; // 문자열이며 2글자 이상에서 5글자이내
     const birthdayYearRegex = /^\d{2}$/; //숫자형태의 문자열이며 2글자여야한다.
 
