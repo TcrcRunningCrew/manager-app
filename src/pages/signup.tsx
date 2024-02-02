@@ -5,12 +5,9 @@ import { useSession } from "next-auth/react";
 import BackButton from "../components/common/backButton";
 import CustomModal from "../components/common/CustomModal";
 
-
 export default function Signup() {
-
   const [name, setName] = useState("");
   const [birthYear, setBirthYear] = useState("");
-  // const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const { data: session, status } = useSession();
@@ -19,23 +16,21 @@ export default function Signup() {
   const router = useRouter();
 
   useEffect(() => {
-    if (session && status === "authenticated") {
-      console.log("User Email from session:", session);
-      setName(session?.user.name);
-      setEmail(session?.user.email);
+    if (session && status === "authenticated" && session.user) {
+      setName(session.user.name || "");
+      setEmail(session.user.email || "");
     }
   }, [session, status]);
-
-
+  
 
   async function signUpUser() {
     // 사용자 가입 처리
-    
+
     // 여기에서 Supabase를 사용하여 추가 정보를 저장합니다.
     // 예를 들어, 사용자의 이름과 년생을 저장하는 코드를 추가할 수 있습니다.
     const { data, error } = await supabase
-     .from("user")
-      .insert([{ name, birthYear, email ,activation:true}])
+      .from("user")
+      .insert([{ name, birthYear, email, activation: true }])
       .single();
 
     if (error) {
@@ -50,7 +45,6 @@ export default function Signup() {
       setErrorMessage("회원가입 에러 발생, 운영진에게 문의하세요."); // 에러 메시지 설정
       return; // 함수 종료
     }
-    
 
     return data;
   }
@@ -59,13 +53,16 @@ export default function Signup() {
     /^[A-Za-z0-9]([-_.]?[A-Za-z0-9])*@[A-Za-z0-9]([-_.]?[A-Za-z0-9])*\.[A-Za-z]{10,11}$/i;
   const passwordRegEx = /^[A-Za-z0-9]{8,20}$/;
 
-
-  const handleBirthYear = (e) => {
+  const handleBirthYear = (e: any) => {
     setBirthYear(e.target.value);
   };
 
-  const handleName = (e) => {
+  const handleName = (e: any) => {
     setName(e.target.value);
+  };
+
+  const handleEmail = (e: any) => {
+    setEmail(e.target.value);
   };
 
   const closeModal = () => {
@@ -74,42 +71,12 @@ export default function Signup() {
 
   const handleSubmit = async () => {
 
-    const data = await signUpUser();
-
-
-    // 가입 성공 시, 사용자 정보를 'users_test' 테이블에 저장
-    if (data) {
-
-      const userData = data.user;
-      const user_id = userData.id;
-      const user_metadata = userData.user_metadata;
-
-      const userAge = user_metadata.age;
-      const created_at = userData.created_at;
-      const updated_at = userData.updated_at;
-
-      // console.log("user_id: ", user_id);
-      // console.log("username: ", username);
-      // console.log("userAge: ", userAge);
-      // console.log("created_at: ", created_at);
-      // console.log("updated_at: ", updated_at);
-
-      const { data: insertData, error: insertError } = await supabase
-        .from("users_test")
-        .insert([
-          {
-            user_id: user_id, // Supabase에서 생성된 사용자 ID
-            name: name,
-            age: userAge,
-            created_at: created_at, // 현재 시간을 ISO 문자열로
-            updated_at: updated_at, // 현재 시간을 ISO 문자열로
-            activation:"FALSE"
-          },
-        ]);
-
-      // 추가 정보 저장 시 에러 처리
-   
+    if(name && email && birthYear){
+      setModalIsOpen(true); // 모달 열기
+      setErrorMessage("이름, 이메일, 년생 확인 바랍니다"); // 에러 메시지 설정
     }
+
+    await signUpUser();
   };
 
   return (
@@ -159,7 +126,6 @@ export default function Signup() {
             />
           </div>
 
-
           <div className='flex flex-col p-1'>
             <label
               className='font-bold mb-2 text-left text-white'
@@ -176,7 +142,6 @@ export default function Signup() {
               placeholder='94'
             />
           </div>
-
 
           <div className='flex flex-col p-1'>
             <label

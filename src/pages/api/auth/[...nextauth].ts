@@ -21,6 +21,12 @@ export default NextAuth({
         .eq('email', user.email)
         .single();
 
+        console.log(data);
+        
+      if (data) {
+        console.log("회원가입자입니다.");
+      }
+
       if (error || !data) {
         return '/signup';
       }
