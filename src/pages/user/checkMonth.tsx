@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { supabase } from "@/utils/supabaseClient";
-import MonthNavigation from "@/components/common/monthNavigation";
-import Header from "@/components/common/header";
+import { supabase } from "../../utils/supabaseClient";
+import MonthNavigation from "../../components/common/monthNavigation";
+import Header from "../../components/common/header";
 import { useIsMounted } from "@toss/react";
 
 interface User {
