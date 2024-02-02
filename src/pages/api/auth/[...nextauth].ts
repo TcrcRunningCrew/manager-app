@@ -3,6 +3,8 @@ import KakaoProvider from "next-auth/providers/kakao";
 import { supabase } from "../../../utils/supabaseClient";
 
 export default NextAuth({
+  secret: process.env.NEXT_AUTH_SECRET,
+  debug: true,
   providers: [
     KakaoProvider({
       clientId: process.env.KAKAO_CLIENT_ID || "",
