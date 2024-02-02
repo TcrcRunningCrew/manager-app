@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "../../utils/supabaseClient";
-import MonthNavigation from "../../components/common/monthNavigation";
+import MonthNavigation from "../../components/common/MonthNavigation";
 import Header from "../../components/common/header";
 
 interface User {
