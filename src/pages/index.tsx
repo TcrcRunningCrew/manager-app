@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { signIn, useSession } from "next-auth/react";
-import CustomModal from "../components/common/customModal";
+import CustomModal from "@/components/common/customModal";
 
 export default function Home() {
   const router = useRouter();
