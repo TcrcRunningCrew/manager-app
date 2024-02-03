@@ -4,7 +4,7 @@ import { supabase } from "../utils/supabaseClient";
 import { useSession } from "next-auth/react";
 import BackButton from "../components/common/backButton";
 import CustomModal from "../components/common/CustomModal";
-import sendErrorToSlack from "./api/sendToSlack";
+
 
 
 export default function Signup() {
@@ -63,7 +63,7 @@ export default function Signup() {
     if (error) {
       setModalIsOpen(true);
       setErrorMessage("회원가입 에러 발생, 운영진에게 문의하세요.");
-      sendErrorToSlack(`"회원가입 에러 발생, 운영진에게 문의하세요."${error}`)
+
       return;
     }
 
