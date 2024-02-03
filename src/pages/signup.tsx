@@ -20,7 +20,6 @@ export default function Signup() {
   const [message, setMessage] = useState<string>("");
 
   const { data: session, status } = useSession();
-  console.log("signup session: ", session);
 
   const router = useRouter();
 

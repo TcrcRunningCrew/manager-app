@@ -37,7 +37,6 @@ export default NextAuth({
     },
     async session({ session, user }) {
       if (user) {
-        // 사용자 정보를 세션 객체에 추가합니다.
         session.user = { ...session.user, ...user };
       }
       return session;

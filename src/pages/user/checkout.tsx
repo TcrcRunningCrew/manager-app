@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import CustomModal from "../../components/common/CustomModal"
 import Header from "../../components/common/header";
-
+import { useSession } from "next-auth/react";
 import { supabase } from "../../utils/supabaseClient";
 import { useRouter } from "next/router";
-import { useSession } from "next-auth/react";
 
 export default function Checkout() {
   const router = useRouter();
@@ -87,18 +86,20 @@ export default function Checkout() {
       openModalWithMessage("이름을 확인해주세요");
       return;
     }
-
+    username
     const { data } = await supabase
-      .from("users")
+      .from("user")
       .select("*", { count: "exact" })
       .eq("name", username)
-      .eq("age", userAge);
+      .eq("email", userEmail);
+
 
     if (data && data.length > 0) {
       const { error } = await supabase.from("meeting").insert([
         {
           name: username,
           email: userEmail,
+          birthYear: userAge,
           meeting_date: participationDate,
           activation,
           location,
@@ -137,7 +138,7 @@ export default function Checkout() {
             />
           </div>
 
-          {/* <div className='flex flex-col p-1'>
+          <div className='flex flex-col p-1'>
             <label
               className='font-bold mb-2 text-left text-white'
               htmlFor='name'
@@ -152,7 +153,7 @@ export default function Checkout() {
               onChange={handleInputChange}
               placeholder='94'
             />
-          </div> */}
+          </div>
 
           <div className='flex flex-col p-1'>
             <label
