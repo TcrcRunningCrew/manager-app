@@ -4,6 +4,9 @@ import { supabase } from "../utils/supabaseClient";
 import { useSession } from "next-auth/react";
 import BackButton from "../components/common/backButton";
 import CustomModal from "../components/common/CustomModal";
+import sendErrorToSlack from "./api/sendToSlack";
+
+
 export default function Signup() {
   const [name, setName] = useState<string>("");
   const [birthYear, setBirthYear] = useState<string>("");
@@ -47,10 +50,6 @@ export default function Signup() {
       ? setBirthYearErrorMessage("")
       : setBirthYearErrorMessage("태어난년생 뒷자기 2글자");
 
-    if (nameCheck && birthdayYearCheck && emailCheck) {
-      setModalIsOpen(true);
-      setErrorMessage("이름, 이메일, 년생 확인 바랍니다"); // 에러 메시지 설정
-    }
   }, [session, status, name, email, birthYear]);
 
   async function signUpUser() {
@@ -59,14 +58,12 @@ export default function Signup() {
       .insert([{ name, birthYear, email, activation: true }])
       .single();
 
-    if (error) {
-      console.error(error);
-    }
 
     // 에러 처리
     if (error) {
       setModalIsOpen(true);
       setErrorMessage("회원가입 에러 발생, 운영진에게 문의하세요.");
+      sendErrorToSlack(`"회원가입 에러 발생, 운영진에게 문의하세요."${error}`)
       return;
     }
 
