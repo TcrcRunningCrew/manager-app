@@ -128,7 +128,7 @@ export default function Checkout() {
               이름
             </label>
             <input
-              className='font-bold form-input py-2 px-3 focus:outline-none border rounded-md opacity-100 text-white'
+              className='font-bold form-input py-2 px-3 focus:outline-none border rounded-md opacity-100 text-black'
               type='text'
               name='username'
               value={username}
