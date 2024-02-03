@@ -3,79 +3,66 @@ import { supabase } from "../../utils/supabaseClient";
 import MonthNavigation from "../../components/common/MonthNavigation";
 import Header from "../../components/common/header";
 import { useIsMounted } from "@toss/react";
-
 interface User {
   name: string;
-  age: number;
+  birthYear: number;
   meetingCount: number;
 }
 
 export default function Participation() {
   const isMounted = useIsMounted();
-
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
   const [users, setUsers] = useState<User[]>([]);
 
   const changeMonth = (increment: number) => {
-    const newMonth = new Date(currentMonth);
-    newMonth.setMonth(newMonth.getMonth() + increment);
-    setCurrentMonth(newMonth);
+    setCurrentMonth((prevMonth) => {
+      const newMonth = new Date(prevMonth);
+      newMonth.setMonth(newMonth.getMonth() + increment);
+      return newMonth;
+    });
   };
 
   useEffect(() => {
-    if (!isMounted) return;
-    let year = currentMonth.getFullYear();
-    let month = currentMonth.getMonth() + 1;
-
-    const dateFormat = (date: Date) => {
-      let dateFormat2 =
-        date.getFullYear() +
-        "-" +
-        (date.getMonth() + 1 < 9
-          ? "0" + (date.getMonth() + 1)
-          : date.getMonth() + 1) +
-        "-" +
-        (date.getDate() < 9 ? "0" + date.getDate() : date.getDate());
-      return dateFormat2;
-    };
-
-    let startday = dateFormat(new Date(year, month - 1, 1));
-    let endday = dateFormat(new Date(year, month, 0));
     const fetchUsersAndMeetings = async () => {
+      const startday = currentMonth.toISOString().substring(0, 7) + "-01"; // 시작일 설정 간소화
+      const endday = new Date(
+        currentMonth.getFullYear(),
+        currentMonth.getMonth() + 1,
+        0
+      )
+        .toISOString()
+        .split("T")[0]; // 종료일 설정 간소화
+
       try {
         const { data: usersAndMeetings, error } = await supabase
-          .from("user")
-          .select("name, age, meetings(*)")
-          .eq("activation", true)
-          .gte("meetings.meeting_date", startday)
-          .lte("meetings.meeting_date", endday);
+          .from("meeting")
+          .select("name, birthYear")
+          .gte("meeting_date", startday)
+          .lte("meeting_date", endday);
 
-        if (error) {
-          console.error(error.message);
-          return;
-        }
+        if (error) throw new Error(error.message);
 
-        if (!usersAndMeetings || !usersAndMeetings.length) {
-          console.error("No active users found.");
-          return;
-        }
-
-        // Define the accumulator type explicitly
-        const filteredUsers = usersAndMeetings
-          .reduce<
-            { name: any; age: any; meetings: any[]; meetingCount: number }[]
-          >((acc, user) => {
-            const meetingCount = user.meetings ? user.meetings.length : 0;
-            if (meetingCount > 0) {
-              acc.push({ ...user, meetingCount });
+        // 사용자별 참여 횟수 계산 로직에서 반환되는 객체 타입을 User 타입으로 명시적 변환
+        const userMeetingCounts = usersAndMeetings.reduce(
+          (acc: Record<string, User>, { name, birthYear }) => {
+            const key = `${name}-${birthYear}`;
+            if (!acc[key]) {
+              acc[key] = { name, birthYear, meetingCount: 0 };
             }
+            acc[key].meetingCount += 1;
             return acc;
-          }, [])
-          .sort((a, b) => b.meetingCount - a.meetingCount);
+          },
+          {}
+        );
 
-        setUsers(filteredUsers);
+      
+        const sortedUsersByMeetingCount = Object.values(userMeetingCounts).sort(
+          (a, b) => b.meetingCount - a.meetingCount
+        ) as User[];
+
+        setUsers(sortedUsersByMeetingCount);
       } catch (error) {
-        console.error(error);
+        console.error("Fetching or processing error:", error);
       }
     };
 
@@ -108,9 +95,11 @@ export default function Participation() {
                   className='border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted'
                   key={index}
                 >
-                  <td className='p-4 align-middle'>{index + 1}</td>
-                  <td className='p-4 align-middle'>{`${user.name}(${user.age})`}</td>
-                  <td className='p-4 align-middle'>{user.meetingCount}</td>
+                  <td className='p-4 text-center align-middle'>{index + 1}</td>
+                  <td className='p-4 text-center align-middle'>{`${user.name}(${user.birthYear})`}</td>
+                  <td className='p-4 text-center align-middle'>
+                    {user.meetingCount}
+                  </td>
                 </tr>
               ))}
             </tbody>
