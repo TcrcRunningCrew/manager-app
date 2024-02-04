@@ -7,7 +7,7 @@ import {BellIcon, UserIcon} from "../components/icons";
 
 export default function Home() {
   const router = useRouter();
-  const {data: session} = useSession();
+  const {data: session, status} = useSession();
 
   const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
@@ -28,6 +28,7 @@ export default function Home() {
     setMessage(message);
   };
 
+
   const closeSuccessModal = async () => {
     setSuccessModalIsOpen(false);
     signIn("kakao");
@@ -41,12 +42,12 @@ export default function Home() {
 
   useEffect(() => {
     // 유저이름과 이메일 없는 케이스
-    if (!session?.user?.name || !session.user.email){
+    if (status === 'authenticated' && session.user && !session.user.name){
       // router.push('/signup')
       return;
     }
 
-  }, [router, session]);
+  }, [router, session, status]);
 
   return (
     <div
