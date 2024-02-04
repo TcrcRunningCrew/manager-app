@@ -1,11 +1,10 @@
-import { signIn } from "next-auth/react";
 import NextAuth from "next-auth";
 import KakaoProvider from "next-auth/providers/kakao";
-import { supabase } from "../../../utils/supabaseClient";
+import {findUserByAccountId} from "@/services/user.service";
 
 export default NextAuth({
   secret: process.env.NEXT_AUTH_SECRET,
-  debug: true,
+  debug: false,
   providers: [
     KakaoProvider({
       clientId: process.env.KAKAO_CLIENT_ID || "",
@@ -20,36 +19,45 @@ export default NextAuth({
     updateAge: 24 * 60 * 60, // 24시간
   },
   callbacks: {
-    async signIn({ user, account, profile, email, credentials }) {
-      console.log("user: ", user);
-      console.log("user.email: ", user.email);
-   
-      
-      const { data, error } = await supabase
-        .from("user")
-        .select("*")
-        .eq("email", user.email)
-        .eq("name", user.name);
-
-      console.log("error.email: ", error);
-      console.log("data.length: ", data?.length);
-
-
-      // 에러가 없고, 데이터에 값이 있을 경우의 로직
-      if (!error && data.length > 0) {
-        // 데이터가 존재하므로 여기에 원하는 처리를 수행합니다.
-        // 예: 사용자 정보를 사용하는 로직
-        return true;
-      } else {
-        // 에러가 있거나 데이터가 없는 경우
-        return "/signup";
+    async signIn(params) {
+      // 무조건 true 로 넘겨준다.
+      const res = await findUserByAccountId(params.account?.userId ?? '',)
+      if (res && res.length > 0 && res[0]) {
+        // 이미 잇는 유저일경우 처음부터 이름과 이메일은 심어준다
+        params.user.email = res[0].email ?? '';
+        params.user.name = res[0].name ?? '';
       }
+
+      return true
     },
-    async session({ session, user }) {
-      if (user) {
-        session.user = { ...session.user, ...user };
+    async session({session, user, trigger, newSession, token}) {
+      // sign up 페이지에서 업데이트 해줄때 해당 세션을 업데이트해줄수잇어요
+      if (trigger === 'update' && newSession.name && newSession.email && session.user) {
+        session.user.name = newSession.name;
+        session.user.email = newSession.email;
       }
+
+      // 세션 유저 프로필 심기
+      if (session.user) {
+        session.user.id = token.sub ?? '';
+      }
+
       return session;
     },
   },
 });
+
+declare module "next-auth" {
+  /**
+   * Returned by `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
+   */
+  interface Session {
+    user: {
+      name: string;
+      email: string;
+      id: string
+    }
+  }
+}
+
+
