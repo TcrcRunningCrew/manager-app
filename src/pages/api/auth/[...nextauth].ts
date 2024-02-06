@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import KakaoProvider from "next-auth/providers/kakao";
-import {findUserByAccountId} from "@/services/user.service";
+import { findUserByAccountId } from "@/services/user.service";
 
 export default NextAuth({
   secret: process.env.NEXT_AUTH_SECRET,
@@ -21,33 +21,38 @@ export default NextAuth({
   callbacks: {
     async signIn(params) {
       // 무조건 true 로 넘겨준다.
-      const res = await findUserByAccountId(params.account?.providerAccountId ?? '',)
+      const res = await findUserByAccountId(
+        params.account?.providerAccountId ?? ""
+      );
       if (res && res.length > 0 && res[0]) {
         // 이미 잇는 유저일경우 처음부터 이름과 이메일은 심어준다
-        params.user.email = res[0].email ?? '';
-        params.user.name = res[0].name ?? '';
+        params.user.email = res[0].email ?? "";
+        params.user.name = res[0].name ?? "";
       }
 
-      return true
+      return true;
     },
-    async session({session, user, trigger, newSession, token}) {
+    async session({ session, user, trigger, newSession, token }) {
       // 세션 유저 프로필 심기
       if (session.user) {
-        session.user.id = token.sub ?? '';
+        session.user.id = token.sub ?? "";
       }
-      if (token.name && token.email && session.user){
-        session.user.name = token.name
-        session.user.email = token.email
+      if (token.name && token.email && session.user) {
+        session.user.name = token.name;
+        session.user.email = token.email;
       }
       return session;
     },
-    async jwt({session, token, trigger, user, account, profile}) {
-      if (trigger === 'update') {
+    async jwt({ session, token, trigger, user, account, profile }) {
+      if (trigger === "update") {
         token.email = session.email;
         token.name = session.name;
       }
-      return token
-    }
+      return token;
+    },
+    async redirect({ url, baseUrl }) {
+      return '/signup';
+    },
   },
 });
 
@@ -59,9 +64,7 @@ declare module "next-auth" {
     user: {
       name: string;
       email: string;
-      id: string
-    }
+      id: string;
+    };
   }
 }
-
-
