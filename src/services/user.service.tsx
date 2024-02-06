@@ -1,37 +1,60 @@
-import {supabase} from "@/utils/supabaseClient";
+import { supabase } from "@/utils/supabaseClient";
 
 export const findUserByAccountId = async (accountId: string) => {
   try {
-    const  res = await supabase.from('user').select('*').eq("accountId", accountId)
+    const res = await supabase
+      .from("user")
+      .select("*")
+      .eq("accountId", accountId);
     // if (res.error) return Promise.reject(res.error)
-    return Promise.resolve(res.data)
-  }catch (e: unknown) {
-    return Promise.reject(e)
+    return Promise.resolve(res.data);
+  } catch (e: unknown) {
+    return Promise.reject(e);
   }
-
-}
-
+};
 
 export const findUser = async (email: string, name: string) => {
-  const {data, error} = await supabase
+  const { data, error } = await supabase
     .from("user")
     .select("*")
     .eq("email", email)
     .eq("name", name);
 
-  if (error) return Promise.reject(error)
-  return  Promise.resolve(data)
-}
+  if (error) return Promise.reject(error);
+  return Promise.resolve(data);
+};
 
-export const signup = async (user: { name: string, birthYear: string, email: string, accountId: string}) => {
-  const { name, birthYear, email, accountId} = user
+export const signup = async (user: {
+  name: string;
+  birthYear: string;
+  email: string;
+  accountId: string;
+}) => {
+  const { name, birthYear, email, accountId } = user;
 
-  const { error, data} = await supabase
+  const { error, data } = await supabase
     .from("user")
-    .insert([{ name, birthYear, email, accountId, activation: true  }])
+    .insert([{ name, birthYear, email, accountId, activation: true }])
     .single();
 
-  if (error) return Promise.reject(error)
-  return  Promise.resolve(data)
+  if (error) return Promise.reject(error);
+  return Promise.resolve(data);
+};
 
-}
+export const updateuUserInfo = async (user: {
+  name: string;
+  birthYear: string;
+  email: string;
+  accountId: string;
+}) => {
+  const { name, birthYear, email, accountId } = user;
+
+  const { error, data } = await supabase
+    .from("user")
+    .update({ birthYear: birthYear })
+    .eq("accountId", accountId)
+    .eq("email", email);
+
+  if (error) return Promise.reject(error);
+  return Promise.resolve(data);
+};
