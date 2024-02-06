@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { supabase } from "@/utils/supabaseClient";
 import { useSession, signOut } from "next-auth/react";
 import BackButton from "../components/common/backButton";
 import CustomModal from "../components/common/CustomModal";
 import { useForm } from "react-hook-form";
-import { signup,updateuUserInfo } from "@/services/user.service";
+import { signup, findUserByAccountId ,updateuUserInfo} from "@/services/user.service";
+import { ExtendedSession } from "../components/common/ExtendedSession";
 
 export default function Signup() {
   const router = useRouter();
@@ -19,7 +19,7 @@ export default function Signup() {
     },
   });
 
-  const { data: session, update, status } = useSession();
+  const { data: session, update, status } = useSession(); // useSession 훅을 사용할 때 확장된 세션 인터페이스를 제네릭으로 지정합니다.
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [successModalIsOpen, setSuccessModalIsOpen] = useState<boolean>(false);
@@ -27,8 +27,13 @@ export default function Signup() {
 
   console.log("==signupPatge==session: ", session);
 
- useEffect(() => {
-    if (status === "authenticated" && session.user.name && session.user.email) {
+  useEffect(() => {
+    if (
+      status === "authenticated" &&
+      session.user &&
+      session.user.name &&
+      session.user.email
+    ) {
       setValue("name", session.user.name);
       setValue("email", session.user.email);
     }
@@ -38,22 +43,36 @@ export default function Signup() {
     const { name, birthYear, email } = getValues();
 
     try {
+      if (
+        status === "authenticated" &&
+        session.user &&
+        session.user.name &&
+        (session as ExtendedSession).user?.id
+      ) {
+        const accountId = (session as ExtendedSession).user?.id ||"";
+        const res = await findUserByAccountId(accountId?? "");
+        if (res && res.length > 0 && res[0]) {
+          await updateuUserInfo({
+            name, birthYear, email, accountId
+          });
+        } else {
+          const res = await signup({
+            name,
+            birthYear,
+            email,
+            accountId,
+          });
+        }
+      }
 
-      const res = await signup({
-        name, birthYear, email, accountId: session?.user.id ?? ''
-      })
-      // const res = await updateuUserInfo({
-      //   name,
-      //   birthYear,
-      //   email,
-      //   accountId: session?.user.id ?? "",
-      // });
       await update({
-        name, email, birthYear
-      })
+        name,
+        email,
+        birthYear,
+      });
+
       openSuccessModalWithMessage("회원가입 완료");
     } catch (e) {
-      
       setModalIsOpen(true);
       setErrorMessage("회원가입 에러 발생, 운영진에게 문의하세요.");
       return;

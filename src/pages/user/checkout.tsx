@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import CustomModal from "../../components/common/CustomModal"
+import CustomModal from "../../components/common/CustomModal";
 import Header from "../../components/common/header";
 import { useSession } from "next-auth/react";
 import { supabase } from "../../utils/supabaseClient";
 import { useRouter } from "next/router";
+import { ExtendedSession } from "../../components/common/ExtendedSession";
 
 export default function Checkout() {
   const router = useRouter();
@@ -27,6 +28,7 @@ export default function Checkout() {
     if (session && status === "authenticated" && session.user) {
       setUsername(session.user.name || "");
       setEmail(session.user.email || "");
+      setUserAge((session as ExtendedSession).user?.birthYear || "");
       console.log("session: ", session);
     }
 
@@ -86,13 +88,12 @@ export default function Checkout() {
       openModalWithMessage("이름을 확인해주세요");
       return;
     }
-    username
+    username;
     const { data } = await supabase
       .from("user")
       .select("*", { count: "exact" })
       .eq("name", username)
       .eq("email", userEmail);
-
 
     if (data && data.length > 0) {
       const { error } = await supabase.from("meeting").insert([
@@ -146,12 +147,13 @@ export default function Checkout() {
               년생
             </label>
             <input
-              className='form-input py-2 px-3 focus:outline-none  border rounded-md'
+              className='font-bold form-input py-2 px-3 focus:outline-none  border  rounded-md opacity-100 text-black'
               type='number'
               name='userAge'
               value={userAge}
               onChange={handleInputChange}
               placeholder='94'
+              disabled
             />
           </div>
 
