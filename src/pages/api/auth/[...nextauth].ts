@@ -20,13 +20,15 @@ export default NextAuth({
   },
   callbacks: {
     async signIn(params) {
-      // 무조건 true 로 넘겨준다.
+      params.user.birthYear = 0;
       const res = await findUserByAccountId(params.account?.providerAccountId ?? '',)
       if (res && res.length > 0 && res[0]) {
         // 이미 잇는 유저일경우 처음부터 이름과 이메일은 심어준다
         params.user.email = res[0].email ?? '';
         params.user.name = res[0].name ?? '';
+        params.user.birthYear = Number(res[0].birthYear) ?? 0;
       }
+
 
       return true
     },
@@ -35,21 +37,31 @@ export default NextAuth({
       if (session.user) {
         session.user.id = token.sub ?? '';
       }
-      if (token.name && token.email && session.user){
+      if (token.birthYear && token.name && token.email && session.user){
         session.user.name = token.name
         session.user.email = token.email
+        session.user.birthYear = token.birthYear as number ?? 0
       }
+
       return session;
     },
     async jwt({session, token, trigger, user, account, profile}) {
+      if (trigger === 'signIn' && user.birthYear){
+        token.birthYear = user.birthYear;
+        // 어거지로 넣어준거다
+      }
+
+
       if (trigger === 'update') {
         token.email = session.email;
         token.name = session.name;
+        token.birthYear = session.birthYear;
       }
       return token
     }
   },
 });
+
 
 declare module "next-auth" {
   /**
@@ -59,8 +71,12 @@ declare module "next-auth" {
     user: {
       name: string;
       email: string;
-      id: string
+      id: string;
+      birthYear: number
     }
+  }
+  interface User {
+    birthYear: number
   }
 }
 

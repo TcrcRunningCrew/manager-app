@@ -42,8 +42,8 @@ export default function Home() {
 
   useEffect(() => {
     // 유저이름과 이메일 없는 케이스
-    if (status === 'authenticated' && session.user && !session.user.name){
-      // router.push('/signup')
+    if (status === 'authenticated' && session.user && (!session.user.name || !session.user.birthYear)){
+      router.push('/signup')
       return;
     }
 
@@ -120,3 +120,20 @@ const Header = () => {
 }
 
 
+
+declare module "next-auth" {
+  /**
+   * Returned by `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
+   */
+  interface Session {
+    user: {
+      name: string;
+      email: string;
+      id: string;
+      birthYear: number
+    }
+  }
+  interface User {
+    birthYear: number
+  }
+}
