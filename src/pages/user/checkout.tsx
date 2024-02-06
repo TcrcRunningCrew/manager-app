@@ -4,7 +4,7 @@ import Header from "../../components/common/header";
 import { useSession } from "next-auth/react";
 import { supabase } from "../../utils/supabaseClient";
 import { useRouter } from "next/router";
-import { ExtendedSession } from "../../components/common/ExtendedSession";
+import { ExtendedSession } from "../../components/common/extendedSession";
 
 export default function Checkout() {
   const router = useRouter();
