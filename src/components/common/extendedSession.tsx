@@ -1,9 +1,3 @@
-// import { DefaultSession } from "next-auth/react";
-
-import { DefaultSession } from "next-auth";
-
-
-
 export interface ExtendedSession {
   user?: {
     name?: string ;

@@ -5,7 +5,7 @@ import BackButton from "../components/common/backButton";
 import CustomModal from "../components/common/CustomModal";
 import { useForm } from "react-hook-form";
 import { signup, findUserByAccountId ,updateuUserInfo} from "@/services/user.service";
-import { ExtendedSession } from "../components/common/ExtendedSession";
+import { ExtendedSession } from "../components/common/extendedSession";
 
 export default function Signup() {
   const router = useRouter();
