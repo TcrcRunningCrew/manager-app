@@ -1,46 +1,59 @@
-import {useEffect, useState} from "react";
-import {useRouter} from "next/router";
-import {supabase} from "@/utils/supabaseClient";
-import {useSession, signOut} from "next-auth/react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import { supabase } from "@/utils/supabaseClient";
+import { useSession, signOut } from "next-auth/react";
 import BackButton from "../components/common/backButton";
 import CustomModal from "../components/common/CustomModal";
-import {useForm} from "react-hook-form";
-import {signup} from "@/services/user.service";
-
+import { useForm } from "react-hook-form";
+import { signup,updateuUserInfo } from "@/services/user.service";
 
 export default function Signup() {
-  const router = useRouter()
-  const {register, formState, handleSubmit, getValues} = useForm({
+  const router = useRouter();
+  const { register, setValue, formState, handleSubmit, getValues } = useForm({
     shouldFocusError: true,
-    mode: 'onBlur',
+    mode: "onBlur",
     defaultValues: {
-      name: '',
-      birthYear: '',
-      email: ''
-    }
-  })
+      name: "",
+      birthYear: "",
+      email: "",
+    },
+  });
 
-  const {data: session, update} = useSession();
+  const { data: session, update, status } = useSession();
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [successModalIsOpen, setSuccessModalIsOpen] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
 
-  console.log({session})
+  console.log("==signupPatge==session: ", session);
+
+ useEffect(() => {
+    if (status === "authenticated" && session.user.name && session.user.email) {
+      setValue("name", session.user.name);
+      setValue("email", session.user.email);
+    }
+  }, [session, setValue, status]);
 
   async function signUpUser() {
-    const {name, birthYear, email} = getValues()
-
+    const { name, birthYear, email } = getValues();
 
     try {
+
       const res = await signup({
         name, birthYear, email, accountId: session?.user.id ?? ''
       })
+      // const res = await updateuUserInfo({
+      //   name,
+      //   birthYear,
+      //   email,
+      //   accountId: session?.user.id ?? "",
+      // });
       await update({
         name, email, birthYear
       })
       openSuccessModalWithMessage("회원가입 완료");
     } catch (e) {
+      
       setModalIsOpen(true);
       setErrorMessage("회원가입 에러 발생, 운영진에게 문의하세요.");
       return;
@@ -56,32 +69,31 @@ export default function Signup() {
     router.push("/");
   };
 
-
   const openSuccessModalWithMessage = (message: string) => {
     setSuccessModalIsOpen(true);
     setMessage(message);
   };
 
-
   return (
     <div className='dark flex flex-col justify-between  h-screen bg-gray-800 text-black'>
-      <GnbHeader/>
+      <GnbHeader />
       <main className='flex-1 overflow-y-auto p-3 bg-gray-800'>
-        <div
-          className='rounded-lg overflow-hidden bg-gray-700 p-4 pt-1 mx-auto w-full sm:w-3/4 md:w-3/4 lg:w-2/3 xl:w-1/2'>
+        <div className='rounded-lg overflow-hidden bg-gray-700 p-4 pt-1 mx-auto w-full sm:w-3/4 md:w-3/4 lg:w-2/3 xl:w-1/2'>
           <div className='flex flex-col p-1'>
             <label className='font-bold mb-2 text-left text-white'>이름</label>
             <input
               className='form-input py-2 px-3 focus:outline-none  border rounded-md'
               type='text'
-              {...register('name', {
+              {...register("name", {
                 required: true,
                 maxLength: 5,
                 minLength: 2,
               })}
               placeholder='홍길동'
             />
-            <p className='text-white'>{formState.errors.name ? '이름을 2~5 글자까지 입력해주세요.' : ''}</p>
+            <p className='text-white'>
+              {formState.errors.name ? "이름을 2~5 글자까지 입력해주세요." : ""}
+            </p>
           </div>
 
           <div className='flex flex-col p-1'>
@@ -94,12 +106,17 @@ export default function Signup() {
             <input
               className='form-input py-2 px-3 focus:outline-none  border rounded-md'
               type='number'
-              {...register('birthYear', {
-                pattern: /^\d{2}$/
+              {...register("birthYear", {
+                required: true,
+                pattern: /^\d{2}$/,
               })}
               placeholder='94'
             />
-            <p className='text-white'>{formState.errors.birthYear ? '태어난연도의 뒤 2글자만 입력해주세요 ex) 1992년생: 92' : ''}</p>
+            <p className='text-white'>
+              {formState.errors.birthYear
+                ? "태어난연도의 뒤 2글자만 입력해주세요 ex) 1992년생: 92"
+                : ""}
+            </p>
           </div>
 
           <div className='flex flex-col p-1'>
@@ -112,19 +129,23 @@ export default function Signup() {
             <input
               className='form-input py-2 px-3 focus:outline-none  border rounded-md'
               type='text'
-              {...register('email', {
+              {...register("email", {
                 required: true,
                 pattern: /^[a-zA-Z0-9+-\_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/,
               })}
               placeholder='abc@gmail.com'
             />
-            <p className='text-white'>{formState.errors.email ? '이메일형식으로 입력해주세요' : ''}</p>
+            <p className='text-white'>
+              {formState.errors.email ? "이메일형식으로 입력해주세요" : ""}
+            </p>
           </div>
 
           <div className='flex flex-col p-1'>
             <label></label>
-            <button onClick={handleSubmit(signUpUser)}
-                    className='text-white bg-green-500 border-0 py-3 px-8 focus:outline-none hover:bg-green-600 rounded text-lg'>
+            <button
+              onClick={handleSubmit(signUpUser)}
+              className='text-white bg-green-500 border-0 py-3 px-8 focus:outline-none hover:bg-green-600 rounded text-lg'
+            >
               회원가입
             </button>
           </div>
@@ -144,17 +165,16 @@ export default function Signup() {
   );
 }
 
-
 const GnbHeader = () => {
   return (
     <header className='flex items-center justify-between px-6 py-4 bg-green-500 text-white'>
       <h1 className='text-1xl font-bold text-white-900'>
         {" "}
         <span>T C R C</span>
-        <br/>
+        <br />
         <span>회 원 가 입</span>
       </h1>
-      <BackButton/>
+      <BackButton />
     </header>
-  )
-}
+  );
+};
