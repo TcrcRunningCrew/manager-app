@@ -37,7 +37,7 @@ export default function Signup() {
         name, birthYear, email, accountId: session?.user.id ?? ''
       })
       await update({
-        name, email
+        name, email, birthYear
       })
       openSuccessModalWithMessage("회원가입 완료");
     } catch (e) {
