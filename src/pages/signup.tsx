@@ -49,10 +49,8 @@ export default function Signup() {
       //   accountId: session?.user.id ?? "",
       // });
       await update({
-        name,
-        email,
-        birthYear,
-      });
+        name, email, birthYear
+      })
       openSuccessModalWithMessage("회원가입 완료");
     } catch (e) {
       
