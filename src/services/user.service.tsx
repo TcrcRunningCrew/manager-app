@@ -66,7 +66,7 @@ export const insertMeeting = async (
   name: string,
   email: string,
   birthYear: string,
-  meeting_date: Date,
+  meeting_date: string,
   activation: string,
   location: string,
   founder: boolean
