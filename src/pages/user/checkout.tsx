@@ -105,12 +105,13 @@ export default function Checkout() {
       // console.log("====checkout3====location: ", location);
       // console.log("====checkout3====isFounder: ", isFounder);
 
+      console.log(' getValues("participationDate"): ', getValues("participationDate"));
       const result = await insertMeeting(
         userId,
         username,
         userEmail,
         userAge,
-        strDateConvert(participationDate),
+        getValues("participationDate"),
         getValues("activation"),
         getValues("location"),
         getValues("isFounder")
