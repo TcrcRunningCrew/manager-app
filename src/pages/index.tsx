@@ -4,6 +4,8 @@ import {signIn, signOut, useSession} from "next-auth/react";
 import CustomModal from "../components/common/CustomModal";
 import React from "react";
 import {BellIcon, UserIcon} from "../components/icons";
+import { MdLogout } from "react-icons/md";
+
 
 export default function Home() {
   const router = useRouter();
@@ -68,16 +70,16 @@ export default function Home() {
             <button
               className='font-bold p-4 bg-blue-500 text-white text-center rounded-md hover:bg-blue-700 transform hover:scale-105 transition-transform duration-200 shadow-lg'
               onClick={() => loginChecked("checkMonth")}>
-              참여랭킹
+              전체 참여랭킹
             </button>
             <button
               className='font-bold p-4 bg-blue-500 text-white text-center rounded-md hover:bg-blue-700 transform hover:scale-105 transition-transform duration-200 shadow-lg'
               onClick={() => loginChecked("founder")}
             >
-              개설랭킹
+              전체 개설랭킹
             </button>
             <button
-              className='font-bold p-4 bg-green-500 text-white text-center rounded-md hover:bg-green-700 transform hover:scale-105 transition-transform duration-200 shadow-lg'
+              className='font-bold p-4 bg-green-600 text-white text-center rounded-md hover:bg-green-700 transform hover:scale-105 transition-transform duration-200 shadow-lg'
               onClick={() => loginChecked("checkout")}
             >
               출석체크
@@ -107,12 +109,12 @@ const Header = () => {
       <div className='text-3xl font-bold'>TCRC 러닝크루</div>
       <div className='flex space-x-2'>
         <button className='bg-blue-500 text-white rounded-full p-2 hover:bg-blue-600 transition-colors duration-200'>
-          <BellIcon className=''/>
+          <UserIcon className=''/>
         </button>
         <button
           onClick={() => signOut()}
-          className='bg-green-600 text-white rounded-full p-2 hover:bg-green-600 transition-colors duration-200'>
-          <UserIcon className='' />
+          className='bg-green-500 text-white rounded-full p-2 hover:bg-green-600 transition-colors duration-200'>
+          <MdLogout size={25} color="white"/>
         </button>
       </div>
     </header>
