@@ -1,4 +1,5 @@
-
+import React from "react";
+import { MdLogout } from "react-icons/md";
 
 export function BellIcon(props: any) {
   return (
@@ -38,4 +39,7 @@ export function UserIcon(props: any) {
       <circle cx='12' cy='7' r='4' />
     </svg>
   );
+}
+export function LogoutButton(props: any) {
+  return <MdLogout size={25} color='white' />;
 }

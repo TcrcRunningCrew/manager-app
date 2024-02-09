@@ -3,11 +3,15 @@ import {useEffect, useState} from "react";
 import {signIn, signOut, useSession} from "next-auth/react";
 import CustomModal from "../components/common/CustomModal";
 import React from "react";
-import {BellIcon, UserIcon} from "../components/icons";
-import { MdLogout } from "react-icons/md";
+import { UserIcon, LogoutButton} from "../components/icons";
+import {alarmMeetingDatabaseChange} from "../services/check.service";
+
 
 
 export default function Home() {
+
+  alarmMeetingDatabaseChange();
+
   const router = useRouter();
   const {data: session, status} = useSession();
 
@@ -43,6 +47,7 @@ export default function Home() {
   };
 
   useEffect(() => {
+   
     // 유저이름과 이메일 없는 케이스
     if (status === 'authenticated' && session.user && (!session.user.name || !session.user.birthYear)){
       router.push('/signup')
@@ -114,7 +119,7 @@ const Header = () => {
         <button
           onClick={() => signOut()}
           className='bg-green-500 text-white rounded-full p-2 hover:bg-green-600 transition-colors duration-200'>
-          <MdLogout size={25} color="white"/>
+          <LogoutButton className=''/>
         </button>
       </div>
     </header>
