@@ -8,7 +8,7 @@ export const alarmMeetingDatabaseChange = () => {
     .on(
       "postgres_changes",
       { event: "INSERT", schema: "public", table: "meeting" },
-      (payload) => {
+      async (payload) => {
         console.log("payload: ", payload);
         const meeting_date = payload?.new.meeting_date;
         const name = payload?.new.name;
@@ -17,7 +17,7 @@ export const alarmMeetingDatabaseChange = () => {
         const activation = payload?.new.activation;
         const location = payload?.new.location;
         const founder = payload?.new.founder;
-        sendSlackMessage(
+        await sendSlackMessage(
           `출석/${meeting_date}/${name}/${birthYear}/${email}/activation: ${activation}/location:${location}/founder: ${founder}`
         );
       }
@@ -27,17 +27,17 @@ export const alarmMeetingDatabaseChange = () => {
 
 
 //모임 등록시 slack alram 
-export const alarmUserDatabaseChange = () => {
+export const alarmUserDatabaseChange = async() => {
    supabase.channel('custom-insert-channel')
   .on(
     'postgres_changes',
     { event: 'INSERT', schema: 'public', table: 'user' },
-    (payload) => {
+    async (payload) => {
       console.log("=====payload: ", payload);
       const name = payload?.new.name;
       const birthYear = payload?.new.birthYear;
       const email = payload?.new.email;
-      sendSlackMessage(
+      await  sendSlackMessage(
         `회원등록/${name}/${birthYear}/${email}`
       );
     }
