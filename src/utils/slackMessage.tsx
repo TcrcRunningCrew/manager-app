@@ -1,5 +1,3 @@
-import fetch from 'node-fetch';
-
 
 const slackWebhookUrl = process.env.NEXT_SLACK_WEB_HOOK_URL || "";
 
