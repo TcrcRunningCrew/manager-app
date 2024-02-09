@@ -16,6 +16,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-auth.d.ts","next-env.d.ts", "**/*.ts", "src/pages/welcome.jsx", "src/pages/api/auth/custom-credentials.js", "src/pages/signup.tsx", "src/pages/api/auth/[...nextauth].ts", "src/pages/signup3.tsx", "src/pages/signup.tsx"],
+  "include": ["next-auth.d.ts","next-env.d.ts", "**/*.ts", "src/pages/welcome.jsx", "src/pages/api/auth/custom-credentials.js", "src/pages/signup.tsx", "src/pages/api/auth/[...nextauth].ts", "src/pages/signup3.tsx", "src/pages/signup.tsx", "src/pages/api/slack.js"],
   "exclude": ["node_modules"]
 }
