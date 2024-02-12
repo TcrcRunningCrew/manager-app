@@ -4,14 +4,15 @@ import {signIn, signOut, useSession} from "next-auth/react";
 import CustomModal from "../components/common/CustomModal";
 import React from "react";
 import { UserIcon, LogoutButton} from "../components/icons";
-import {alarmMeetingDatabaseChange} from "../services/check.service";
+import {alarmMeetingDatabaseChange,alarmUserDatabaseChange} from "../services/check.service";
 
 
 
 export default function Home() {
 
   alarmMeetingDatabaseChange();
-
+  alarmUserDatabaseChange();
+  
   const router = useRouter();
   const {data: session, status} = useSession();
 
