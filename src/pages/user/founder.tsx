@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { supabase } from "../../utils/supabaseClient";
 import MonthNavigation from "../../components/common/MonthNavigation";
 import Header from "../../components/common/header";
-
+import MyRanking from "../../components/common/myRanking";
+import { useSession } from "next-auth/react";
 interface User {
   name: string;
   birthYear: number; // `age`를 `birthYear`로 변경, API 응답에 맞추어 조정
@@ -10,8 +11,11 @@ interface User {
 }
 
 export default function Founder() {
+  const { data: session, status } = useSession();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [users, setUsers] = useState<User[]>([]);
+  const [username, setUsername] = useState<string | undefined>();
+  const [userRanking, setUserRanking] = useState<number | undefined>();
 
   const changeMonth = (increment: number) => {
     const newMonth = new Date(currentMonth);
@@ -72,10 +76,23 @@ export default function Founder() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentMonth]);
 
+  useEffect(() => {
+    if (
+      status === "authenticated" &&
+      session?.user?.name &&
+      session?.user?.email
+    ) {
+      setUsername(session.user.name);
+      const user = users.find((user) => user.name === username);
+      setUserRanking(user?.meetingCount);
+    }
+  }, [status, session, users, username]);
+
   return (
     <div className="dark flex flex-col justify-between h-screen bg-gray-800 text-white">
       <Header bgColor={"bg-blue-500"} text1={"T C R C"} text2={"개설랭킹"} />
       <MonthNavigation currentMonth={currentMonth} changeMonth={changeMonth} />
+      <MyRanking userRanking={userRanking} />
       <main className="flex-1 overflow-y-auto p-3 bg-gray-800">
         <div className="rounded-lg overflow-hidden bg-gray-700 p-4 pt-1 mx-auto w-full sm:w-3/4 md:w-3/4 lg:w-2/3 xl:w-1/2">
           <table className="w-full caption-bottom text-sm">
