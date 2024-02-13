@@ -2,17 +2,20 @@ import React, { useState, useEffect } from "react";
 import { supabase } from "../../utils/supabaseClient";
 import MonthNavigation from "../../components/common/MonthNavigation";
 import Header from "../../components/common/header";
-import { useIsMounted } from "@toss/react";
+import MyRanking from "../../components/common/myRanking";
+import { useSession } from "next-auth/react";
+
 interface User {
   name: string;
   birthYear: number;
   meetingCount: number;
 }
-
 export default function Participation() {
-  const isMounted = useIsMounted();
+  const { data: session, status } = useSession();
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
   const [users, setUsers] = useState<User[]>([]);
+  const [username, setUsername] = useState<string | undefined>();
+  const [userRanking, setUserRanking] = useState<number | undefined>();
 
   const changeMonth = (increment: number) => {
     setCurrentMonth((prevMonth) => {
@@ -22,57 +25,67 @@ export default function Participation() {
     });
   };
 
+  const fetchUsersAndMeetings = async () => {
+    const startDay = `${currentMonth.toISOString().substring(0, 7)}-01`;
+    const endDay = new Date(
+      currentMonth.getFullYear(),
+      currentMonth.getMonth() + 1,
+      0
+    )
+      .toISOString()
+      .split("T")[0];
+
+    try {
+      const { data: usersAndMeetings, error } = await supabase
+        .from("meeting")
+        .select("name, birthYear")
+        .gte("meeting_date", startDay)
+        .lte("meeting_date", endDay);
+
+      if (error) throw new Error(error.message);
+
+      const userMeetingCounts = usersAndMeetings.reduce(
+        (acc: Record<string, User>, { name, birthYear }) => {
+          const key = `${name}-${birthYear}`;
+          if (!acc[key]) {
+            acc[key] = { name, birthYear, meetingCount: 0 };
+          }
+          acc[key].meetingCount += 1;
+          return acc;
+        },
+        {}
+      );
+
+      const sortedUsersByMeetingCount = Object.values(userMeetingCounts).sort(
+        (a, b) => b.meetingCount - a.meetingCount
+      ) as User[];
+      setUsers(sortedUsersByMeetingCount);
+    } catch (error) {
+      console.error("Fetching or processing error:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchUsersAndMeetings = async () => {
-      const startday = currentMonth.toISOString().substring(0, 7) + "-01"; // 시작일 설정 간소화
-      const endday = new Date(
-        currentMonth.getFullYear(),
-        currentMonth.getMonth() + 1,
-        0
-      )
-        .toISOString()
-        .split("T")[0]; // 종료일 설정 간소화
-
-      try {
-        const { data: usersAndMeetings, error } = await supabase
-          .from("meeting")
-          .select("name, birthYear")
-          .gte("meeting_date", startday)
-          .lte("meeting_date", endday);
-
-        if (error) throw new Error(error.message);
-
-        // 사용자별 참여 횟수 계산 로직에서 반환되는 객체 타입을 User 타입으로 명시적 변환
-        const userMeetingCounts = usersAndMeetings.reduce(
-          (acc: Record<string, User>, { name, birthYear }) => {
-            const key = `${name}-${birthYear}`;
-            if (!acc[key]) {
-              acc[key] = { name, birthYear, meetingCount: 0 };
-            }
-            acc[key].meetingCount += 1;
-            return acc;
-          },
-          {}
-        );
-
-      
-        const sortedUsersByMeetingCount = Object.values(userMeetingCounts).sort(
-          (a, b) => b.meetingCount - a.meetingCount
-        ) as User[];
-
-        setUsers(sortedUsersByMeetingCount);
-      } catch (error) {
-        console.error("Fetching or processing error:", error);
-      }
-    };
-
     fetchUsersAndMeetings();
-  }, [currentMonth, isMounted]);
+  }, [currentMonth]);
+
+  useEffect(() => {
+    if (
+      status === "authenticated" &&
+      session?.user?.name &&
+      session?.user?.email
+    ) {
+      setUsername(session.user.name);
+      const user = users.find((user) => user.name === username);
+      setUserRanking(user?.meetingCount);
+    }
+  }, [status, session, users, username]);
 
   return (
     <div className='dark flex flex-col justify-between  h-screen bg-gray-800 text-white'>
       <Header bgColor={"bg-blue-500"} text1={"T C R C"} text2={"참여랭킹"} />
       <MonthNavigation currentMonth={currentMonth} changeMonth={changeMonth} />
+      <MyRanking userRanking={userRanking} />
       <main className='flex-1 overflow-y-auto p-3 bg-gray-800'>
         <div className='rounded-lg overflow-hidden bg-gray-700 p-4 pt-1 mx-auto w-full sm:w-3/4 md:w-3/4 lg:w-2/3 xl:w-1/2'>
           <table className='w-full caption-bottom text-sm'>
