@@ -1,20 +1,20 @@
-import {useRouter} from "next/router";
-import {useEffect, useState} from "react";
-import {signIn, signOut, useSession} from "next-auth/react";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import CustomModal from "../components/common/CustomModal";
 import React from "react";
-import { UserIcon, LogoutButton} from "../components/icons";
-import {alarmMeetingDatabaseChange,alarmUserDatabaseChange} from "../services/check.service";
-
-
+import { UserIcon, LogoutButton } from "../components/icons";
+import {
+  alarmMeetingDatabaseChange,
+  alarmUserDatabaseChange,
+} from "../services/check.service";
 
 export default function Home() {
-
   alarmMeetingDatabaseChange();
   alarmUserDatabaseChange();
-  
+
   const router = useRouter();
-  const {data: session, status} = useSession();
+  const { data: session, status } = useSession();
 
   const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
@@ -22,19 +22,15 @@ export default function Home() {
   const [successModalIsOpen, setSuccessModalIsOpen] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
 
-
   const loginChecked = (buttonName: String) => {
     router.push(`/user/${buttonName}`);
   };
 
   const closeModal = () => setModalIsOpen(false);
-  ;
-
   const openSuccessModalWithMessage = async (message: string) => {
     setSuccessModalIsOpen(true);
     setMessage(message);
   };
-
 
   const closeSuccessModal = async () => {
     setSuccessModalIsOpen(false);
@@ -48,13 +44,15 @@ export default function Home() {
   };
 
   useEffect(() => {
-   
     // 유저이름과 이메일 없는 케이스
-    if (status === 'authenticated' && session.user && (!session.user.name || !session.user.birthYear)){
-      router.push('/signup')
+    if (
+      status === "authenticated" &&
+      session.user &&
+      (!session.user.name || !session.user.birthYear)
+    ) {
+      router.push("/signup");
       return;
     }
-
   }, [router, session, status]);
 
   return (
@@ -62,20 +60,26 @@ export default function Home() {
       key='1'
       className='dark flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4'
     >
-      <Header/>
+      <Header />
       <main className='flex flex-col space-y-4 shadow-lg w-full max-w-xs'>
         {!session ? (
           <>
-            <div
-              className='font-bold p-4 bg-yellow-500 text-white text-center rounded-md hover:bg-yellow-600 transform hover:scale-105 transition-transform duration-200 shadow-lg'>
+            <div className='font-bold p-4 bg-yellow-500 text-white text-center rounded-md hover:bg-yellow-600 transform hover:scale-105 transition-transform duration-200 shadow-lg'>
               <button onClick={() => login()}>카카오 로그인</button>
             </div>
           </>
         ) : (
           <>
             <button
+              className='font-bold p-4 bg-yellow-500 text-white text-center rounded-md hover:bg-yellow-600 transform hover:scale-105 transition-transform duration-200 shadow-lg'
+              onClick={() => loginChecked("ranking")}
+            >
+              월별 종합 랭킹
+            </button>
+            <button
               className='font-bold p-4 bg-blue-500 text-white text-center rounded-md hover:bg-blue-700 transform hover:scale-105 transition-transform duration-200 shadow-lg'
-              onClick={() => loginChecked("checkMonth")}>
+              onClick={() => loginChecked("checkMonth")}
+            >
               전체 참여랭킹
             </button>
             <button
@@ -91,8 +95,7 @@ export default function Home() {
               출석체크
             </button>
           </>
-        )
-        }
+        )}
         <CustomModal
           isOpen={modalIsOpen}
           onRequestClose={closeModal}
@@ -105,9 +108,8 @@ export default function Home() {
         />
       </main>
     </div>
-  )
+  );
 }
-
 
 const Header = () => {
   return (
@@ -115,19 +117,18 @@ const Header = () => {
       <div className='text-3xl font-bold'>TCRC 러닝크루</div>
       <div className='flex space-x-2'>
         <button className='bg-blue-500 text-white rounded-full p-2 hover:bg-blue-600 transition-colors duration-200'>
-          <UserIcon className=''/>
+          <UserIcon className='' />
         </button>
         <button
           onClick={() => signOut()}
-          className='bg-green-500 text-white rounded-full p-2 hover:bg-green-600 transition-colors duration-200'>
-          <LogoutButton className=''/>
+          className='bg-green-500 text-white rounded-full p-2 hover:bg-green-600 transition-colors duration-200'
+        >
+          <LogoutButton className='' />
         </button>
       </div>
     </header>
-  )
-}
-
-
+  );
+};
 
 declare module "next-auth" {
   /**
@@ -138,10 +139,10 @@ declare module "next-auth" {
       name: string;
       email: string;
       id: string;
-      birthYear: number
-    }
+      birthYear: number;
+    };
   }
   interface User {
-    birthYear: number
+    birthYear: number;
   }
 }

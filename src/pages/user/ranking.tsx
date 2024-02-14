@@ -8,7 +8,7 @@ import { useSession } from "next-auth/react";
 interface User {
   name: string;
   birthYear: number;
-  meetingCount: number;
+  RankingPoint: number;
 }
 export default function Participation() {
   const { data: session, status } = useSession();
@@ -39,29 +39,36 @@ export default function Participation() {
     try {
       const { data: usersAndMeetings, error } = await supabase
         .from("meeting")
-        .select("name, birthYear")
+        .select("name, birthYear,founder")
         .gte("meeting_date", startDay)
         .lte("meeting_date", endDay);
 
       if (error) throw new Error(error.message);
-
+      
+      // console.log('usersAndMeetings: ', usersAndMeetings);
       const userMeetingCounts = usersAndMeetings.reduce(
-        (acc: Record<string, User>, { name, birthYear }) => {
+        (acc: Record<string, User>, { name, birthYear, founder }) => {
           const key = `${name}-${birthYear}`;
           if (!acc[key]) {
-            acc[key] = { name, birthYear, meetingCount: 0 };
+            acc[key] = { name, birthYear, RankingPoint: 0 };
           }
-          acc[key].meetingCount += 1;
+          //개설자의 경우 1.3점 부여
+          if(founder){
+            acc[key].RankingPoint += 1.5;
+          } else {
+            acc[key].RankingPoint += 1;
+          }
           return acc;
         },
         {}
       );
+      console.log('userMeetingCounts: ', userMeetingCounts);
 
       const sortedUsersByMeetingCount = Object.values(userMeetingCounts).sort(
-        (a, b) => b.meetingCount - a.meetingCount
+        (a, b) => b.RankingPoint - a.RankingPoint
       ) as User[];
       setUsers(sortedUsersByMeetingCount);
-      setRankCount(sortedUsersByMeetingCount.length);
+      setRankCount(sortedUsersByMeetingCount.length)
     } catch (error) {
       console.error("Fetching or processing error:", error);
     }
@@ -100,7 +107,7 @@ export default function Participation() {
                   이름(년생)
                 </th>
                 <th className='h-12 px-4 text-middle align-middle font-medium text-muted-foreground'>
-                  참여횟수
+                  종합점수
                 </th>
               </tr>
             </thead>
@@ -113,7 +120,7 @@ export default function Participation() {
                   <td className='p-4 text-center align-middle'>{index + 1}</td>
                   <td className='p-4 text-center align-middle'>{`${user.name}(${user.birthYear})`}</td>
                   <td className='p-4 text-center align-middle'>
-                    {user.meetingCount}
+                    {user.RankingPoint}
                   </td>
                 </tr>
               ))}
