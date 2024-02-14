@@ -7,7 +7,6 @@ interface userInfo {
 const MyRanking: React.FC<userInfo> = ({
   userRanking
 }) => {
-  console.log('userRanking: ', userRanking);
   return (
     <div className='bg-gray-800 p-3 flex-4'>
       <div className='rounded-lg overflow-hidden bg-blue-500 p-4 mx-auto w-full sm:w-3/4 md:w-3/4 lg:w-2/3 xl:w-1/2'>

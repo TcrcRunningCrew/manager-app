@@ -76,8 +76,8 @@ export default function Participation() {
       session?.user?.email
     ) {
       setUsername(session.user.name);
-      const user = users.find((user) => user.name === username);
-      setUserRanking(user?.meetingCount);
+      const ranking = users.findIndex((user, index) => user.name === username);
+      setUserRanking(ranking === -1 ? undefined : ranking + 1);
     }
   }, [status, session, users, username]);
 
