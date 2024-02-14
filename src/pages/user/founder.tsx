@@ -16,6 +16,7 @@ export default function Founder() {
   const [users, setUsers] = useState<User[]>([]);
   const [username, setUsername] = useState<string | undefined>();
   const [userRanking, setUserRanking] = useState<number | undefined>();
+  const [rankCount, setRankCount] = useState<number | undefined>(); //전체 랭킹
 
   const changeMonth = (increment: number) => {
     const newMonth = new Date(currentMonth);
