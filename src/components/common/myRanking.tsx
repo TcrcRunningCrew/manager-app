@@ -2,10 +2,12 @@ import React from "react";
 
 interface userInfo {
   userRanking: number | undefined;
+  allRank: number | undefined;
 }
 
 const MyRanking: React.FC<userInfo> = ({
-  userRanking
+  userRanking,
+  allRank
 }) => {
   return (
     <div className='bg-gray-800 p-3 flex-4'>
@@ -13,7 +15,7 @@ const MyRanking: React.FC<userInfo> = ({
         <div className='flex items-center justify-between'>
           <div className='font-bold text-white text-1xl p-2 pl-5'>나의 랭킹</div>
           {
-            userRanking?<div className='text-white text-1xl p-2 pr-11'>{userRanking}위</div>:
+            userRanking?<div className='text-white text-1xl p-2 pr-11'>{userRanking}위(전체{allRank})</div>:
             <div className='font-bold text-white text-1xl p-2 pr-8'>랭킹없음</div>
           }
         </div>
