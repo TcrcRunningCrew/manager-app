@@ -62,7 +62,7 @@ export default function Participation() {
         },
         {}
       );
-      console.log('userMeetingCounts: ', userMeetingCounts);
+     
 
       const sortedUsersByMeetingCount = Object.values(userMeetingCounts).sort(
         (a, b) => b.RankingPoint - a.RankingPoint
