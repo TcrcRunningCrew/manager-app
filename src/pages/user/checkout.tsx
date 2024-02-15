@@ -9,6 +9,7 @@ import {
   findUserByAccountId,
   insertMeeting,
 } from "../../services/user.service";
+import { sendMessageToSlack } from "../../utils/slackMessage";
 
 export default function Checkout() {
   const router = useRouter();
@@ -106,7 +107,6 @@ export default function Checkout() {
       // console.log("====checkout3====isFounder: ", isFounder);
       // console.log(' getValues("participationDate"): ', getValues("participationDate"));
 
-      
       const result = await insertMeeting(
         userId,
         username,
@@ -121,6 +121,10 @@ export default function Checkout() {
       // console.log('result: ', result);
 
       if (result) {
+        await sendMessageToSlack(
+          `출석/${getValues("participationDate")}/${username}/${userAge}/${userEmail}/activation: ${activation}/location:${location}/founder: ${getValues("isFounder")}`
+        );
+
         openSuccessModalWithMessage("출석 완료");
       } else {
         openModalWithMessage("출석체크 에러 운영진 문의");

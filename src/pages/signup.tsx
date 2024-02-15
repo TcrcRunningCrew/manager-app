@@ -6,8 +6,11 @@ import CustomModal from "../components/common/CustomModal";
 import { useForm } from "react-hook-form";
 import { signup, findUserByAccountId ,updateuUserInfo} from "@/services/user.service";
 import { ExtendedSession } from "../components/common/extendedSession";
+import {sendMessageToSlack} from "../utils/slackMessage";
+
 
 export default function Signup() {
+  
   const router = useRouter();
   const { register, setValue, formState, handleSubmit, getValues } = useForm({
     shouldFocusError: true,
@@ -71,6 +74,10 @@ export default function Signup() {
         birthYear,
       });
 
+      await  sendMessageToSlack(
+        `회원등록/${name}/${birthYear}/${email}`
+      );
+      
       openSuccessModalWithMessage("회원가입 완료");
     } catch (e) {
       setModalIsOpen(true);
