@@ -52,7 +52,7 @@ export default function Participation() {
           if (!acc[key]) {
             acc[key] = { name, birthYear, RankingPoint: 0 };
           }
-          //개설자의 경우 1.3점 부여
+          //개설자의 경우 1.점 부여
           if(founder){
             acc[key].RankingPoint += 1.5;
           } else {
