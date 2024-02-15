@@ -37,7 +37,6 @@ export default function Signup() {
       session.user.name &&
       session.user.email
     ) {
-      setValue("name", session.user.name);
       setValue("email", session.user.email);
     }
   }, [session, setValue, status]);
