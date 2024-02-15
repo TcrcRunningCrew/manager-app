@@ -1,8 +1,6 @@
 
 
-// 예: React 컴포넌트 내에서 사용하는 경우
-
-export const sendMessageToSlack = async (messageData) => {
+export const sendMessageToSlack = async (messageData : any) => {
   const response = await fetch('/api/slack', {
     method: 'POST',
     headers: {
