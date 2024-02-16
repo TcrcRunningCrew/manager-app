@@ -25,6 +25,10 @@ export default function Home() {
   const loginChecked = (buttonName: String) => {
     router.push(`/user/${buttonName}`);
   };
+  const admin = (buttonName: String) => {
+    router.push(`/admin/${buttonName}`);
+  };
+
 
   const closeModal = () => setModalIsOpen(false);
   const openSuccessModalWithMessage = async (message: string) => {
@@ -93,6 +97,19 @@ export default function Home() {
               onClick={() => loginChecked("checkout")}
             >
               출석체크
+            </button>
+
+            <button
+              className='font-bold p-4 bg-green-600 text-white text-center rounded-md hover:bg-green-700 transform hover:scale-105 transition-transform duration-200 shadow-lg'
+              onClick={() => loginChecked("qr")}
+            >
+              QR출석체크
+            </button>
+            <button
+              className='font-bold p-4 bg-green-600 text-white text-center rounded-md hover:bg-green-700 transform hover:scale-105 transition-transform duration-200 shadow-lg'
+              onClick={() => admin("qrcheck")}
+            >
+              QR스캔
             </button>
           </>
         )}
