@@ -122,7 +122,7 @@ export default function Checkout() {
 
       if (result) {
         await sendMessageToSlack(
-          `출석/${getValues("participationDate")}/${username}/${userAge}/${userEmail}/activation: ${activation}/location:${location}/founder: ${getValues("isFounder")}`
+          `출석/${getValues("participationDate")}/${username}/${userAge}/${userEmail}/activation: ${getValues("activation")}/location:${getValues("location")}/founder: ${getValues("isFounder")}`
         );
 
         openSuccessModalWithMessage("출석 완료");
