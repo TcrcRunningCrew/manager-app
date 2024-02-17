@@ -1,31 +1,59 @@
-import QRCode from 'qrcode.react';
-import { useSession } from 'next-auth/react';
-import React, { useState, useEffect } from 'react';
+import QRCode from "qrcode.react";
+import { useSession } from "next-auth/react";
+import Header from "../../components/common/Header";
+import React, { useState, useEffect } from "react";
 
 export default function GenerateQRCode() {
   const { data: session, status } = useSession();
-  const [qrValue, setQrValue] = useState(''); // qrValue를 상태로 관리
+  const [qrValue, setQrValue] = useState("");
+  const [username, setUsername] = useState<string | undefined>();
+  const [userEmail, setUserEmail] = useState<string | undefined>();
 
   useEffect(() => {
-    if (status === 'authenticated' && session?.user?.name && session?.user?.email && session?.user?.id) {
+    if (
+      status === "authenticated" &&
+      session?.user?.name &&
+      session?.user?.email &&
+      session?.user?.id
+    ) {
       const userInfo = {
         id: session.user.id,
         name: session.user.name,
         email: session.user.email,
       };
       const qrData = JSON.stringify(userInfo);
-      setQrValue(qrData); // 상태 업데이트 함수를 사용하여 qrValue 업데이트
+      setQrValue(qrData);
+      setUsername(session.user.name);
+      setUserEmail(session.user.email);
     }
   }, [status, session]);
 
-  // 세션 정보가 없거나 qrValue가 비어있는 경우 QR 코드를 생성하지 않습니다.
   if (!session || !qrValue) return null;
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-800">
-      <div className="p-10 bg-white rounded-lg">
-        <QRCode value={qrValue} size={256} level={"H"} fgColor="#000000" bgColor="#ffffff" />
-      </div>
+    <div className='dark flex flex-col justify-between  h-screen bg-gray-800 text-white'>
+      <Header bgColor='bg-blue-500' text1='T C R C' text2='QR출석체크' />
+      <main className='flex-1 overflow-y-auto p-10 py-40 bg-gray-800'>
+        <div className='flex-grow flex justify-center items-center'>
+          <div className='p-8 bg-white rounded-lg'>
+            <QRCode
+              value={qrValue}
+              size={256}
+              level='H'
+              fgColor='#000000'
+              bgColor='#ffffff'
+            />
+          </div>
+        </div>
+        <div className='py-20'>
+          <div className='rounded-lg bg-blue-500 p-10 mx-auto w-full'>
+            <div className='flex flex-col items-center justify-center'>
+              <div className='font-bold text-xl mb-2'>{username}</div>
+              <div className='text-lg'>{userEmail}</div>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   );
-};
+}
