@@ -3,7 +3,7 @@ import { useSession } from "next-auth/react";
 import Header from "../../components/common/Header";
 import React, { useState, useEffect } from "react";
 
-export default function GenerateQRCode() {
+export default function CheckoutQR() {
   const { data: session, status } = useSession();
   const [qrValue, setQrValue] = useState("");
   const [username, setUsername] = useState<string | undefined>();
@@ -28,6 +28,7 @@ export default function GenerateQRCode() {
     }
   }, [status, session]);
 
+ 
   if (!session || !qrValue) return null;
 
   return (

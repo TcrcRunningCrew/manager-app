@@ -96,17 +96,12 @@ export default function Checkout() {
   };
 
   const onSubmit = async () => {
-    // console.log("userId: ", userId);
+
     const data = await findUserByAccountId(userId);
 
-    // console.log("data: ", data);
 
     if (data && data.length > 0) {
-      // console.log("====checkout3====activation: ", activation);
-      // console.log("====checkout3====location: ", location);
-      // console.log("====checkout3====isFounder: ", isFounder);
-      // console.log(' getValues("participationDate"): ', getValues("participationDate"));
-
+  
       const result = await insertMeeting(
         userId,
         username,
@@ -118,7 +113,7 @@ export default function Checkout() {
         getValues("isFounder")
       );
 
-      // console.log('result: ', result);
+
 
       if (result) {
         await sendMessageToSlack(

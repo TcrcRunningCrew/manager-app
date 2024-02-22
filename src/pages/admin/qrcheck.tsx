@@ -1,81 +1,160 @@
-import { useState } from "react";
-import { QrReader } from "react-qr-reader";
+import React, { useState, useEffect } from "react";
+import CustomModal from "../../components/common/CustomModal";
 import Header from "../../components/common/header";
-import axios from "axios";
+import ScanQRCode from "../../components/utils/qrScan";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+import { useForm } from "react-hook-form";
 
-const ScanQRCode: React.FC = () => {
-  const [scanResult, setScanResult] = useState<string>("");
-  const [isButtonActive, setIsButtonActive] = useState<boolean>(false);
+export default function Checkout() {
+  const router = useRouter();
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [formData, setFormData] = useState({});
 
-  const handleScan = async (data: any) => {
-    if (data) {
-      console.log("data: ", data);
-      const userInfo = JSON.parse(data.text);
-      console.log("userInfo2222: ", userInfo);
-      setScanResult(userInfo);
-      setIsButtonActive(true);
-    }
+  const { register, setValue, handleSubmit, getValues } = useForm({
+    shouldFocusError: true,
+    mode: "onBlur",
+    defaultValues: {
+      participationDate: new Date().toISOString().split("T")[0],
+      activation: "1",
+      location: "1",
+      isFounder: false,
+    },
+  });
+
+  const { data: session, update, status } = useSession();
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successModalIsOpen, setSuccessModalIsOpen] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const { participationDate, activation, location } = getValues();
+
+  useEffect(() => {
+    setValue("participationDate", participationDate);
+    setValue("activation", activation);
+    setValue("location", location);
+  }, [activation, location, participationDate, session, setValue, status]);
+
+  const openSuccessModalWithMessage = (message) => {
+    setSuccessModalIsOpen(true);
+    setMessage(message);
   };
 
-  const handleError = (error: any) => {
-    console.error(error);
+  const closeModal = () => {
+    setModalIsOpen(false);
   };
 
-  const handleCheckIn = async () => {
-    const userInfo = JSON.parse(scanResult);
-    const additionalInfo = {
-      meeting_date: participationDate,//2024-02-17(오늘날짜)
-      activation: 1, // activation
-      location: location, //location
-      founder: false,
-    };
-    try {
-      const result = await axios.post("/api/check-in", {
-        ...userInfo,
-        ...additionalInfo,
-      });
-      console.log(result.data);
-    } catch (error) {
-      console.error(error);
-    }
+  const closeSuccessModal = () => {
+    setSuccessModalIsOpen(false);
+    router.push("/");
+  };
+
+  const strDateConvert = (date) => {
+    const [year, month, day] = date.split("-");
+    return new Date(year, month - 1, day);
+  };
+
+  const onSubmit = async (data) => {
+    console.log("🚀 ~ onSubmit ~ data:", data);
+    setFormData(data); // 폼 데이터 저장
+    setIsSubmitted(true); // ScanQRCode 컴포넌트 렌더링을 위해 상태 변경
   };
 
   return (
-    <div className='dark flex flex-col justify-between h-screen bg-gray-800 text-white'>
-      <Header bgColor={"bg-blue-500"} text1={"T C R C"} text2={"참여랭킹"} />
-      <main className='flex-1 overflow-y-auto p-8 py-30 bg-gray-800'>
-        <div className='mx-auto w-full qr-reader-container'>
-          <QrReader
-            onResult={handleScan}
-            constraints={{ facingMode: "environment" }}
-            style={{ width: "100%" }}
+    <div className='dark flex flex-col justify-between  h-screen bg-gray-800 text-black'>
+      <Header bgColor={"bg-blue-500"} text1={"T C R C"} text2={"QR출석체크"} />
+      <main className='flex-1 overflow-y-auto p-3 bg-gray-800'>
+        {isSubmitted ? (
+          <ScanQRCode
+            participationDate={formData.participationDate}
+            activation={formData.activation}
+            location={formData.location}
+            isFounder={formData.isFounder}
           />
-        </div>
-        <div className='text-center p-4 py-5 bg-blue-500 rounded-lg'>
-          {!scanResult ? (
-            <>
-              <p>QR SCAN 결과</p>
-            </>
-          ) : (
-            <>
-              <p>{scanResult.name}</p>
-              <p>{scanResult.email}</p>
-            </>
-          )}
-        </div>
+        ) : (
+          <div className='rounded-lg overflow-hidden bg-gray-700 p-4 pt-1 mx-auto w-full sm:w-3/4 md:w-3/4 lg:w-2/3 xl:w-1/2'>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              {/* 참여일 입력 */}
+              <div className='flex flex-col p-1'>
+                <label
+                  className='mb-2 font-bold text-left  text-white'
+                  htmlFor='date'
+                >
+                  모임개설일
+                </label>
+                <input
+                  className='form-input py-2 px-3 focus:outline-none  border rounded-md'
+                  type='date'
+                  {...register("participationDate")}
+                />
+              </div>
 
-        <div className='mx-auto w-full max-w-md text-center py-8'>
-          <button
-            className='p-4 py-5 bg-blue-500 text-white w-full rounded-lg hover:bg-blue-700 transform hover:scale-105 transition-transform duration-200 shadow-lg'
-            onClick={handleCheckIn}
-            disabled={!isButtonActive}
-          >
-            출석체크 승인
-          </button>
-        </div>
+              {/* 운동종류 선택 */}
+              <div className='flex flex-col p-1'>
+                <label className='mb-2 font-bold text-left  text-white'>
+                  운동종류
+                </label>
+                <select
+                  className='form-input py-2 px-3 focus:outline-none  border rounded-md'
+                  defaultValue='1'
+                  {...register("activation")}
+                >
+                  <option value='1'>러닝</option>
+                  <option value='2'>등산</option>
+                  <option value='3'>자전거</option>
+                  <option value='4'>기타</option>
+                </select>
+              </div>
+
+              {/* 장소 선택 */}
+              <div className='flex flex-col p-1'>
+                <label
+                  className='mb-2 font-bold text-left  text-white'
+                  htmlFor='location'
+                >
+                  모임장소
+                </label>
+                <select
+                  className='form-input py-2 px-3 focus:outline-none  border rounded-md'
+                  defaultValue='1'
+                  {...register("location")}
+                >
+                  <option value='1'>태평_탄천</option>
+                  <option value='2'>서현_황새울공원</option>
+                  <option value='3'>야탑_탄천종합운동장</option>
+                  <option value='4'>모란_성남종합운동장</option>
+                  <option value='5'>위례</option>
+                  <option value='6'>정자</option>
+                  <option value='7'>판교</option>
+                  <option value='8'>그 외</option>
+                </select>
+              </div>
+
+              <div className='flex flex-col p-1 pt-5'>
+                <button
+                  type='submit'
+                  className='text-white bg-blue-500 border-0 py-3 px-8 focus:outline-none hover:bg-blue-600 rounded text-lg'
+                >
+                  QR 체크 시작
+                </button>
+              </div>
+            </form>
+
+            <CustomModal
+              isOpen={modalIsOpen}
+              onRequestClose={closeModal}
+              errorMessage={errorMessage}
+            />
+
+            <CustomModal
+              isOpen={successModalIsOpen}
+              onRequestClose={closeSuccessModal}
+              errorMessage={message}
+            />
+          </div>
+        )}
       </main>
     </div>
   );
-};
-
-export default ScanQRCode;
+}

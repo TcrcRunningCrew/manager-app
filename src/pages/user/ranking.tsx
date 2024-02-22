@@ -92,7 +92,7 @@ export default function Participation() {
 
   return (
     <div className='dark flex flex-col justify-between  h-screen bg-gray-800 text-white'>
-      <Header bgColor={"bg-blue-500"} text1={"T C R C"} text2={"참여랭킹"} />
+      <Header bgColor={"bg-yellow-500"} text1={"T C R C"} text2={"월별종합랭킹"} />
       <MonthNavigation currentMonth={currentMonth} changeMonth={changeMonth} />
       <MyRanking userRanking={userRanking} allRank={rankCount}/>
       <main className='flex-1 overflow-y-auto p-3 bg-gray-800'>
