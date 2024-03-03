@@ -1,6 +1,6 @@
 import QRCode from "qrcode.react";
 import { useSession } from "next-auth/react";
-import Header from "../../components/common/Header";
+import Header from "../../components/common/header";
 import React, { useState, useEffect } from "react";
 
 export default function CheckoutQR() {

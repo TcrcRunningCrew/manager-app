@@ -1,10 +1,9 @@
-// pages/api/util/checkout.js
+import type { NextApiRequest, NextApiResponse } from "next";
+import {sendMessageToSlack} from "../../../utils/slackMessage";
 import {
   findUserByAccountId,
   insertMeeting,
 } from "../../../services/user.service";
-import type { NextApiRequest, NextApiResponse } from "next";
-
 
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -35,7 +34,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         isFounder
       );
 
-      if(result)
       return res
       .status(200)
       .json({ message: "출석체크가 성공적으로 완료되었습니다." });

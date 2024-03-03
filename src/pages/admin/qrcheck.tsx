@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 
-export default function Checkout() {
+export default function qrCheck() {
   const router = useRouter();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [formData, setFormData] = useState({});
@@ -55,6 +55,7 @@ export default function Checkout() {
     return new Date(year, month - 1, day);
   };
 
+
   const onSubmit = async (data) => {
     console.log("🚀 ~ onSubmit ~ data:", data);
     setFormData(data); // 폼 데이터 저장
@@ -67,11 +68,11 @@ export default function Checkout() {
       <main className='flex-1 overflow-y-auto p-3 bg-gray-800'>
         {isSubmitted ? (
           <ScanQRCode
-            participationDate={formData.participationDate}
-            activation={formData.activation}
-            location={formData.location}
-            isFounder={formData.isFounder}
-          />
+          participationDate={formData.participationDate}
+          activation={formData.activation}
+          location={formData.location}
+          isFounder={formData.isFounder}
+           />
         ) : (
           <div className='rounded-lg overflow-hidden bg-gray-700 p-4 pt-1 mx-auto w-full sm:w-3/4 md:w-3/4 lg:w-2/3 xl:w-1/2'>
             <form onSubmit={handleSubmit(onSubmit)}>

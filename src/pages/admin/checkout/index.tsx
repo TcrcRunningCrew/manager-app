@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { supabase } from "../../utils/supabaseClient";
-import DayNavigation from "../../components/common/DayNavigation";
-import Header from "../../components/common/header";
-import {findmeetingByDate} from "../../services/meeting.service";
+import { supabase } from "../../../utils/supabaseClient";
+import DayNavigation from "../../../components/common/DayNavigation";
+import Header from "../../../components/common/header";
 import { useSession } from "next-auth/react";
 
 interface User {
   name: string;
   birthYear: number;
   meetingCount: number;
-  location:string;
-  founder: boolean;
 }
 export default function Participation() {
   const { data: session, status } = useSession();
@@ -21,46 +18,49 @@ export default function Participation() {
   const [rankCount, setRankCount] = useState<number | undefined>(); //전체 랭킹
 
   const changeDay = (increment: number) => {
-    setCurrentDay((prevDay) => {
-      const newDate = new Date(prevDay);
-      newDate.setDate(newDate.getDate() + increment);
-      return newDate;
+    setCurrentDay((prevMonth) => {
+      const newMonth = new Date(prevMonth);
+      newMonth.setMonth(newMonth.getMonth() + increment);
+      return newMonth;
     });
   };
 
   const fetchUsersAndMeetings = async () => {
     
+    console.log(
+      "    currentDay.toISOString().substring(0, 7): ",
+      currentDay.toISOString().substring(0, 7)
+    );
 
-    const startDay = `${currentDay.toISOString().substring(0,10)}`;
-
+    const startDay = `${currentDay.toISOString().substring(0, 7)}-01`;
     const endDay = new Date(
       currentDay.getFullYear(),
-      currentDay.getMonth(),
-      currentDay.getDate() + 2,
+      currentDay.getMonth() + 1,
       0
     )
       .toISOString()
       .split("T")[0];
 
-
-
     try {
-      const result = await findmeetingByDate(startDay, endDay)
+      const { data: usersAndMeetings, error } = await supabase
+        .from("meeting")
+        .select("name, birthYear")
+        .gte("meeting_date", startDay)
+        .lte("meeting_date", endDay);
 
-      const userMeetingCounts = result.reduce(
-       
-        (acc: Record<string, User>, { name, birthYear, location, founder }) => {
+      if (error) throw new Error(error.message);
+
+      const userMeetingCounts = usersAndMeetings.reduce(
+        (acc: Record<string, User>, { name, birthYear }) => {
           const key = `${name}-${birthYear}`;
           if (!acc[key]) {
-            acc[key] = { name, birthYear, meetingCount: 0 , location, founder};
+            acc[key] = { name, birthYear, meetingCount: 0 };
           }
           acc[key].meetingCount += 1;
           return acc;
         },
         {}
       );
-
-      console.log('userMeetingCounts: ', userMeetingCounts);
 
       const sortedUsersByMeetingCount = Object.values(userMeetingCounts).sort(
         (a, b) => b.meetingCount - a.meetingCount
@@ -70,7 +70,6 @@ export default function Participation() {
     } catch (error) {
       console.error("Fetching or processing error:", error);
     }
-   
   };
 
   useEffect(() => {
@@ -98,7 +97,7 @@ export default function Participation() {
   );
 }
 
-const Main = ({users}) => {
+const Main = (users) => {
   return (
     <main className='flex-1 overflow-y-auto p-3 bg-gray-800'>
       <div className='rounded-lg overflow-hidden bg-gray-700 p-4 pt-1 mx-auto w-full sm:w-3/4 md:w-3/4 lg:w-2/3 xl:w-1/2'>
@@ -106,7 +105,7 @@ const Main = ({users}) => {
           <thead className='border-b'>
             <tr className='border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted'>
               <th className='h-12 px-4 text-middle align-middle font-medium text-muted-foreground'>
-                NO
+                순위
               </th>
               <th className='h-12 px-4 text-middle align-middle font-medium text-muted-foreground'>
                 이름(년생)

@@ -28,7 +28,6 @@ export default function Signup() {
   const [successModalIsOpen, setSuccessModalIsOpen] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
 
-  // console.log("==signupPatge==session: ", session);
 
   useEffect(() => {
     if (
