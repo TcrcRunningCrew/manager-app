@@ -1,17 +1,9 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
-import CustomModal from "../components/common/CustomModal";
 import React from "react";
-import { UserIcon, LogoutButton } from "../components/icons";
-// import {
-//   alarmMeetingDatabaseChange,
-//   alarmUserDatabaseChange,
-// } from "../services/check.service";
 
 export default function Home() {
-  // alarmMeetingDatabaseChange();
-  // alarmUserDatabaseChange();
 
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -22,10 +14,8 @@ export default function Home() {
   const [successModalIsOpen, setSuccessModalIsOpen] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
 
-  const loginChecked = (buttonName: String) => {
-    router.push(`/user/${buttonName}`);
-  };
-  const admin = (buttonName: String) => {
+
+  const adminRouter = (buttonName: String) => {
     router.push(`/admin/${buttonName}`);
   };
 
@@ -76,53 +66,36 @@ export default function Home() {
           <>
             <button
               className='font-bold p-4 bg-yellow-500 text-white text-center rounded-md hover:bg-yellow-600 transform hover:scale-105 transition-transform duration-200 shadow-lg'
-              onClick={() => loginChecked("ranking")}
+              onClick={() => adminRouter("checkout")}
             >
-              월별 종합 랭킹
+              출석 현황
             </button>
             <button
               className='font-bold p-4 bg-blue-500 text-white text-center rounded-md hover:bg-blue-700 transform hover:scale-105 transition-transform duration-200 shadow-lg'
-              onClick={() => loginChecked("participation")}
+              onClick={() => adminRouter("user")}
             >
-              전체 참여랭킹
-            </button>
-            <button
-              className='font-bold p-4 bg-blue-500 text-white text-center rounded-md hover:bg-blue-700 transform hover:scale-105 transition-transform duration-200 shadow-lg'
-              onClick={() => loginChecked("founder")}
-            >
-              전체 개설랭킹
+              회원 목록
             </button>
             <button
               className='font-bold p-4 bg-green-600 text-white text-center rounded-md hover:bg-green-700 transform hover:scale-105 transition-transform duration-200 shadow-lg'
-              onClick={() => loginChecked("checkout")}
+              onClick={() => adminRouter("auth")}
             >
-              출석체크
-            </button>
-
-            <button
-              className='font-bold p-4 bg-green-600 text-white text-center rounded-md hover:bg-green-700 transform hover:scale-105 transition-transform duration-200 shadow-lg'
-              onClick={() => loginChecked("checkoutQR")}
-            >
-              QR출석체크
+              회원 권한
             </button>
             <button
               className='font-bold p-4 bg-green-600 text-white text-center rounded-md hover:bg-green-700 transform hover:scale-105 transition-transform duration-200 shadow-lg'
-              onClick={() => admin("qrcheck")}
+              onClick={() => adminRouter("qrcheck")}
             >
               QR스캔
             </button>
+            <button
+              className='font-bold p-4 bg-green-600 text-white text-center rounded-md hover:bg-green-700 transform hover:scale-105 transition-transform duration-200 shadow-lg'
+              onClick={() => admin("functionlist")}
+            >
+              메뉴관리
+            </button>
           </>
         )}
-        <CustomModal
-          isOpen={modalIsOpen}
-          onRequestClose={closeModal}
-          errorMessage={errorMessage}
-        />
-        <CustomModal
-          isOpen={successModalIsOpen}
-          onRequestClose={closeSuccessModal}
-          errorMessage={message}
-        />
       </main>
     </div>
   );
@@ -131,26 +104,12 @@ export default function Home() {
 const Header = () => {
   return (
     <header className='w-full max-w-xs flex justify-between items-center mb-4'>
-      <div className='text-3xl font-bold'>TCRC 러닝크루</div>
-      <div className='flex space-x-2'>
-        <button className='bg-blue-500 text-white rounded-full p-2 hover:bg-blue-600 transition-colors duration-200'>
-          <UserIcon className='' />
-        </button>
-        <button
-          onClick={() => signOut()}
-          className='bg-green-500 text-white rounded-full p-2 hover:bg-green-600 transition-colors duration-200'
-        >
-          <LogoutButton className='' />
-        </button>
-      </div>
+      <div className='text-3xl font-bold'>TCRC 관리자 페이지</div>
     </header>
   );
 };
 
 declare module "next-auth" {
-  /**
-   * Returned by `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
-   */
   interface Session {
     user: {
       name: string;
