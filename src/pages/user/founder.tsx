@@ -38,7 +38,7 @@ export default function Founder() {
     const endDay = dateFormat(new Date(year, month, 0));
 
     const { data: activeUsers, error: userError } = await supabase
-      .from("user")
+    .from("user")
       .select("name, birthYear")
       .eq("activation", true);
 
@@ -100,7 +100,11 @@ export default function Founder() {
     <div className='dark flex flex-col justify-between h-screen bg-gray-800 text-white'>
       <Header bgColor={"bg-blue-500"} text1={"T C R C"} text2={"개설랭킹"} />
       <MonthNavigation currentMonth={currentMonth} changeMonth={changeMonth} />
-      <MyRanking userRanking={userRanking} />
+      <MyRanking
+        userRanking={userRanking}
+        allRank={rankCount}
+        bgColor={"bg-blue-500"}
+      />
       <main className='flex-1 overflow-y-auto p-3 bg-gray-800'>
         <div className='rounded-lg overflow-hidden bg-gray-700 p-4 pt-1 mx-auto w-full sm:w-3/4 md:w-3/4 lg:w-2/3 xl:w-1/2'>
           <table className='w-full caption-bottom text-sm'>

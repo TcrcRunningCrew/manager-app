@@ -26,48 +26,51 @@ export default function Participation() {
     });
   };
 
-  const fetchUsersAndMeetings = async () => {
-    const startDay = `${currentMonth.toISOString().substring(0, 7)}-01`;
-    const endDay = new Date(
-      currentMonth.getFullYear(),
-      currentMonth.getMonth() + 1,
-      0
-    )
-      .toISOString()
-      .split("T")[0];
-
-    try {
-      const { data: usersAndMeetings, error } = await supabase
-        .from("meeting")
-        .select("name, birthYear")
-        .gte("meeting_date", startDay)
-        .lte("meeting_date", endDay);
-
-      if (error) throw new Error(error.message);
-
-      const userMeetingCounts = usersAndMeetings.reduce(
-        (acc: Record<string, User>, { name, birthYear }) => {
-          const key = `${name}-${birthYear}`;
-          if (!acc[key]) {
-            acc[key] = { name, birthYear, meetingCount: 0 };
-          }
-          acc[key].meetingCount += 1;
-          return acc;
-        },
-        {}
-      );
-
-      const sortedUsersByMeetingCount = Object.values(userMeetingCounts).sort(
-        (a, b) => b.meetingCount - a.meetingCount
-      ) as User[];
-      setUsers(sortedUsersByMeetingCount);
-      setRankCount(sortedUsersByMeetingCount.length);
-    } catch (error) {
-      console.error("Fetching or processing error:", error);
-    }
-  };
 
   useEffect(() => {
+    const fetchUsersAndMeetings = async () => {
+      const startDay = `${currentMonth.toISOString().substring(0, 7)}-01`;
+      const endDay = new Date(
+        currentMonth.getFullYear(),
+        currentMonth.getMonth() + 1,
+        0
+      )
+        .toISOString()
+        .split("T")[0];
+  
+      try {
+        const { data: usersAndMeetings, error } = await supabase
+          .from("meeting")
+          .select("name, birthYear")
+          .gte("meeting_date", startDay)
+          .lte("meeting_date", endDay);
+  
+        if (error) throw new Error(error.message);
+  
+        const userMeetingCounts = usersAndMeetings.reduce(
+          (acc: Record<string, User>, { name, birthYear }) => {
+            const key = `${name}-${birthYear}`;
+            if (!acc[key]) {
+              acc[key] = { name, birthYear, meetingCount: 0 };
+            }
+            acc[key].meetingCount += 1;
+            return acc;
+          },
+          {}
+        );
+  
+        const sortedUsersByMeetingCount = Object.values(userMeetingCounts).sort(
+          (a, b) => b.meetingCount - a.meetingCount
+        ) as User[];
+        setUsers(sortedUsersByMeetingCount);
+        setRankCount(sortedUsersByMeetingCount.length);
+      } catch (error) {
+        console.error("Fetching or processing error:", error);
+      }
+    };
+  
+
+
     fetchUsersAndMeetings();
   }, [currentMonth]);
 
@@ -87,7 +90,7 @@ export default function Participation() {
     <div className='dark flex flex-col justify-between  h-screen bg-gray-800 text-white'>
       <Header bgColor={"bg-blue-500"} text1={"T C R C"} text2={"참여랭킹"} />
       <MonthNavigation currentMonth={currentMonth} changeMonth={changeMonth} />
-      <MyRanking userRanking={userRanking} allRank={rankCount}/>
+      <MyRanking  userRanking={userRanking} allRank={rankCount} bgColor={"bg-blue-500"}/>
       <main className='flex-1 overflow-y-auto p-3 bg-gray-800'>
         <div className='rounded-lg overflow-hidden bg-gray-700 p-4 pt-1 mx-auto w-full sm:w-3/4 md:w-3/4 lg:w-2/3 xl:w-1/2'>
           <table className='w-full caption-bottom text-sm'>
