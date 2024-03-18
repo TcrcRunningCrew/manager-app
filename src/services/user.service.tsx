@@ -3,7 +3,7 @@ import { supabase } from "@/utils/supabaseClient";
 export const findUserByAccountId = async (accountId: string) => {
   try {
     const res = await supabase
-      .from("user")
+    .from("user")
       .select("*")
       .eq("accountId", accountId);
     return Promise.resolve(res.data);
@@ -14,7 +14,7 @@ export const findUserByAccountId = async (accountId: string) => {
 
 export const findUser = async (email: string, name: string) => {
   const { data, error } = await supabase
-    .from("user")
+  .from("user")
     .select("*")
     .eq("email", email)
     .eq("name", name);
@@ -32,7 +32,7 @@ export const signup = async (user: {
   const { name, birthYear, email, accountId } = user;
 
   const { error, data } = await supabase
-    .from("user")
+  .from("user")
     .insert([{ name, birthYear, email, accountId, activation: true }])
     .single();
 
@@ -49,7 +49,7 @@ export const updateuUserInfo = async (user: {
   const { name, birthYear, email, accountId } = user;
 
   const { error, data } = await supabase
-    .from("user")
+  .from("user")
     .update({ birthYear: birthYear })
     .eq("accountId", accountId)
     .eq("email", email);
@@ -70,21 +70,19 @@ export const insertMeeting = async (
 ) => {
   const { data, error } = await supabase
     .from("meeting")
-    .insert(
-      {
-        accountId,
-        name,
-        email,
-        birthYear,
-        meeting_date,
-        activation,
-        location,
-        founder,
-      },
-    )
-    .select()
-    // console.log('====1231===error: ', error);
-    // console.log('====1231===data: ', data);
+    .insert({
+      accountId,
+      name,
+      email,
+      birthYear,
+      meeting_date,
+      activation,
+      location,
+      founder,
+    })
+    .select();
+  // console.log('====1231===error: ', error);
+  // console.log('====1231===data: ', data);
 
   if (error) return Promise.reject(error);
   return Promise.resolve(data);

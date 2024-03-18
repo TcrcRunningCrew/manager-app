@@ -28,7 +28,6 @@ export default function Signup() {
   const [successModalIsOpen, setSuccessModalIsOpen] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
 
-  // console.log("==signupPatge==session: ", session);
 
   useEffect(() => {
     if (
@@ -37,7 +36,6 @@ export default function Signup() {
       session.user.name &&
       session.user.email
     ) {
-      setValue("name", session.user.name);
       setValue("email", session.user.email);
     }
   }, [session, setValue, status]);
