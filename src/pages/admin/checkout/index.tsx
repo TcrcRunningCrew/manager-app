@@ -25,54 +25,47 @@ export default function Participation() {
     });
   };
 
-  const fetchUsersAndMeetings = async () => {
-    
-    console.log(
-      "    currentDay.toISOString().substring(0, 7): ",
-      currentDay.toISOString().substring(0, 7)
-    );
-
-    const startDay = `${currentDay.toISOString().substring(0, 7)}-01`;
-    const endDay = new Date(
-      currentDay.getFullYear(),
-      currentDay.getMonth() + 1,
-      0
-    )
-      .toISOString()
-      .split("T")[0];
-
-    try {
-      const { data: usersAndMeetings, error } = await supabase
-        .from("meeting")
-        .select("name, birthYear")
-        .gte("meeting_date", startDay)
-        .lte("meeting_date", endDay);
-
-      if (error) throw new Error(error.message);
-
-      const userMeetingCounts = usersAndMeetings.reduce(
-        (acc: Record<string, User>, { name, birthYear }) => {
-          const key = `${name}-${birthYear}`;
-          if (!acc[key]) {
-            acc[key] = { name, birthYear, meetingCount: 0 };
-          }
-          acc[key].meetingCount += 1;
-          return acc;
-        },
-        {}
-      );
-
-      const sortedUsersByMeetingCount = Object.values(userMeetingCounts).sort(
-        (a, b) => b.meetingCount - a.meetingCount
-      ) as User[];
-      setUsers(sortedUsersByMeetingCount);
-      setRankCount(sortedUsersByMeetingCount.length);
-    } catch (error) {
-      console.error("Fetching or processing error:", error);
-    }
-  };
-
   useEffect(() => {
+    const fetchUsersAndMeetings = async () => {
+      const startDay = `${currentDay.toISOString().substring(0, 7)}-01`;
+      const endDay = new Date(
+        currentDay.getFullYear(),
+        currentDay.getMonth() + 1,
+        0
+      )
+        .toISOString()
+        .split("T")[0];
+
+      try {
+        const { data: usersAndMeetings, error } = await supabase
+          .from("meeting")
+          .select("name, birthYear")
+          .gte("meeting_date", startDay)
+          .lte("meeting_date", endDay);
+
+        if (error) throw new Error(error.message);
+
+        const userMeetingCounts = usersAndMeetings.reduce(
+          (acc: Record<string, User>, { name, birthYear }) => {
+            const key = `${name}-${birthYear}`;
+            if (!acc[key]) {
+              acc[key] = { name, birthYear, meetingCount: 0 };
+            }
+            acc[key].meetingCount += 1;
+            return acc;
+          },
+          {}
+        );
+
+        const sortedUsersByMeetingCount = Object.values(userMeetingCounts).sort(
+          (a, b) => b.meetingCount - a.meetingCount
+        ) as User[];
+        setUsers(sortedUsersByMeetingCount);
+        setRankCount(sortedUsersByMeetingCount.length);
+      } catch (error) {
+        console.error("Fetching or processing error:", error);
+      }
+    };
     fetchUsersAndMeetings();
   }, [currentDay]);
 

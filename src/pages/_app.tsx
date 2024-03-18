@@ -3,17 +3,17 @@ import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { SessionProvider } from "next-auth/react";
 import React from "react";
+
+
+
+import { CircularProgress } from '@mui/material';
+import '../styles/globals.css'; // 또는 프로젝트에 맞는 글로벌 스타일
+
 // import { GoogleAnalytics } from '@next/third-parties/google'
  
 // const GoogleAnalyticsID = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS || '';
 
-import CssBaseline from '@mui/material/CssBaseline';
-// import { ThemeProvider, createTheme } from '@mui/material/styles';
 
-// MUI 테마 생성 (선택 사항)
-// const theme = createTheme({
-//   // 테마 설정
-// });
 
 
 export default function App({

@@ -1,5 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
-import { supabase } from "../../utils/supabaseClient";
 import DayNavigation from "../../components/common/DayNavigation";
 import Header from "../../components/common/header";
 import {findmeetingByDate} from "../../services/meeting.service";
