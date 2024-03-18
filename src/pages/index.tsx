@@ -3,7 +3,9 @@ import { useEffect, useState } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
 import CustomModal from "../components/common/CustomModal";
 import React from "react";
-import { UserIcon, LogoutButton } from "../components/icons";
+import { UserIcon, LogoutButton, Qrcode } from "../components/icons";
+import Link from "next/link";
+
 // import {
 //   alarmMeetingDatabaseChange,
 //   alarmUserDatabaseChange,
@@ -25,10 +27,10 @@ export default function Home() {
   const loginChecked = (buttonName: String) => {
     router.push(`/user/${buttonName}`);
   };
+
   const admin = (buttonName: String) => {
     router.push(`/admin/${buttonName}`);
   };
-
 
   const closeModal = () => setModalIsOpen(false);
   const openSuccessModalWithMessage = async (message: string) => {
@@ -64,53 +66,48 @@ export default function Home() {
       key='1'
       className='dark flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4'
     >
-      <Header />
       <main className='flex flex-col space-y-4 shadow-lg w-full max-w-xs'>
         {!session ? (
           <>
+            <Header session={session} />
             <div className='font-bold p-4 bg-yellow-500 text-white text-center rounded-md hover:bg-yellow-600 transform hover:scale-105 transition-transform duration-200 shadow-lg'>
               <button onClick={() => login()}>카카오 로그인</button>
             </div>
           </>
         ) : (
           <>
-            <button
-              className='font-bold p-4 bg-yellow-500 text-white text-center rounded-md hover:bg-yellow-600 transform hover:scale-105 transition-transform duration-200 shadow-lg'
-              onClick={() => loginChecked("ranking")}
-            >
-              월별 종합 랭킹
-            </button>
-            <button
-              className='font-bold p-4 bg-blue-500 text-white text-center rounded-md hover:bg-blue-700 transform hover:scale-105 transition-transform duration-200 shadow-lg'
-              onClick={() => loginChecked("participation")}
-            >
-              전체 참여랭킹
-            </button>
-            <button
-              className='font-bold p-4 bg-blue-500 text-white text-center rounded-md hover:bg-blue-700 transform hover:scale-105 transition-transform duration-200 shadow-lg'
-              onClick={() => loginChecked("founder")}
-            >
-              전체 개설랭킹
-            </button>
+            <Header session={session} />
             <button
               className='font-bold p-4 bg-green-600 text-white text-center rounded-md hover:bg-green-700 transform hover:scale-105 transition-transform duration-200 shadow-lg'
               onClick={() => loginChecked("checkout")}
             >
               출석체크
             </button>
-
             <button
-              className='font-bold p-4 bg-green-600 text-white text-center rounded-md hover:bg-green-700 transform hover:scale-105 transition-transform duration-200 shadow-lg'
-              onClick={() => loginChecked("checkoutQR")}
+              className='font-bold p-4 bg-yellow-500 text-white text-center rounded-md hover:bg-yellow-600 transform hover:scale-105 transition-transform duration-200 shadow-lg'
+              onClick={() => loginChecked("ranking")}
             >
-              QR출석체크
+              종합 랭킹
             </button>
             <button
+              className='font-bold p-4 bg-blue-500 text-white text-center rounded-md hover:bg-blue-700 transform hover:scale-105 transition-transform duration-200 shadow-lg'
+              onClick={() => loginChecked("participation")}
+            >
+              참여 랭킹
+            </button>
+            <button
+              className='font-bold p-4 bg-blue-500 text-white text-center rounded-md hover:bg-blue-700 transform hover:scale-105 transition-transform duration-200 shadow-lg'
+              onClick={() => loginChecked("founder")}
+            >
+              개설 랭킹
+            </button>
+        
+            {/* <button
               className='font-bold p-4 bg-green-600 text-white text-center rounded-md hover:bg-green-700 transform hover:scale-105 transition-transform duration-200 shadow-lg'
               onClick={() => admin("qrcheck")}
             >
               QR스캔
-            </button>
+            </button> */}
           </>
         )}
         <CustomModal
@@ -128,20 +125,38 @@ export default function Home() {
   );
 }
 
-const Header = () => {
+const Header = ({ session }) => {
   return (
     <header className='w-full max-w-xs flex justify-between items-center mb-4'>
-      <div className='text-3xl font-bold'>TCRC 러닝크루</div>
+      <div className='text-3xl font-bold '>TCRC 러닝크루</div>
       <div className='flex space-x-2'>
-        <button className='bg-blue-500 text-white rounded-full p-2 hover:bg-blue-600 transition-colors duration-200'>
-          <UserIcon className='' />
-        </button>
-        <button
-          onClick={() => signOut()}
-          className='bg-green-500 text-white rounded-full p-2 hover:bg-green-600 transition-colors duration-200'
-        >
-          <LogoutButton className='' />
-        </button>
+        {!session ? (
+          <>
+            <button
+              onClick={() => signOut()}
+              className='bg-green-500 text-white rounded-full p-2 hover:bg-green-600 transition-colors duration-200'
+            >
+              <LogoutButton className='' />
+            </button>
+          </>
+        ) : (
+          <>
+            {/* <button className='bg-blue-500 text-white rounded-full  p-2 hover:bg-blue-600 transition-colors duration-200'>
+              <UserIcon className='' />
+            </button> */}
+            <button
+              onClick={() => signOut()}
+              className='bg-green-500 text-white rounded-full p-2 hover:bg-green-600 transition-colors duration-200'
+            >
+              <LogoutButton className='' />
+            </button>
+            <Link href='/user/checkoutQR'>
+              <button className='bg-yellow-500 text-white rounded-full p-2 hover:bg-yellow-600 transition-colors duration-200'>
+                <Qrcode className='' />
+              </button>
+            </Link>
+          </>
+        )}
       </div>
     </header>
   );

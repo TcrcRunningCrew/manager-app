@@ -1,5 +1,6 @@
 import React from "react";
 import { MdLogout } from "react-icons/md";
+import { MdQrCode } from "react-icons/md";
 
 export function BellIcon(props: any) {
   return (
@@ -43,3 +44,10 @@ export function UserIcon(props: any) {
 export function LogoutButton(props: any) {
   return <MdLogout size={25} color='white' />;
 }
+
+
+export function Qrcode(props: any) {
+  return <MdQrCode size={25} color='white' />;
+}
+
+

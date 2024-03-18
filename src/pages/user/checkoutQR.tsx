@@ -34,7 +34,7 @@ export default function CheckoutQR() {
   return (
     <div className='dark flex flex-col justify-between  h-screen bg-gray-800 text-white'>
       <Header bgColor='bg-blue-500' text1='T C R C' text2='QR출석체크' />
-      <main className='flex-1 overflow-y-auto p-10 py-40 bg-gray-800'>
+      <main className='flex-1 overflow-y-auto p-6 py-10 bg-gray-800'>
         <div className='flex-grow flex justify-center items-center'>
           <div className='p-8 bg-white rounded-lg'>
             <QRCode
@@ -46,8 +46,8 @@ export default function CheckoutQR() {
             />
           </div>
         </div>
-        <div className='py-20'>
-          <div className='rounded-lg bg-blue-500 p-10 mx-auto w-full'>
+        <div className='py-16'>
+          <div className='rounded-lg bg-blue-500 p-6 mx-auto w-full'>
             <div className='flex flex-col items-center justify-center'>
               <div className='font-bold text-xl mb-2'>{username}</div>
               <div className='text-lg'>{userEmail}</div>

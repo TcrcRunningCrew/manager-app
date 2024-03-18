@@ -26,55 +26,54 @@ export default function Participation() {
     });
   };
 
-  const fetchUsersAndMeetings = async () => {
-    const startDay = `${currentMonth.toISOString().substring(0, 7)}-01`;
-    const endDay = new Date(
-      currentMonth.getFullYear(),
-      currentMonth.getMonth() + 1,
-      0
-    )
-      .toISOString()
-      .split("T")[0];
-
-    try {
-      const { data: usersAndMeetings, error } = await supabase
-        .from("meeting")
-        .select("name, birthYear,founder")
-        .gte("meeting_date", startDay)
-        .lte("meeting_date", endDay);
-
-      if (error) throw new Error(error.message);
-      
-      // console.log('usersAndMeetings: ', usersAndMeetings);
-      const userMeetingCounts = usersAndMeetings.reduce(
-        (acc: Record<string, User>, { name, birthYear, founder }) => {
-          const key = `${name}-${birthYear}`;
-          if (!acc[key]) {
-            acc[key] = { name, birthYear, RankingPoint: 0 };
-          }
-          //개설자의 경우 1.점 부여
-          if(founder){
-            acc[key].RankingPoint += 1.5;
-          } else {
-            acc[key].RankingPoint += 1;
-          }
-          return acc;
-        },
-        {}
-      );
-     
-
-      const sortedUsersByMeetingCount = Object.values(userMeetingCounts).sort(
-        (a, b) => b.RankingPoint - a.RankingPoint
-      ) as User[];
-      setUsers(sortedUsersByMeetingCount);
-      setRankCount(sortedUsersByMeetingCount.length)
-    } catch (error) {
-      console.error("Fetching or processing error:", error);
-    }
-  };
-
   useEffect(() => {
+    const fetchUsersAndMeetings = async () => {
+      const startDay = `${currentMonth.toISOString().substring(0, 7)}-01`;
+      const endDay = new Date(
+        currentMonth.getFullYear(),
+        currentMonth.getMonth() + 1,
+        0
+      )
+        .toISOString()
+        .split("T")[0];
+
+      try {
+        const { data: usersAndMeetings, error } = await supabase
+          .from("meeting")
+          .select("name, birthYear,founder")
+          .gte("meeting_date", startDay)
+          .lte("meeting_date", endDay);
+
+        if (error) throw new Error(error.message);
+
+        // console.log('usersAndMeetings: ', usersAndMeetings);
+        const userMeetingCounts = usersAndMeetings.reduce(
+          (acc: Record<string, User>, { name, birthYear, founder }) => {
+            const key = `${name}-${birthYear}`;
+            if (!acc[key]) {
+              acc[key] = { name, birthYear, RankingPoint: 0 };
+            }
+            //개설자의 경우 1.점 부여
+            if (founder) {
+              acc[key].RankingPoint += 1.5;
+            } else {
+              acc[key].RankingPoint += 1;
+            }
+            return acc;
+          },
+          {}
+        );
+
+        const sortedUsersByMeetingCount = Object.values(userMeetingCounts).sort(
+          (a, b) => b.RankingPoint - a.RankingPoint
+        ) as User[];
+        setUsers(sortedUsersByMeetingCount);
+        setRankCount(sortedUsersByMeetingCount.length);
+      } catch (error) {
+        console.error("Fetching or processing error:", error);
+      }
+    };
+
     fetchUsersAndMeetings();
   }, [currentMonth]);
 
@@ -92,9 +91,17 @@ export default function Participation() {
 
   return (
     <div className='dark flex flex-col justify-between  h-screen bg-gray-800 text-white'>
-      <Header bgColor={"bg-yellow-500"} text1={"T C R C"} text2={"월별종합랭킹"} />
+      <Header
+        bgColor={"bg-yellow-500"}
+        text1={"T C R C"}
+        text2={"월별종합랭킹"}
+      />
       <MonthNavigation currentMonth={currentMonth} changeMonth={changeMonth} />
-      <MyRanking  userRanking={userRanking} allRank={rankCount} bgColor={"bg-yellow-500"}/>
+      <MyRanking
+        userRanking={userRanking}
+        allRank={rankCount}
+        bgColor={"bg-yellow-500"}
+      />
       <main className='flex-1 overflow-y-auto p-3 bg-gray-800'>
         <div className='rounded-lg overflow-hidden bg-gray-700 p-4 pt-1 mx-auto w-full sm:w-3/4 md:w-3/4 lg:w-2/3 xl:w-1/2'>
           <table className='w-full caption-bottom text-sm'>
