@@ -1,19 +1,15 @@
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import {PropsWithChildren, useEffect, useState} from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
 import CustomModal from "../components/common/CustomModal";
 import React from "react";
-import { UserIcon, LogoutButton, Qrcode } from "../components/icons";
+import * as lottieJson from '../lib/lottie.json'
+import { LogoutButton, Qrcode } from "../components/icons";
 import Link from "next/link";
+import Lottie from "lottie-react";
 
-// import {
-//   alarmMeetingDatabaseChange,
-//   alarmUserDatabaseChange,
-// } from "../services/check.service";
 
 export default function Home() {
-  // alarmMeetingDatabaseChange();
-  // alarmUserDatabaseChange();
 
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -54,23 +50,8 @@ export default function Home() {
     }
   };
 
-  // const login = async () => {
-  //   setIsLoading(true); // Start loading
-  //   console.log("======111");
-  //   try {
-  //     await openSuccessModalWithMessage(
-  //       "이메일 정보 동의를 필수로 해주시길 부탁드립니다."
-  //     );
-  //     console.log("======2222");
-  //     // signIn("kakao"); // You might want to call signIn here if this is where you handle the login process
-  //   } catch (error) {
-  //     console.error("Login failed:", error);
-  //     setErrorMessage("An error occurred during login."); // Update your error message state accordingly
-  //   } finally {
-  //     setIsLoading(false); // End loading
-  //     console.log("======2222");
-  //   }
-  // };
+
+
 
   const login = async () => {
     setIsLoading(true); // Start loading
@@ -107,12 +88,12 @@ export default function Home() {
       key='1'
       className='dark flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4'
     >
+      {isLoading && (
+        <DeemdComponent><Lottie animationData={lottieJson} loop /> </DeemdComponent>
+    )}
+
       <main className='flex flex-col space-y-4 shadow-lg w-full max-w-xs'>
-        {isLoading && (
-          <div className='spinner-container'>
-            <div className='spinner'></div>
-          </div>
-        )}
+
         {!session ? (
           <>
             <Header session={session} />
@@ -166,7 +147,7 @@ export default function Home() {
   );
 }
 
-const Header = ({ session }) => {
+const Header = ({ session }: {session: any}) => {
   return (
     <>
       {!session ? (
@@ -229,3 +210,13 @@ declare module "next-auth" {
     birthYear: number;
   }
 }
+
+
+const DeemdComponent = ({ children }: PropsWithChildren) => {
+  return (
+      <div className={`shadow-lg bg-gray-200 opacity-10 a absolute size-full rounded-lg overflow-hidden flex z-20`}>
+        {children}
+      </div>
+  );
+};
+
