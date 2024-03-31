@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@next/eslint-plugin-next": "^14.1.4",
     "@next/third-parties": "^14.1.0",
     "@radix-ui/react-slot": "^1.0.2",
     "@supabase/supabase-js": "^2.39.3",
@@ -36,8 +37,10 @@
     "@types/react-dom": "^18",
     "@types/react-modal": "^3.16.3",
     "autoprefixer": "^10.0.1",
-    "eslint": "^8",
+    "eslint": "^8.57.0",
     "eslint-config-next": "14.1.0",
+    "eslint-plugin-react": "^7.34.1",
+    "eslint-plugin-react-hooks": "^4.6.0",
     "postcss": "^8",
     "tailwindcss": "^3.3.0",
     "typescript": "^5"
