@@ -4,6 +4,7 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import CustomModal from "../components/common/CustomModal";
 import React from "react";
 import { UserIcon, LogoutButton } from "../components/icons";
+import Main from "./main";
 // import {
 //   alarmMeetingDatabaseChange,
 //   alarmUserDatabaseChange,
@@ -60,7 +61,8 @@ export default function Home() {
       key='1'
       className='dark flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4'
     >
-      <Header />
+      <Main />
+      {/* <Header />
       <main className='flex flex-col space-y-4 shadow-lg w-full max-w-xs'>
         {!session ? (
           <>
@@ -106,7 +108,7 @@ export default function Home() {
           onRequestClose={closeSuccessModal}
           errorMessage={message}
         />
-      </main>
+      </main> */}
     </div>
   );
 }
