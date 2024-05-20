@@ -101,7 +101,7 @@ export default function Signup() {
   };
 
   return (
-    <div className='dark flex flex-col justify-between  h-screen bg-gray-800 text-black'>
+    <div className='dark flex flex-col justify-between h-screen bg-gray-800 text-black'>
       <GnbHeader />
       <main className='flex-1 overflow-y-auto p-3 bg-gray-800'>
         <div className='rounded-lg overflow-hidden bg-gray-700 p-4 pt-1 mx-auto w-full sm:w-3/4 md:w-3/4 lg:w-2/3 xl:w-1/2'>

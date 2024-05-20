@@ -25,11 +25,11 @@ const config = {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#5894CC",
+          DEFAULT: "#F9A8D4",
           foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
+          DEFAULT: "#5894CC",
           foreground: "hsl(var(--secondary-foreground))",
         },
         destructive: {
@@ -79,7 +79,22 @@ const config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  daisyui: {
+    themes: [
+      {
+        mytheme: {
+          "primary": "#579EE2",
+          "secondary": "#8A64BA",
+          // "accent": "#37cdbe",
+          // "neutral": "#3d4451",
+          // "base-100": "#ffffff",
+        },
+      },
+      // "dark",
+      // "cupcake",
+    ],
+  },
+  plugins: [require("tailwindcss-animate"), require('daisyui')],
 } satisfies Config
 
 export default config

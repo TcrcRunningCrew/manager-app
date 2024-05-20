@@ -1,24 +1,13 @@
 import React from 'react';
+import {PropsWithChildren} from "react";
 
-interface MenuItem {
-    label: string;
-    link: string;
-}
-
-interface MenuProps {
-    items: MenuItem[];
-}
-
-const Menu: React.FC<MenuProps> = ({ items }) => {
+const Menu = ({ children, totalMenu } ) => {
+    const overlapPercentage = 30;
     return (
-        <ul >
-            {items.map((item, index) => (
-                <li key={index}>
-                    <a href={item.link}>{item.label}</a>
-                </li>
-            ))}
-        </ul>
-    );
+        <div className="relative" style={{ bottom: `-${totalMenu * overlapPercentage}%`}}>
+          {children}
+        </div>
+      );
 };
 
 export default Menu;
