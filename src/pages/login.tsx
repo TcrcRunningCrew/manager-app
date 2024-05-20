@@ -21,7 +21,9 @@ const Login = () => {
                         onClick={() => {}} 
                         text="카카오톡으로 로그인" 
                         icon={IcKakaoIcon()} 
-                        bgColor={'btn-primary'}/>
+                        bgColor={'btn-primary'}
+                        textColor={'text-white'}
+                        />
                 </div>
             </div>
         </Layout>
