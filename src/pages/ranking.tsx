@@ -88,11 +88,6 @@ const Attendance: React.FC = () => {
                         <span>현재 {currentRecord.rank}위</span>
                         <span>전체 {currentRecord.total}명</span>
                     </div>
-                    {/* <div className="join-item flex flex-col items-center">
-                        <span>2024년 1월</span>
-                        <span>현재 1위</span>
-                        <span>전체 3000명</span>
-                    </div> */}
                     <button onClick={() => handleMoveRecord("next")}>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
