@@ -1,34 +1,50 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useSession } from "next-auth/react";
 import Layout from "../components/Layout";
+import Login from "./login";
 import Main from "./main";
+import { useRouter } from "next/router";
 
 export default function Home() {
 
+  const router = useRouter();
+  const { data: session, status } = useSession();
 
-// 세션체크하여 로그인이 되어있다면 메인페이지로 이동(Main)
-// 로그인이 안되어있다면 로그인페이지로 이동(Login)
+  useEffect(() => {
+    console.log("session", session)
+    if (status === "authenticated" && session.user) {
+      router.push("/main");
+      return;
+    } else {
+      router.push("/login");
+      return;
+    }
+  }, [router, session, status]);
 
-  return (<></>
-    // <Layout >
-    //   <Main />
-    //   {/* Rest of the code */}
-    // </Layout >
+  if (status === "loading") return null;
+
+  return (
+    <Layout>
+      {/* { status === "authenticated" && session.user
+        ? (<Main />) 
+        : (<Login />) } */}
+    </Layout>
   );
 }
 
-// declare module "next-auth" {
-//   /**
-//    * Returned by `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
-//    */
-//   interface Session {
-//     user: {
-//       name: string;
-//       email: string;
-//       id: string;
-//       birthYear: number;
-//     };
-//   }
-//   interface User {
-//     birthYear: number;
-//   }
-// }
+declare module "next-auth" {
+  /**
+   * Returned by `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
+   */
+  interface Session {
+    user: {
+      name: string;
+      email: string;
+      id: string;
+      birthYear: number;
+    };
+  }
+  interface User {
+    birthYear: number;
+  }
+}

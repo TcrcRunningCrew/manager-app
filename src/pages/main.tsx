@@ -1,10 +1,30 @@
-import React from "react";
+import React, { useState, useEffect } from 'react';
 import {Layout} from "../components/Layout";
 import Header from "../components/kyu/Header";
 import Menu from "../components/kyu/Menu";
 import MenuItem from "../components/kyu/MenuItem";
+import { useSession } from "next-auth/react";
+import { supabase } from '../utils/supabaseClient';
 
 const Main = () => {
+    const { data: session, status } = useSession();
+
+    const fetchUser = async (s) => {
+        console.log(s.user.id)
+        const { data: user, error } = await supabase
+            .from("user")
+            .select("*")
+            .eq("accountId", s.user.id)
+
+        if (error) throw new Error(error.message);
+    
+    }
+
+    useEffect(() => {
+        if (session) {
+            fetchUser(session);
+        }
+      }, []);
 
     const menuItems = [
         {p_text: "크루원의 참여도를 확인해 보세요!", btn_text: "랭킹 확인", bg_color: "bg-secondary"},

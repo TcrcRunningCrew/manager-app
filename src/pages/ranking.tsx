@@ -1,66 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {Layout} from "../components/Layout";
 import PageHeader from "../components/kyu/PageHeader";
+import { supabase } from '../utils/supabaseClient';
+import { useSession } from "next-auth/react";
+
 
 const Attendance: React.FC = () => {
+    const { data: session, status } = useSession();
+
+    const [users, setUsers] = useState<any[]>([]);
+    const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
+    // const [username, setUsername] = useState();
+    const [userRanking, setUserRanking] = useState<number>(0);
+    const [rankCount, setRankCount] = useState<number>(0); //전체 랭킹
+
+    const fetchUsersAndMeetings = async () => {
+        const { data: usersAndMeetings, error } = await supabase
+            .from("meeting_view")
+            .select("*")
+            .eq("year", new Date().getFullYear())
+            .eq("month", new Date().getMonth() + 1)
+            .order("result", { ascending: false });
+
+        if (error) throw new Error(error.message);
+    
+        setUsers(usersAndMeetings);
+        setRankCount(usersAndMeetings.length)
+        setRankCount(usersAndMeetings.findIndex((record) => record.name === session!.user.name))
+    }
+
+    useEffect(() => {
+        if (session) {
+            fetchUsersAndMeetings();
+        }
+    }, []);
+
     const [tab, setTab] = useState('total');
     
     const handleTabChange = (tab: string) => {
         setTab(tab);
     };
 
-    const members = [
-        { name: 'Cy Ganderton', score: 10 },
-        { name: 'Hart Hagerty', score: 20 },
-        { name: 'Brice Swyre', score: 30 },
-        { name: 'Cy Ganderton', score: 10 },
-        { name: 'Hart Hagerty', score: 20 },
-        { name: 'Brice Swyre', score: 30 },
-        { name: 'Cy Ganderton', score: 10 },
-        { name: 'Hart Hagerty', score: 20 },
-        { name: 'Brice Swyre', score: 30 },
-        { name: 'Cy Ganderton', score: 10 },
-        { name: 'Hart Hagerty', score: 20 },
-        { name: 'Brice Swyre', score: 30 },
-        { name: 'Cy Ganderton', score: 10 },
-        { name: 'Hart Hagerty', score: 20 },
-        { name: 'Brice Swyre', score: 30 },
-        { name: 'Cy Ganderton', score: 10 },
-        { name: 'Hart Hagerty', score: 20 },
-        { name: 'Brice Swyre', score: 30 },
-    ];
-
-    const records = [
-        { month: '2024년 1월', rank: 1, total: 3000 },
-        { month: '2024년 2월', rank: 2, total: 3000 },
-        { month: '2024년 3월', rank: 3, total: 3000 },
-        { month: '2024년 4월', rank: 4, total: 3000 },
-        { month: '2024년 5월', rank: 5, total: 3000 },
-        { month: '2024년 6월', rank: 6, total: 3000 },
-        { month: '2024년 7월', rank: 7, total: 3000 },
-        { month: '2024년 8월', rank: 8, total: 3000 },
-        { month: '2024년 9월', rank: 9, total: 3000 },
-        { month: '2024년 10월', rank: 10, total: 3000 },
-        { month: '2024년 11월', rank: 11, total: 3000 },
-        { month: '2024년 12월', rank: 12, total: 3000 },
-    ];
-    const [currentRecord, setCurrentRecord] = useState(records[0]);
-    const [currentIndex, setCurrentIndex] = useState(0);
-    const handleMoveRecord = (direction: 'prev' | 'next') => {
-        let newIndex = currentIndex;
-        if (direction === 'prev') {
-            newIndex = currentIndex - 1;
-            if (newIndex < 0) {
-                newIndex = 0;
-            }
-        } else if (direction === 'next') {
-            newIndex = currentIndex + 1;
-            if (newIndex >= records.length) {
-                newIndex = records.length - 1;
-            }
-        }
-        setCurrentRecord(records[newIndex]);
-        setCurrentIndex(newIndex);
+    const changeMonth = (increment: number) => {
+        setCurrentMonth((prevMonth) => {
+          const newMonth = new Date(prevMonth);
+          newMonth.setMonth(newMonth.getMonth() + increment);
+          return newMonth;
+        });
     };
 
     return (
@@ -78,17 +64,17 @@ const Attendance: React.FC = () => {
                 </div>
                 
                 <div className="join mx-auto bg-indigo-950/0 flex space-x-24 text-white">
-                    <button onClick={() => handleMoveRecord("prev")}>
+                    <button onClick={() => changeMonth(-1)}>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
                         </svg>
                     </button>
                     <div className="join-item flex flex-col items-center">
-                        <span>{currentRecord.month}</span>
-                        <span>현재 {currentRecord.rank}위</span>
-                        <span>전체 {currentRecord.total}명</span>
+                        <span>{currentMonth.getFullYear()}년 {currentMonth.getMonth()}월</span>
+                        <span>현재 {userRanking}위</span>
+                        <span>전체 {rankCount}명</span>
                     </div>
-                    <button onClick={() => handleMoveRecord("next")}>
+                    <button onClick={() => changeMonth(1)}>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
                         </svg>
@@ -100,16 +86,17 @@ const Attendance: React.FC = () => {
                         <table className="table ">
                             <thead className="sticky top-0 bg-white">
                                 <tr className="border-none  ">
-                                    <th >순위</th>
+                                    <th>순위</th>
                                     <th>크루원</th>
                                     <th>점수</th>
                                 </tr>
-                            </thead>                                <tbody className="">
-                                {members.map((member, index) => (
+                            </thead>                                
+                            <tbody>
+                                {users.map((member, index) => (
                                     <tr key={index} className="border-none">
                                         <th>{index + 1}</th>
                                         <td>{member.name}</td>
-                                        <td>{member.score}</td>
+                                        <td>{member.result}</td>
                                     </tr>
                                 ))}
                             </tbody>

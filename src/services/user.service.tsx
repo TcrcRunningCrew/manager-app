@@ -6,6 +6,7 @@ export const findUserByAccountId = async (accountId: string) => {
       .from("user")
       .select("*")
       .eq("accountId", accountId);
+
     return Promise.resolve(res.data);
   } catch (e: unknown) {
     return Promise.reject(e);

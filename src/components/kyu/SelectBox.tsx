@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 
-const SelectBox = ({ label, options }) => {
+const SelectBox = ({ label, options, name, onChange }) => {
     const [selectedOption, setSelectedOption] = useState("선택");
     const [isOpen, setIsOpen] = useState(false);
 
-    const handleOptionClick = (option) => {
+    const handleOptionClick = (option, value) => {
         setSelectedOption(option);
         setIsOpen(false);
+        onChange(name, value + "");
     }
     return (
         <label className="form-control w-full">
@@ -18,7 +19,7 @@ const SelectBox = ({ label, options }) => {
                 {isOpen && (
                     <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
                         {options.map((option, index) => (
-                            <li key={index} onClick={() => handleOptionClick(option)}>
+                            <li key={index} onClick={() => handleOptionClick(option, index + 1)}>
                                 <a>{option}</a>
                             </li>
                         ))}
