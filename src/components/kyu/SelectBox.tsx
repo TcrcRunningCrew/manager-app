@@ -31,20 +31,6 @@ const SelectBox = ({ label, options, name, onChange }) => {
                 } */}
             </div>
         </label>
-        // <label className="form-control w-full">
-        //     <div className="label">
-        //         <span className="label-text">{label}</span>
-        //     </div>
-        //     <select className="select select-bordered" onChange={handleSelectClick}>
-        //         {options.map((option, index) => (
-        //               <option key={index} value={option}>{option}</option>
-        //         ))}
-        //     </select>
-        //     {selectedOption === "기타" 
-        //         ? <input type="text" className="input input-bordered w-full" />
-        //         : null
-        //     }
-        // </label>
     );
 };
 

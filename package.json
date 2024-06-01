@@ -30,7 +30,9 @@
     "react-modal": "^3.16.1",
     "tailwind-merge": "^2.2.2",
     "tailwindcss-animate": "^1.0.7",
-    "daisyui": "4.11.1"
+    "daisyui": "4.11.1",
+    "moment": "^2.29.1",
+    "styled-components": "^5.3.3"
   },
   "devDependencies": {
     "@types/node": "^20",

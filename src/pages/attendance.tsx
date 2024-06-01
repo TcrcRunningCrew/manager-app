@@ -4,7 +4,7 @@ import PageHeader from "../components/kyu/PageHeader";
 import Input from "../components/kyu/Input";
 import RadioBox from "../components/kyu/RadioBox";
 import SelectBox from "../components/kyu/SelectBox";
-import DatePickerPopup from '../components/common/calender';
+import DatePickerPopup from '../components/common/Calender';
 import { insertMeeting } from "../services/user.service";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -16,11 +16,9 @@ interface User {
 
 
 const Attendance: React.FC = () => {
-    console.log('====Attendance===')
     const router = useRouter();
     const { data: session, status } = useSession();
 
-    const [isPresent, setIsPresent] = useState(false);
     const [user, setUser] = useState<User>({
         userId: "",
         userEmail: "",
@@ -30,7 +28,7 @@ const Attendance: React.FC = () => {
         userAge: "",
         participationDate: new Date().toISOString().split("T")[0],
         activation: "1",
-        location: "1",
+        location: "0",
         isFounder: false,
     });
 
@@ -51,9 +49,11 @@ const Attendance: React.FC = () => {
     }, [session, status]);
 
     const handleCheckAttendance = () => {
-        // Logic to check attendance goes here
-        setIsPresent(true);
-        console.log(attendance)
+        if (attendance.location === "0") {
+            alert("모임 장소를 선택해주세요.");
+            return;
+        }
+
         insertMeeting(
             user.userId,
             attendance.username,
@@ -65,9 +65,11 @@ const Attendance: React.FC = () => {
             attendance.isFounder
           ).then((res) => {
             console.log('====insertMeeting===res: ', res);
+            alert("출석이 완료되었습니다.");
             router.push("/main");
           }).catch((error) => {
             console.log('====insertMeeting===error: ', error);
+            alert("출석에 실패했습니다.");
           });
     };
 
