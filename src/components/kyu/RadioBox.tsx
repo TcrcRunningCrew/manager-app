@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 
-const Radio = ({ label, name, options, onChange }) => {
+type RadioProps = {
+    label: string;
+    name: string;
+    options: string[];
+    onChange: (name: string, value: string) => void;
+};
+
+const Radio = React.memo(({ label, name, options, onChange }: RadioProps) => {
     const [selectedOption, setSelectedOption] = useState('1');
 
     const handleRadioClick = (e) => {
@@ -8,6 +15,7 @@ const Radio = ({ label, name, options, onChange }) => {
         setSelectedOption(e.target.value);
         onChange(e.target.name, e.target.value);
     }
+    
     return (
         <label className="form-control w-full">
             <div className="label">
@@ -19,7 +27,7 @@ const Radio = ({ label, name, options, onChange }) => {
                     const value = "" + (index + 1);
 
                     return (
-                        <div className="flex pr-3" key={index} >
+                        <label className="flex pr-3" key={value} >
                             <input 
                                 type="radio" 
                                 className="radio radio-primary" 
@@ -29,12 +37,12 @@ const Radio = ({ label, name, options, onChange }) => {
                                 checked={value === selectedOption}
                             />
                             <span className='pl-2'>{option}</span>
-                        </div>
+                        </label>
                     )
                 })}
             </div>
         </label>
     );
-};
+});
 
 export default Radio;

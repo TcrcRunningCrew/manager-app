@@ -10,17 +10,6 @@ export default function Home() {
   const router = useRouter();
   const { data: session, status } = useSession();
 
-  useEffect(() => {
-    console.log("session", session)
-    if (status === "authenticated" && session.user) {
-      router.push("/main");
-      return;
-    } else {
-      router.push("/login");
-      return;
-    }
-  }, [router, session, status]);
-
   if (status === "loading") return null;
 
   return (

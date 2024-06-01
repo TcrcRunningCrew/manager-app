@@ -25,10 +25,10 @@ const SelectBox = ({ label, options, name, onChange }) => {
                         ))}
                     </ul>
                 )}
-                {selectedOption === "기타" 
+                {/* {selectedOption === "기타" 
                     ? <input type="text" className="input input-bordered w-full" />
                     : null
-                }
+                } */}
             </div>
         </label>
         // <label className="form-control w-full">

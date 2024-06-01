@@ -1,10 +1,16 @@
 import React from 'react';
 
 const PageHeader = ({ pageName }) => {
+
+    // 뒤로가기 함수
+    const goBack = () => {
+        window.history.back();
+    }
+
     return (
         <div className="navbar bg-base-100">
             <div className="navbar-start">
-                <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
+                <div tabIndex={0} role="button" className="btn btn-ghost btn-circle" onClick={goBack}>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
                     </svg>

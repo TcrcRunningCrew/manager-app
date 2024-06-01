@@ -1,34 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {Layout} from "../components/Layout";
 import Header from "../components/kyu/Header";
 import Menu from "../components/kyu/Menu";
 import MenuItem from "../components/kyu/MenuItem";
-import { useSession } from "next-auth/react";
-import { supabase } from '../utils/supabaseClient';
+import { useRouter } from "next/router";
 
 const Main = () => {
-    const { data: session, status } = useSession();
-
-    const fetchUser = async (s) => {
-        console.log(s.user.id)
-        const { data: user, error } = await supabase
-            .from("user")
-            .select("*")
-            .eq("accountId", s.user.id)
-
-        if (error) throw new Error(error.message);
-    
-    }
-
-    useEffect(() => {
-        if (session) {
-            fetchUser(session);
-        }
-      }, []);
+    const router = useRouter();
 
     const menuItems = [
-        {p_text: "크루원의 참여도를 확인해 보세요!", btn_text: "랭킹 확인", bg_color: "bg-secondary"},
-        {p_text: "출석체크하고 상품을 받으세요!", btn_text: "출석 체크", bg_color: "bg-primary"},
+        {
+            p_text: "크루원의 참여도를 확인해 보세요!", 
+            btn_text: "랭킹 확인", 
+            bg_color: "bg-secondary",
+            onclick: () => { router.push("/ranking"); }
+        },
+        {
+            p_text: "출석체크하고 상품을 받으세요!", 
+            btn_text: "출석 체크", 
+            bg_color: "bg-primary",
+            onclick: () => { router.push("/attendance"); }
+        },
     ];
 
     return (
@@ -65,6 +57,7 @@ const Main = () => {
                                 bg_color={item.bg_color}
                                 position={array.length - index}
                                 totalMenu={menuItems.length}
+                                onclick={item.onclick}
                             />
                         ))}
                     </Menu>

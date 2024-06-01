@@ -28,10 +28,23 @@ const DatePickerPopup: React.FC<DatePickerPopupProps> = ({ isOpen, onClose, onDa
       isOpen={isOpen}
       onRequestClose={onClose}
       contentLabel="Date Picker Popup"
+      className="mx-auto w-4/5"
     >
-      <h2>Select a Date</h2>
-      <Calendar locale='ko' onChange={handleDateChange} value={selectedDate} />
-      <button onClick={handleConfirm}>Confirm</button>
+      <div className='pt-24'>
+        <h2 className='text-center font-bold text-xl pb-4'>달력</h2>
+        <Calendar 
+          locale='ko' 
+          onChange={handleDateChange} 
+          value={selectedDate} 
+          className={'mx-auto'}
+          />
+        <div className='pt-4'>
+          <button className='btn btn-primary text-white' onClick={handleConfirm}>
+            <span className='font-bold text-xl'>선택</span>
+          </button>
+        </div>
+      </div>
+      
     </Modal>
   );
 };

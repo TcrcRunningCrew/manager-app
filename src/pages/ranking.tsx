@@ -10,32 +10,9 @@ const Attendance: React.FC = () => {
 
     const [users, setUsers] = useState<any[]>([]);
     const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
-    // const [username, setUsername] = useState();
     const [userRanking, setUserRanking] = useState<number>(0);
     const [rankCount, setRankCount] = useState<number>(0); //전체 랭킹
-
-    const fetchUsersAndMeetings = async () => {
-        const { data: usersAndMeetings, error } = await supabase
-            .from("meeting_view")
-            .select("*")
-            .eq("year", new Date().getFullYear())
-            .eq("month", new Date().getMonth() + 1)
-            .order("result", { ascending: false });
-
-        if (error) throw new Error(error.message);
-    
-        setUsers(usersAndMeetings);
-        setRankCount(usersAndMeetings.length)
-        setRankCount(usersAndMeetings.findIndex((record) => record.name === session!.user.name))
-    }
-
-    useEffect(() => {
-        if (session) {
-            fetchUsersAndMeetings();
-        }
-    }, []);
-
-    const [tab, setTab] = useState('total');
+    const [tab, setTab] = useState('result');
     
     const handleTabChange = (tab: string) => {
         setTab(tab);
@@ -49,6 +26,33 @@ const Attendance: React.FC = () => {
         });
     };
 
+    const fetchUsersAndMeetings = async (tab) => {
+        const { data: usersAndMeetings, error } = await supabase
+            .from("meeting_view")
+            .select("*")
+            .eq("year", currentMonth.getFullYear())
+            .eq("month", currentMonth.getMonth() + 1)
+            .gt(tab, 0)
+            .order(tab, { ascending: false });
+        console.log(usersAndMeetings)
+        if (error) throw new Error(error.message);
+    
+        setUsers(usersAndMeetings);
+        setRankCount(usersAndMeetings.length)
+        setUserRanking(usersAndMeetings
+            .findIndex((record) => record.name === session!.user.name) + 1
+        )
+    }
+
+    useEffect(() => {
+        if (session) {
+            fetchUsersAndMeetings(tab);
+        }
+    }, [currentMonth, tab]);
+
+ 
+
+
     return (
        <Layout>
             <PageHeader pageName={'랭킹'}/>
@@ -58,9 +62,9 @@ const Attendance: React.FC = () => {
                     className="tabams tabs-boxed text-white mx-auto"
                     style={{ backgroundColor: '#192642' }}
                 >
-                    <a role="tab" className={`tab ${tab === 'total' ? 'tab-active' : ''}`} onClick={() => handleTabChange('total')}>종합</a>
+                    <a role="tab" className={`tab ${tab === 'result' ? 'tab-active' : ''}`} onClick={() => handleTabChange('result')}>종합</a>
                     <a role="tab" className={`tab ${tab === 'join' ? 'tab-active' : ''}`} onClick={() => handleTabChange('join')}>참여</a>
-                    <a role="tab" className={`tab ${tab === 'create' ? 'tab-active' : ''}`} onClick={() => handleTabChange('create')}>개설</a>
+                    <a role="tab" className={`tab ${tab === 'open' ? 'tab-active' : ''}`} onClick={() => handleTabChange('open')}>개설</a>
                 </div>
                 
                 <div className="join mx-auto bg-indigo-950/0 flex space-x-24 text-white">
@@ -70,7 +74,7 @@ const Attendance: React.FC = () => {
                         </svg>
                     </button>
                     <div className="join-item flex flex-col items-center">
-                        <span>{currentMonth.getFullYear()}년 {currentMonth.getMonth()}월</span>
+                        <span>{currentMonth.getFullYear()}년 {currentMonth.getMonth() + 1}월</span>
                         <span>현재 {userRanking}위</span>
                         <span>전체 {rankCount}명</span>
                     </div>
@@ -96,7 +100,7 @@ const Attendance: React.FC = () => {
                                     <tr key={index} className="border-none">
                                         <th>{index + 1}</th>
                                         <td>{member.name}</td>
-                                        <td>{member.result}</td>
+                                        <td>{member[tab]}</td>
                                     </tr>
                                 ))}
                             </tbody>
