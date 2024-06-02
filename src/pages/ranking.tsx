@@ -4,20 +4,42 @@ import PageHeader from "../components/kyu/PageHeader";
 import { supabase } from '../utils/supabaseClient';
 import { useSession } from "next-auth/react";
 
+class rankAndCount {
+    total: number;
+    guest: number;
+    host: number;
+}
+
+class meetingData {
+    total: any[];
+    guest: any[];
+    host: any[];
+}
 
 const Attendance: React.FC = () => {
     const { data: session, status } = useSession();
 
-    const [users, setUsers] = useState<any[]>([]);
-    const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
-    const [userRanking, setUserRanking] = useState<number>(0);
-    const [rankCount, setRankCount] = useState<number>(0); //전체 랭킹
-    const [tab, setTab] = useState('result');
-    
+    const [data, setData] = useState<meetingData>({
+        total: [],
+        guest: [],
+        host: []
+    });
+    const [userRanking, setUserRanking] = useState<rankAndCount>({
+        total: 0,
+        guest: 0,
+        host: 0
+    });
+    const [rankCount, setRankCount] = useState<rankAndCount>({
+        total: 0,
+        guest: 0,
+        host: 0
+    }); //전체 랭킹
+    const [tab, setTab] = useState('total');
     const handleTabChange = (tab: string) => {
         setTab(tab);
     };
 
+    const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
     const changeMonth = (increment: number) => {
         setCurrentMonth((prevMonth) => {
           const newMonth = new Date(prevMonth);
@@ -26,32 +48,52 @@ const Attendance: React.FC = () => {
         });
     };
 
+    
     const fetchUsersAndMeetings = async (tab) => {
         const { data: usersAndMeetings, error } = await supabase
             .from("meeting_view")
             .select("*")
             .eq("year", currentMonth.getFullYear())
             .eq("month", currentMonth.getMonth() + 1)
-            .gt(tab, 0)
-            .order(tab, { ascending: false });
-        console.log(usersAndMeetings)
+           
         if (error) throw new Error(error.message);
-    
-        setUsers(usersAndMeetings);
-        setRankCount(usersAndMeetings.length)
-        setUserRanking(usersAndMeetings
-            .findIndex((record) => record.name === session!.user.name) + 1
-        )
+
+        const user = usersAndMeetings
+        .find((record) => record.name === session!.user.name) 
+        const data = {
+            total: usersAndMeetings.sort((a, b) => b.total - a.total),
+            guest: usersAndMeetings
+                .filter((record) => record.guest > 0)
+                .sort((a, b) => b.guest - a.guest),
+            host: usersAndMeetings
+                .filter((record) => record.host > 0)
+                .sort((a, b) => b.host - a.host)
+        }
+
+        setData({
+            total: data.total,
+            guest: data.guest,
+            host: data.host
+        })
+        setRankCount({
+            total: data.total.length,
+            guest: data.guest.length,
+            host: data.host.length
+        })
+        setUserRanking({
+            total: user?.total_rank <= data.total.length ? user?.total_rank : 0,
+            guest: user?.guest_rank <= data.guest.length ? user?.guest_rank : 0,
+            host: user?.host_rank <= data.host.length ? user?.host_rank : 0
+        })
     }
 
     useEffect(() => {
         if (session) {
             fetchUsersAndMeetings(tab);
         }
-    }, [currentMonth, tab]);
+    }, [currentMonth]);
 
- 
-
+    if (status === "loading") return null;
 
     return (
        <Layout>
@@ -62,9 +104,9 @@ const Attendance: React.FC = () => {
                     className="tabams tabs-boxed text-white mx-auto"
                     style={{ backgroundColor: '#192642' }}
                 >
-                    <a role="tab" className={`tab ${tab === 'result' ? 'tab-active' : ''}`} onClick={() => handleTabChange('result')}>종합</a>
-                    <a role="tab" className={`tab ${tab === 'join' ? 'tab-active' : ''}`} onClick={() => handleTabChange('join')}>참여</a>
-                    <a role="tab" className={`tab ${tab === 'open' ? 'tab-active' : ''}`} onClick={() => handleTabChange('open')}>개설</a>
+                    <a role="tab" className={`tab ${tab === 'total' ? 'tab-active' : ''}`} onClick={() => handleTabChange('total')}>종합</a>
+                    <a role="tab" className={`tab ${tab === 'guest' ? 'tab-active' : ''}`} onClick={() => handleTabChange('guest')}>참여</a>
+                    <a role="tab" className={`tab ${tab === 'host' ? 'tab-active' : ''}`} onClick={() => handleTabChange('host')}>개설</a>
                 </div>
                 
                 <div className="join mx-auto bg-indigo-950/0 flex space-x-24 text-white">
@@ -75,8 +117,8 @@ const Attendance: React.FC = () => {
                     </button>
                     <div className="join-item flex flex-col items-center">
                         <span>{currentMonth.getFullYear()}년 {currentMonth.getMonth() + 1}월</span>
-                        <span>현재 {userRanking}위</span>
-                        <span>전체 {rankCount}명</span>
+                        <span>현재 {userRanking[tab]}위</span>
+                        <span>전체 {rankCount[tab]}명</span>
                     </div>
                     <button onClick={() => changeMonth(1)}>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
@@ -96,13 +138,27 @@ const Attendance: React.FC = () => {
                                 </tr>
                             </thead>                                
                             <tbody>
-                                {users.map((member, index) => (
+                                {tab === 'total' ? data.total.map((member, index) => (
                                     <tr key={index} className="border-none">
-                                        <th>{index + 1}</th>
+                                        <th>{member[`${tab}_rank`]}</th>
                                         <td>{member.name}</td>
                                         <td>{member[tab]}</td>
                                     </tr>
-                                ))}
+                                )) : null}
+                                {tab === 'guest' ? data.guest.map((member, index) => (
+                                    <tr key={index} className="border-none">
+                                        <th>{member[`${tab}_rank`]}</th>
+                                        <td>{member.name}</td>
+                                        <td>{member[tab]}</td>
+                                    </tr>
+                                )) : null}
+                                {tab === 'host' ? data.host.map((member, index) => (
+                                    <tr key={index} className="border-none">
+                                        <th>{member[`${tab}_rank`]}</th>
+                                        <td>{member.name}</td>
+                                        <td>{member[tab]}</td>
+                                    </tr>
+                                )) : null}
                             </tbody>
                         </table>
                     </div>

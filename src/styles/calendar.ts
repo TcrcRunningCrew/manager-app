@@ -2,6 +2,7 @@ import Calendar from "react-calendar";
 import styled from "styled-components";
 import "react-calendar/dist/Calendar.css";
 
+
 export const StyledCalendarWrapper = styled.div`
   width: 100%;
   display: flex;
@@ -101,7 +102,7 @@ export const StyledCalendarWrapper = styled.div`
     color: ${(props) => props.theme.gray_1};
   }
 
-  /* 선택한 날짜 스타일 적용 *
+  /* 선택한 날짜 스타일 적용 */
   .react-calendar__tile:enabled:hover,
   .react-calendar__tile:enabled:focus,
   .react-calendar__tile--active {
@@ -113,7 +114,7 @@ export const StyledCalendarWrapper = styled.div`
 export const StyledCalendar = styled(Calendar)``;
 
 /* 오늘 버튼 스타일 */
-export const StyledDate = styled.div`
+export const StyledDate = styled.button`
   position: absolute;
   right: 7%;
   top: 6%;

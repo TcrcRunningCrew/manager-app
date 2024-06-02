@@ -4,9 +4,11 @@ import Header from "../components/kyu/Header";
 import Menu from "../components/kyu/Menu";
 import MenuItem from "../components/kyu/MenuItem";
 import { useRouter } from "next/router";
+import { useSession } from "next-auth/react";
 
 const Main = () => {
     const router = useRouter();
+    const { data: session, status } = useSession();
 
     const menuItems = [
         {
@@ -40,7 +42,7 @@ const Main = () => {
                     </div>
                     <div className="pl-8 pb-12 text-left">
                         <div className="max-w-md text-2xl font-bold text-white">
-                            <p className="py-1">안녕하세요 OOO님,</p>
+                            <p className="py-1">안녕하세요 {session?.user.name}님,</p>
                             <p className="py-1">현재 랭킹은</p>
                             <p className="py-1">1위 15점 입니다.</p>
                         </div>

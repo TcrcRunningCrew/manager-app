@@ -6,21 +6,18 @@ import React, { useEffect } from "react";
 import { useRouter } from "next/router";
 
 const Login = () => {
-    // const router = useRouter();
-    // const { data: session, status } = useSession();
+    const router = useRouter();
+    const { data: session, status } = useSession();
 
-
-    // useEffect(() => {
-    //     console.log("session", session)
-    //     if (status === "authenticated" && session.user && session.user.name && session.user.email) {
-    //       router.push("/main");
-    //       return;
-    //     } else {
-    //       router.push("/login");
-    //       return;
-    //     }
-    //   }, [session, status]);
-
+    useEffect(() => {
+        console.log(router.pathname)
+        if (status === "authenticated" && session.user && session.user.name && session.user.email) {
+            if (router.pathname === "/") {
+                router.push("/main");
+                return;
+            }
+        }
+    }, [session, status]);
       
     const handleLogin = () => {
         signIn('kakao');

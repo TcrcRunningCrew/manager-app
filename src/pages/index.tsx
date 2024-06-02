@@ -14,9 +14,7 @@ export default function Home() {
 
   return (
     <Layout>
-      {/* { status === "authenticated" && session.user
-        ? (<Main />) 
-        : (<Login />) } */}
+      <Login />
     </Layout>
   );
 }

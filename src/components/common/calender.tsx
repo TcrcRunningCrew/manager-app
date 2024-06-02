@@ -1,16 +1,16 @@
 import React, { useState , useEffect} from 'react';
-import Calendar from 'react-calendar';
-import 'react-calendar/dist/Calendar.css';
 import Modal from 'react-modal';
-import moment from 'moment';
+import Calendar from 'react-calendar';
+import "react-calendar/dist/Calendar.css";
 
+import moment from 'moment';
 import {
   StyledCalendarWrapper,
   StyledCalendar,
   StyledDate,
   StyledToday,
   StyledDot,
-} from "../../styles/calendar";
+} from "../../styles/calendar.ts";
 
 interface DatePickerPopupProps {
   isOpen: boolean;
@@ -87,7 +87,7 @@ console.log("render")
           />
            <StyledDate onClick={handleTodayClick}>오늘</StyledDate>
         </StyledCalendarWrapper>
-        <div className='pt-4'>
+        <div className='pt-4 flex justify-end'>
           <button className='btn btn-primary text-white' onClick={handleConfirm}>
             <span className='font-bold text-xl'>선택</span>
           </button>
