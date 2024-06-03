@@ -33,14 +33,14 @@ const Main = () => {
             <div className="flex flex-col justify-start bg-cover bg-no-repeat bg-center" 
                 style={{ 
                     marginBottom: `${menuItems.length * 50}px`, 
-                    backgroundImage: 'url("https://img.gqkorea.co.kr/gq/2020/11/style_5fbcc604426fa.jpg")',
+                    backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url("https://img.gqkorea.co.kr/gq/2020/11/style_5fbcc604426fa.jpg")',
                     // backgroundSize: '100%',
                 }}>
                 <div className="flex flex-col justify-between m-1" style={{ minHeight: '72vh' }}>
-                    <div role="alert" className="alert bg-slate-50/30 justify-start">
+                    <div role="alert" className="alert bg-slate-50 justify-start">
                         <span >공지 - 2024 정기런 장소 가이드</span>
                     </div>
-                    <div className="pl-8 pb-12 text-left">
+                    <div className="pl-8 pb-12 text-left ">
                         <div className="max-w-md text-2xl font-bold text-white">
                             <p className="py-1">안녕하세요 {session?.user.name}님,</p>
                             <p className="py-1">현재 랭킹은</p>

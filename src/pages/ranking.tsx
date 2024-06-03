@@ -117,7 +117,7 @@ const Attendance: React.FC = () => {
                     </button>
                     <div className="join-item flex flex-col items-center">
                         <span>{currentMonth.getFullYear()}년 {currentMonth.getMonth() + 1}월</span>
-                        <span>현재 {userRanking[tab]}위</span>
+                        <span>{userRanking[tab] ? `현재 ${userRanking[tab]}위` : '-'}</span>
                         <span>전체 {rankCount[tab]}명</span>
                     </div>
                     <button onClick={() => changeMonth(1)}>
@@ -129,9 +129,9 @@ const Attendance: React.FC = () => {
 
                 <div className="card w-full bg-base-100 shadow-xl h-full overflow-y-auto scrollbar-hide">
                     <div className="flex flex-col gap-2">
-                        <table className="table ">
+                        <table className="table">
                             <thead className="sticky top-0 bg-white">
-                                <tr className="border-none  ">
+                                <tr className="border-none">
                                     <th>순위</th>
                                     <th>크루원</th>
                                     <th>점수</th>
@@ -159,6 +159,10 @@ const Attendance: React.FC = () => {
                                         <td>{member[tab]}</td>
                                     </tr>
                                 )) : null}
+                                {!data.guest.length && !data.host.length && !data.total.length 
+                                ? (<tr className="text-center font-bold border-none">
+                                    <td colSpan={3}>데이터가 없습니다.</td>
+                                </tr>) : null}
                             </tbody>
                         </table>
                     </div>

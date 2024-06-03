@@ -14,8 +14,8 @@ const MenuItem = ({index, p_text, btn_text, bg_color, position, totalMenu, oncli
             zIndex: totalMenu - position,
         }}
     >
-        <div className="card-body flex flex-row text-white">
-            <p className="flex-auto text-sm">{p_text}</p>
+        <div className="card-body flex flex-row text-white p-4 gap-0">
+            <p className="flex-auto  text-sm">{p_text}</p>
             <button className="btn btn-ghost flex-auto text-sm pb-7" onClick={onclick}>
                 {btn_text}
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
