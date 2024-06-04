@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {Layout} from "../components/Layout";
-import PageHeader from "../components/kyu/PageHeader";
+import PageHeader from "../components/common/PageHeader";
 import { supabase } from '../utils/supabaseClient';
 import { useSession } from "next-auth/react";
 

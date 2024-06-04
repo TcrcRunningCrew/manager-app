@@ -1,4 +1,4 @@
-import Button from "../components/kyu/Button";
+import Button from "../components/common/Button";
 import { IcKakaoIcon } from "../components/icons/IcKakao";
 import { Layout } from "../components/Layout";
 import { signIn, signOut, useSession } from "next-auth/react";

@@ -1,8 +1,8 @@
 import React from 'react';
 import {Layout} from "../components/Layout";
-import Header from "../components/kyu/Header";
-import Menu from "../components/kyu/Menu";
-import MenuItem from "../components/kyu/MenuItem";
+import Header from "../components/common/Header";
+import Menu from "../components/common/Menu";
+import MenuItem from "../components/common/MenuItem";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 

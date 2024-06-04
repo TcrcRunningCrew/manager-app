@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {Layout} from "../components/Layout";
-import PageHeader from "../components/kyu/PageHeader";
-import Input from "../components/kyu/Input";
-import RadioBox from "../components/kyu/RadioBox";
-import SelectBox from "../components/kyu/SelectBox";
+import PageHeader from "../components/common/PageHeader";
+import Input from "../components/common/Input";
+import RadioBox from "../components/common/RadioBox";
+import SelectBox from "../components/common/SelectBox";
 import DatePickerPopup from '../components/common/calender';
 import { insertMeeting } from "../services/user.service";
 import { useSession } from "next-auth/react";

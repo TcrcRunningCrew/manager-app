@@ -8,7 +8,7 @@ export const Layout = ({ children }: PropsWithChildren) => {
     
 
     return (
-        <div className="m-h-min bg-gray-100 flex flex-col items-center">
+        <div className=" bg-gray-100 flex flex-col items-center" style={{ height: '100vh' }}>
             {children}
         </div>
     );
