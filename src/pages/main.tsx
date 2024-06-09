@@ -1,14 +1,19 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {Layout} from "../components/Layout";
 import Header from "../components/common/Header";
 import Menu from "../components/common/Menu";
 import MenuItem from "../components/common/MenuItem";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
+import { supabase } from '../utils/supabaseClient';
 
 const Main = () => {
     const router = useRouter();
     const { data: session, status } = useSession();
+    const [userRanking, setUserRanking] = useState<{rank: number, score: number}>({
+        rank: 0,
+        score: 0,
+    });
 
     const menuItems = [
         {
@@ -25,26 +30,52 @@ const Main = () => {
         },
     ];
 
+    const findUserRanking = async (name: string) => {
+        const year = new Date().getFullYear();
+        const month = new Date().getMonth() + 1;
+        const { data: userRanking, error } = await supabase
+            .from("meeting_view")
+            .select("*")
+            .eq("name", name)
+            .eq("year", year)
+            .eq("month", month);
+           
+        if (error) throw new Error(error.message);
+
+        if (userRanking && userRanking.length > 0 && userRanking[0]) {
+            const { total_rank, total } = userRanking[0];
+            console.log('====userRanking: ', userRanking);
+            setUserRanking({ rank: total_rank, score: total });
+          }
+    }
+
+    useEffect(() => {
+        if (session) {
+            findUserRanking(session!.user!.name!)
+        }
+    }, []);
+
+  
+
     return (
     <Layout>
         <Header />
         <div className="flex flex-col w-full h-svh " style={{ height: 'calc(100vh - 66px)' }}>
-            <div className="h-5/6"></div>
             <div className="flex flex-col justify-start bg-cover bg-no-repeat bg-center" 
                 style={{ 
                     marginBottom: `${menuItems.length * 50}px`, 
                     backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url("https://img.gqkorea.co.kr/gq/2020/11/style_5fbcc604426fa.jpg")',
                     // backgroundSize: '100%',
                 }}>
-                <div className="flex flex-col justify-between m-1" style={{ minHeight: '72vh' }}>
+                <div className="flex flex-col justify-between m-1" style={{ minHeight: '66vh' }}>
                     <div role="alert" className="alert bg-slate-50 justify-start">
                         <span >공지 - 2024 정기런 장소 가이드</span>
                     </div>
                     <div className="pl-8 pb-12 text-left ">
                         <div className="max-w-md text-2xl font-bold text-white">
-                            <p className="py-1">안녕하세요 {session?.user.name}님,</p>
+                            <p className="py-1">안녕하세요 {session?.user.name ?? '-'}님,</p>
                             <p className="py-1">현재 랭킹은</p>
-                            <p className="py-1">1위 15점 입니다.</p>
+                            <p className="py-1">{userRanking.rank > 0 ? userRanking.rank : '-'}위 {userRanking.score > 0  ? userRanking.score : '-'}점 입니다.</p>
                         </div>
                     </div>
                 </div>

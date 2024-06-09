@@ -98,10 +98,10 @@ const Attendance: React.FC = () => {
     return (
        <Layout>
             <PageHeader pageName={'랭킹'}/>
-            <div className="flex flex-col w-full h-svh p-3 space-y-14" 
+            <div className="flex flex-col w-full h-svh space-y-14 pt-3" 
                 style={{ height: 'calc(100vh - 66px)', backgroundColor: '#223150' }}> 
                 <div role="tablist" 
-                    className="tabams tabs-boxed text-white mx-auto"
+                    className="tabams tabs-boxed text-white mx-auto "
                     style={{ backgroundColor: '#192642' }}
                 >
                     <a role="tab" className={`tab ${tab === 'total' ? 'tab-active' : ''}`} onClick={() => handleTabChange('total')}>종합</a>
