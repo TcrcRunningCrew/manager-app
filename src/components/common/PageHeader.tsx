@@ -7,6 +7,11 @@ const PageHeader = ({ pageName }) => {
         window.history.back();
     }
 
+    const handleButton = () => {
+        console.log('button clicked');
+        alert('준비중입니다.')
+    }
+    
     return (
         <div className="navbar bg-base-100">
             <div className="navbar-start">
@@ -20,7 +25,7 @@ const PageHeader = ({ pageName }) => {
                 <a className="btn btn-ghost text-l">{pageName}</a>
             </div>
             <div className="navbar-end">
-                <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
+                <div tabIndex={0} role="button" className="btn btn-ghost btn-circle" onClick={handleButton}>
                     <div className="indicator">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 3.75 9.375v-4.5ZM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 0 1-1.125-1.125v-4.5ZM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 13.5 9.375v-4.5Z" />
@@ -28,7 +33,7 @@ const PageHeader = ({ pageName }) => {
                     </svg>
                     </div>
                 </div>
-                <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
+                <div tabIndex={0} role="button" className="btn btn-ghost btn-circle" onClick={handleButton}>
                     <div className="indicator">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />

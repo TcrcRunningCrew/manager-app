@@ -55,6 +55,9 @@ const Main = () => {
         }
     }, []);
 
+    const handleNoticeClick = () => {
+        window.location.href = "https://docs.google.com/forms/d/e/1FAIpQLSfo1MdN1_ptqYOe7uO8FbVf_Adt0cLSesUosPEHmFTY-xTnTA/viewform?usp=pp_url"
+    }
   
 
     return (
@@ -69,7 +72,7 @@ const Main = () => {
                 }}>
                 <div className="flex flex-col justify-between m-1" style={{ minHeight: '66vh' }}>
                     <div role="alert" className="alert bg-slate-50 justify-start">
-                        <span >공지 - 2024 정기런 장소 가이드</span>
+                        <span onClick={handleNoticeClick}>구글폼 링크</span>
                     </div>
                     <div className="pl-8 pb-12 text-left ">
                         <div className="max-w-md text-2xl font-bold text-white">
