@@ -38,7 +38,7 @@ export default function Founder() {
     const endDay = dateFormat(new Date(year, month, 0));
 
     const { data: activeUsers, error: userError } = await supabase
-    .from("user")
+      .from("user")
       .select("name, birthYear")
       .eq("activation", true);
 
@@ -54,22 +54,31 @@ export default function Founder() {
 
     const usersWithMeetingCounts = await Promise.all(
       activeUsers.map(async (user) => {
+        const userKey = `${user.name}(${user.birthYear})`;
         const { data: meetings, error: meetingsError } = await supabase
           .from("meeting")
           .select("*", { count: "exact" })
           .eq("name", user.name)
+          .eq("birthYear", user.birthYear)
           .eq("founder", true)
           .gte("meeting_date", startDay)
           .lte("meeting_date", endDay);
+        console.log("meetings", meetings);
+        console.log("user", user);
 
         if (meetingsError) {
           console.error(meetingsError.message);
-          return { ...user, meetingCount: 0 };
+          return { ...user, meetingCount: 0, userKey };
         }
 
-        return { ...user, meetingCount: meetings ? meetings.length : 0 };
+        return {
+          ...user,
+          meetingCount: meetings ? meetings.length : 0,
+          userKey,
+        };
       })
     );
+    console.log("usersWithMeetingCounts", usersWithMeetingCounts);
 
     setUsers(
       usersWithMeetingCounts
