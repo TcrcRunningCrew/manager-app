@@ -1,16 +1,19 @@
 import { useRouter } from "next/router";
-import {PropsWithChildren, useEffect, useState} from "react";
+import { PropsWithChildren, useEffect, useState } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
 import CustomModal from "../components/common/CustomModal";
 import React from "react";
-import * as lottieJson from '../lib/lottie.json'
 import { LogoutButton, Qrcode } from "../components/icons";
 import Link from "next/link";
-import Lottie from "lottie-react";
+import dynamic from "next/dynamic";
 
+// Lottie 컴포넌트를 클라이언트 사이드에서만 로드
+const Lottie = dynamic(() => import("lottie-react"), {
+  ssr: false,
+  loading: () => <div>로딩중...</div>,
+});
 
 export default function Home() {
-
   const router = useRouter();
   const { data: session, status } = useSession();
 
@@ -21,6 +24,8 @@ export default function Home() {
   const [message, setMessage] = useState<string>("");
 
   const [isLoading, setIsLoading] = useState<boolean>(false); // New state for loading indicator
+
+  const [lottieData, setLottieData] = useState<any>(null);
 
   const loginChecked = (buttonName: String) => {
     router.push(`/user/${buttonName}`);
@@ -49,9 +54,6 @@ export default function Home() {
       setModalIsOpen(true); // Show the error in a modal
     }
   };
-
-
-
 
   const login = async () => {
     setIsLoading(true); // Start loading
@@ -83,17 +85,27 @@ export default function Home() {
     }
   }, [router, session, status]);
 
+  useEffect(() => {
+    // 클라이언트 사이드에서만 lottie.json을 로드
+    if (typeof window !== "undefined") {
+      import("../lib/lottie.json").then((data) => {
+        setLottieData(data);
+      });
+    }
+  }, []);
+
   return (
     <div
       key='1'
       className='dark flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4'
     >
-      {isLoading && (
-        <DeemdComponent><Lottie animationData={lottieJson} loop /> </DeemdComponent>
-    )}
+      {isLoading && typeof window !== "undefined" && (
+        <DeemdComponent>
+          <Lottie animationData={lottieData} loop />{" "}
+        </DeemdComponent>
+      )}
 
       <main className='flex flex-col space-y-4 shadow-lg w-full max-w-xs'>
-
         {!session ? (
           <>
             <Header session={session} />
@@ -147,14 +159,12 @@ export default function Home() {
   );
 }
 
-const Header = ({ session }: {session: any}) => {
+const Header = ({ session }: { session: any }) => {
   return (
     <>
       {!session ? (
         <header className='w-full max-w-xs flex justify-between items-center mb-4'>
-          <div className='text-3xl font-bold '>
-            T.C.R.C 러닝크루
-          </div>
+          <div className='text-3xl font-bold '>T.C.R.C 러닝크루</div>
           <div className='flex space-x-2'>
             <div pl-3></div>
             <button
@@ -193,7 +203,6 @@ const Header = ({ session }: {session: any}) => {
   );
 };
 
-
 declare module "next-auth" {
   /**
    * Returned by `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
@@ -211,12 +220,17 @@ declare module "next-auth" {
   }
 }
 
-
-const DeemdComponent = ({ children }: PropsWithChildren) => {
-  return (
-      <div className={`shadow-lg bg-gray-200 opacity-10 a absolute size-full rounded-lg overflow-hidden flex z-20`}>
-        {children}
-      </div>
-  );
-};
-
+// DeemdComponent를 클라이언트 사이드에서만 렌더링하도록 수정
+const DeemdComponent = dynamic(
+  () =>
+    Promise.resolve(({ children }: PropsWithChildren) => {
+      return (
+        <div
+          className={`shadow-lg bg-gray-200 opacity-10 a absolute size-full rounded-lg overflow-hidden flex z-20`}
+        >
+          {children}
+        </div>
+      );
+    }),
+  { ssr: false }
+);
