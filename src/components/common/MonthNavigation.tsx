@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+
 import { IoMdArrowDropleft, IoMdArrowDropright } from "react-icons/io";
 
 interface MonthNavigationProps {
@@ -11,7 +12,10 @@ const MonthNavigation: React.FC<MonthNavigationProps> = ({
   changeMonth,
 }) => {
   const formattedMonth = () => {
-    const options: Intl.DateTimeFormatOptions = { year: "numeric", month: "long" };
+    const options: Intl.DateTimeFormatOptions = {
+      year: "numeric",
+      month: "long",
+    };
     return currentMonth.toLocaleDateString("ko-KR", options);
   };
 

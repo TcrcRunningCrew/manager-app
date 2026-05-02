@@ -1,16 +1,14 @@
-import { useRouter } from "next/router";
+"use client";
+
+import { useRouter } from "next/navigation";
 import { BiArrowBack } from "react-icons/bi";
 
 const BackButton = () => {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const router = useRouter();
-  const onClickBtn = () => {
-    router.back(); // Move to the previous page
-  };
 
   return (
     <button
-      onClick={onClickBtn}
+      onClick={() => router.back()}
       className="text-white text-1xl focus:outline-none"
     >
       <BiArrowBack className="icon" size={40} />

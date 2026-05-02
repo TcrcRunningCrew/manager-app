@@ -1,8 +1,5 @@
-// Header.tsx
-
-import React from "react";
 import Link from "next/link";
-import BackButton from "./backButton";
+import BackButton from "./BackButton";
 
 interface HeaderProps {
   bgColor: string;
@@ -15,18 +12,13 @@ const Header: React.FC<HeaderProps> = ({ bgColor, text1, text2 }) => {
     <header
       className={`flex items-center justify-between px-6 py-4 ${bgColor} text-white`}
     >
-      <h1 className='text-1xl font-bold text-white-900'>
-        {" "}
+      <h1 className="text-1xl font-bold text-white-900">
         <span>
-          <Link href='/'>
-            {text1}
-          </Link>
+          <Link href="/">{text1}</Link>
         </span>
         <br />
         <span>
-          <Link href='/'>
-            {text2}
-          </Link>
+          <Link href="/">{text2}</Link>
         </span>
       </h1>
       <BackButton />

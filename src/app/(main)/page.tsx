@@ -204,14 +204,14 @@ export default function Home() {
           />
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <ActionCard
-              label="참여 랭킹"
+              label={"참여\n랭킹"}
               sub="참여 순위"
               color="var(--tcrc-accent-blue)"
               onColor="#fff"
               onClick={() => router.push("/ranking/participation")}
             />
             <ActionCard
-              label="개설 랭킹"
+              label={"개설\n랭킹"}
               sub="개설 순위"
               color="var(--tcrc-accent-blue)"
               onColor="#fff"
