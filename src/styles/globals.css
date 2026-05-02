@@ -339,6 +339,11 @@
   100% { transform: translate3d(-100%,0,0); }
 }
 
+@keyframes seamless-marquee {
+  0%   { transform: translate3d(0,0,0); }
+  100% { transform: translate3d(-50%,0,0); }
+}
+
 @keyframes pop-in {
   0%   { transform: scale(0.4); opacity: 0; }
   60%  { transform: scale(1.08); opacity: 1; }
