@@ -67,7 +67,7 @@
 
     /* Typography */
     --font-display: "Anton", "Bebas Neue", "Pretendard", sans-serif;
-    --font-body:    "Pretendard", "Inter", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
+    --font-body:    "Do Hyeon", "Pretendard", "Inter", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
     --font-mono:    "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
     /* shadcn/ui compat */
@@ -418,6 +418,27 @@
   border-radius: 50%;
   width: 40px; height: 40px;
   animation: spin 1s linear infinite;
+}
+
+/* =========================================================
+   Hide scrollbars — app-like feel
+   ========================================================= */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-tap-highlight-color: transparent;
+}
+*::-webkit-scrollbar {
+  display: none;
+}
+
+/* Disable text selection everywhere except inputs */
+body {
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+input, textarea, [contenteditable] {
+  user-select: text;
 }
 
 /* =========================================================
