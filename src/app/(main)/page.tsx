@@ -1,0 +1,235 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { signIn, signOut, useSession } from "next-auth/react";
+import { ConfirmDialog } from "@/components/molecules/ConfirmDialog";
+import { ActionCard } from "@/components/atoms/ActionCard";
+import { StatTile } from "@/components/atoms/StatTile";
+import { MarqueeStrip } from "@/components/molecules/MarqueeStrip";
+import { LoginScreen } from "./_components/LoginScreen";
+import dynamic from "next/dynamic";
+
+const Lottie = dynamic(() => import("lottie-react"), {
+  ssr: false,
+  loading: () => <div style={{ color: "var(--tcrc-text-secondary)" }}>로딩중...</div>,
+});
+
+export default function Home() {
+  const router = useRouter();
+  const { data: session, status } = useSession();
+
+  const [loginDialog, setLoginDialog] = useState({ open: false, message: "" });
+  const [errorDialog, setErrorDialog] = useState({ open: false, message: "" });
+  const [isLoading, setIsLoading] = useState(false);
+  const [lottieData, setLottieData] = useState<any>(null);
+
+  const handleLoginConfirm = async () => {
+    setLoginDialog({ open: false, message: "" });
+    setIsLoading(true);
+    try {
+      await signIn("kakao");
+    } catch {
+      setErrorDialog({ open: true, message: "로그인 중 에러가 발생했습니다." });
+      setIsLoading(false);
+    }
+  };
+
+  const handleLoginClick = () => {
+    setLoginDialog({
+      open: true,
+      message: "이메일 정보 동의를 필수로 해주시길 부탁드립니다.",
+    });
+  };
+
+  useEffect(() => {
+    if (
+      status === "authenticated" &&
+      session.user &&
+      (!session.user.name || !session.user.birthYear)
+    ) {
+      router.push("/signup");
+    }
+  }, [router, session, status]);
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      import("@/lib/lottie.json").then((data) => setLottieData(data));
+    }
+  }, [status]);
+
+  // 로딩 중
+  if (status === "loading") {
+    return (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100%",
+          background: "#000",
+        }}
+      >
+        <div
+          style={{
+            width: 8,
+            height: 8,
+            borderRadius: "50%",
+            background: "var(--tcrc-accent)",
+            animation: "fade-in 1s ease infinite alternate",
+          }}
+        />
+      </div>
+    );
+  }
+
+  // 비로그인 — 로그인 화면
+  if (status === "unauthenticated") {
+    return (
+      <>
+        <LoginScreen onLogin={handleLoginClick} />
+        <ConfirmDialog
+          isOpen={loginDialog.open}
+          onClose={handleLoginConfirm}
+          message={loginDialog.message}
+          buttonText="확인"
+        />
+        <ConfirmDialog
+          isOpen={errorDialog.open}
+          onClose={() => setErrorDialog({ open: false, message: "" })}
+          message={errorDialog.message}
+        />
+      </>
+    );
+  }
+
+  // 로그인됨 — 홈 화면
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
+        background: "var(--tcrc-bg-primary)",
+        color: "var(--tcrc-text-primary)",
+      }}
+    >
+      {/* 로딩 오버레이 */}
+      {isLoading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="w-32 h-32">
+            <Lottie animationData={lottieData} loop />
+          </div>
+        </div>
+      )}
+
+      {/* 브랜드 블록 */}
+      <div style={{ padding: "32px 22px 20px" }}>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <div className="t-display" style={{ fontSize: 56, color: "var(--tcrc-text-primary)" }}>
+              T.C.R.C
+            </div>
+            <div
+              style={{
+                fontWeight: 700,
+                fontSize: 18,
+                color: "var(--tcrc-text-secondary)",
+                letterSpacing: "-0.01em",
+              }}
+            >
+              러닝크루
+            </div>
+          </div>
+
+          {/* 로그아웃 버튼 */}
+          <button
+            onClick={() => signOut()}
+            className="icon-btn ios-button"
+            style={{ background: "var(--tcrc-accent-green)", color: "#fff" }}
+            aria-label="로그아웃"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M15 3h4v18h-4M10 17l5-5-5-5M15 12H3"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        </div>
+
+        {/* 메타 태그 */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 14 }}>
+          <span className="tag tag-line">EST. 2024</span>
+          <span className="tag tag-line">SEOUL · 탄천</span>
+          <span
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              marginLeft: 4,
+              fontSize: 12,
+              color: "var(--tcrc-text-tertiary)",
+              fontWeight: 600,
+            }}
+          >
+            <span className="dot dot-live" />
+            LIVE
+          </span>
+        </div>
+      </div>
+
+      {/* 마퀴 스트립 */}
+      <MarqueeStrip />
+
+      {/* 액션 카드 */}
+      <div style={{ flex: 1, overflowY: "auto", padding: "20px 20px 32px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <ActionCard
+            label="출석체크"
+            sub="오늘의 모임에 출석하기"
+            color="var(--tcrc-accent-green)"
+            onColor="#fff"
+            onClick={() => router.push("/checkout")}
+          />
+          <ActionCard
+            label="랭킹 확인"
+            sub="참여 · 개설 · 월별 종합"
+            color="var(--tcrc-accent-yellow)"
+            onColor="#231A00"
+            onClick={() => router.push("/ranking")}
+          />
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <ActionCard
+              label="참여 랭킹"
+              sub="참여 순위"
+              color="var(--tcrc-accent-blue)"
+              onColor="#fff"
+              onClick={() => router.push("/ranking/participation")}
+            />
+            <ActionCard
+              label="개설 랭킹"
+              sub="개설 순위"
+              color="var(--tcrc-accent-blue)"
+              onColor="#fff"
+              onClick={() => router.push("/ranking/founder")}
+            />
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 4 }}>
+            <StatTile label="이번 달 참여" value="—" unit="회" color="var(--tcrc-bg-surface)" />
+            <StatTile label="이번 달 개설" value="—" unit="회" color="var(--tcrc-bg-surface)" />
+          </div>
+        </div>
+      </div>
+
+      <ConfirmDialog
+        isOpen={errorDialog.open}
+        onClose={() => setErrorDialog({ open: false, message: "" })}
+        message={errorDialog.message}
+      />
+    </div>
+  );
+}
