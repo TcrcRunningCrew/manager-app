@@ -1,105 +1,443 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
+
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 224 71.4% 4.1%;
+    /* =========================================================
+       T.C.R.C Design System — 다크 테마 / 라임 액센트
+       ========================================================= */
 
-    --card: 0 0% 100%;
-    --card-foreground: 224 71.4% 4.1%;
- 
-    --popover: 0 0% 100%;
-    --popover-foreground: 224 71.4% 4.1%;
- 
-    --primary: 220.9 39.3% 11%;
-    --primary-foreground: 210 20% 98%;
- 
-    --secondary: 220 14.3% 95.9%;
-    --secondary-foreground: 220.9 39.3% 11%;
- 
-    --muted: 220 14.3% 95.9%;
-    --muted-foreground: 220 8.9% 46.1%;
- 
-    --accent: 220 14.3% 95.9%;
-    --accent-foreground: 220.9 39.3% 11%;
- 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 20% 98%;
+    /* Surface — neutral cool dark */
+    --tcrc-bg-primary:   #0B0D10;
+    --tcrc-bg-inset:     #11141A;
+    --tcrc-bg-surface:   #1A1F27;
+    --tcrc-bg-muted:     #232932;
+    --tcrc-line:         #2A313B;
+    --tcrc-line-soft:    rgba(255,255,255,0.06);
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 224 71.4% 4.1%;
- 
+    /* Text */
+    --tcrc-text-primary:   #F4F6F8;
+    --tcrc-text-secondary: #B8BFC9;
+    --tcrc-text-tertiary:  #6B7480;
+    --tcrc-text-inverted:  #0B0D10;
+
+    /* Accent palette */
+    --tcrc-accent:         #C8FF3E;
+    --tcrc-accent-hover:   #A6E024;
+    --tcrc-accent-yellow:  #FFD23F;
+    --tcrc-accent-blue:    #4F8BFF;
+    --tcrc-accent-green:   #2FCB6F;
+    --tcrc-accent-red:     #FF5C4D;
+    --tcrc-accent-lime:    #C8FF3E;
+
+    /* Semantic */
+    --tcrc-status-success: #2FCB6F;
+    --tcrc-status-warning: #FFD23F;
+    --tcrc-status-error:   #FF5C4D;
+
+    --tcrc-border:        #2A313B;
+    --tcrc-border-subtle: rgba(255,255,255,0.06);
+    --tcrc-divider:       #1A1F27;
+
+    /* Spacing tokens */
+    --tcrc-spacing-xs: 2px;
+    --tcrc-spacing-sm: 4px;
+    --tcrc-spacing-md: 8px;
+    --tcrc-spacing-lg: 12px;
+    --tcrc-spacing-xl: 16px;
+    --tcrc-spacing-2xl: 24px;
+    --tcrc-spacing-3xl: 32px;
+
+    /* Radius tokens */
+    --tcrc-radius-xs:   4px;
+    --tcrc-radius-sm:   6px;
+    --tcrc-radius-md:   8px;
+    --tcrc-radius-lg:   12px;
+    --tcrc-radius-xl:   16px;
+    --tcrc-radius-2xl:  22px;
+    --tcrc-radius-full: 100px;
+
+    /* Design card radius (tweakable) */
+    --card-radius: 12px;
+
+    /* Shadows */
+    --sh-card: 0 1px 0 rgba(255,255,255,0.04) inset, 0 12px 30px -12px rgba(0,0,0,0.6);
+    --sh-pop:  0 20px 50px -16px rgba(0,0,0,0.8);
+
+    /* Typography */
+    --font-display: "Anton", "Bebas Neue", "Pretendard", sans-serif;
+    --font-body:    "Pretendard", "Inter", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
+    --font-mono:    "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+    /* shadcn/ui compat */
+    --background: 225 20% 6%;
+    --foreground: 210 20% 97%;
+    --card: 225 20% 8%;
+    --card-foreground: 210 20% 97%;
+    --popover: 225 20% 8%;
+    --popover-foreground: 210 20% 97%;
+    --primary: 79 100% 62%;
+    --primary-foreground: 225 20% 6%;
+    --secondary: 220 16% 16%;
+    --secondary-foreground: 210 20% 97%;
+    --muted: 220 16% 16%;
+    --muted-foreground: 218 10% 55%;
+    --accent: 220 16% 16%;
+    --accent-foreground: 210 20% 97%;
+    --destructive: 5 90% 65%;
+    --destructive-foreground: 210 20% 97%;
+    --border: 218 14% 22%;
+    --input: 218 14% 22%;
+    --ring: 79 100% 62%;
     --radius: 0.5rem;
-  }
- 
-  .dark {
-    --background: 224 71.4% 4.1%;
-    --foreground: 210 20% 98%;
- 
-    --card: 224 71.4% 4.1%;
-    --card-foreground: 210 20% 98%;
- 
-    --popover: 224 71.4% 4.1%;
-    --popover-foreground: 210 20% 98%;
- 
-    --primary: 210 20% 98%;
-    --primary-foreground: 220.9 39.3% 11%;
- 
-    --secondary: 215 27.9% 16.9%;
-    --secondary-foreground: 210 20% 98%;
- 
-    --muted: 215 27.9% 16.9%;
-    --muted-foreground: 217.9 10.6% 64.9%;
- 
-    --accent: 215 27.9% 16.9%;
-    --accent-foreground: 210 20% 98%;
- 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 20% 98%;
- 
-    --border: 215 27.9% 16.9%;
-    --input: 215 27.9% 16.9%;
-    --ring: 216 12.2% 83.9%;
+
+    /* Safe area */
+    --safe-area-inset-top: env(safe-area-inset-top);
+    --safe-area-inset-bottom: env(safe-area-inset-bottom);
   }
 }
- 
+
 @layer base {
-  * {
-    @apply border-border;
-  }
+  * { @apply border-border; box-sizing: border-box; }
   body {
+    font-family: var(--font-body);
+    color: var(--tcrc-text-primary);
+    background: var(--tcrc-bg-primary);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
     @apply bg-background text-foreground;
   }
 }
 
-/* Spinner container to ensure fullscreen and centering context */
+/* =========================================================
+   Mobile viewport layout
+   ========================================================= */
+.mobile-viewport {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* =========================================================
+   Type roles
+   ========================================================= */
+.t-display {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 0.92;
+  text-transform: uppercase;
+}
+.t-display-up {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+.t-num {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  line-height: 0.9;
+}
+.t-mono {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--tcrc-text-tertiary);
+  letter-spacing: 0.02em;
+}
+.t-xs {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--tcrc-text-tertiary);
+}
+
+/* =========================================================
+   Surface utilities
+   ========================================================= */
+.tcrc-card {
+  background: var(--tcrc-bg-surface);
+  border-radius: var(--card-radius);
+  border: 1px solid var(--tcrc-line-soft);
+}
+.tcrc-card-accent {
+  background: var(--tcrc-accent);
+  color: var(--tcrc-text-inverted);
+  border-radius: var(--card-radius);
+}
+
+/* =========================================================
+   iOS-style legacy helpers (kept for compatibility)
+   ========================================================= */
+.ios-card {
+  border-radius: var(--tcrc-radius-lg);
+  background: var(--tcrc-bg-surface);
+}
+.ios-input {
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.ios-input:focus {
+  box-shadow: 0 0 0 1px var(--tcrc-accent), 0 0 0 4px rgba(200,255,62,0.12);
+  border-color: var(--tcrc-accent);
+  outline: none;
+}
+.ios-button:active {
+  opacity: 0.7;
+  transform: scale(0.98);
+}
+
+/* =========================================================
+   Form fields
+   ========================================================= */
+.field-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--tcrc-text-tertiary);
+  margin-bottom: 8px;
+}
+.field-input,
+.field-select {
+  width: 100%;
+  height: 52px;
+  padding: 0 16px;
+  background: var(--tcrc-bg-inset);
+  border: 1px solid var(--tcrc-line);
+  border-radius: 10px;
+  color: var(--tcrc-text-primary);
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 600;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+.field-input:focus,
+.field-select:focus {
+  border-color: var(--tcrc-accent);
+}
+.field-input::placeholder {
+  color: var(--tcrc-text-tertiary);
+  font-weight: 500;
+}
+.field-select {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--tcrc-text-secondary) 50%),
+                    linear-gradient(135deg, var(--tcrc-text-secondary) 50%, transparent 50%);
+  background-position: calc(100% - 18px) 22px, calc(100% - 13px) 22px;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 40px;
+}
+
+/* =========================================================
+   Buttons
+   ========================================================= */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: var(--card-radius);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.15s ease, opacity 0.15s ease;
+  user-select: none;
+}
+.btn:active { transform: translateY(1px); }
+.btn-primary  { background: var(--tcrc-accent); color: var(--tcrc-text-inverted); }
+.btn-primary:hover { background: var(--tcrc-accent-hover); }
+.btn-ghost    { background: var(--tcrc-bg-surface); color: var(--tcrc-text-primary); }
+.btn-ghost:hover { background: var(--tcrc-bg-muted); }
+.btn-block  { width: 100%; }
+.btn-tall   { height: 56px; font-size: 17px; }
+
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--tcrc-bg-surface);
+  color: var(--tcrc-text-primary);
+  border: 0;
+  cursor: pointer;
+}
+
+/* Tags */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.tag-lime   { background: var(--tcrc-accent-lime);   color: #0B0D10; }
+.tag-yellow { background: var(--tcrc-accent-yellow); color: #0B0D10; }
+.tag-blue   { background: var(--tcrc-accent-blue);   color: #fff; }
+.tag-green  { background: var(--tcrc-accent-green);  color: #fff; }
+.tag-line   { background: transparent; color: var(--tcrc-text-secondary); border: 1px solid var(--tcrc-line); }
+
+/* Status dot */
+.dot { width: 8px; height: 8px; border-radius: 999px; display: inline-block; }
+.dot-live { background: var(--tcrc-accent-red); box-shadow: 0 0 0 4px rgba(255,92,77,0.18); }
+
+/* =========================================================
+   Marquee strip
+   ========================================================= */
+.marquee-strip {
+  background: var(--tcrc-accent);
+  color: var(--tcrc-text-inverted);
+  padding: 10px 0;
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 22px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  display: flex;
+}
+.marquee-strip > div {
+  display: inline-flex;
+  flex-shrink: 0;
+  white-space: nowrap;
+  padding-right: 40px;
+  animation: marquee 18s linear infinite;
+}
+
+/* =========================================================
+   Animations
+   ========================================================= */
+@keyframes marquee {
+  0%   { transform: translate3d(0,0,0); }
+  100% { transform: translate3d(-100%,0,0); }
+}
+
+@keyframes pop-in {
+  0%   { transform: scale(0.4); opacity: 0; }
+  60%  { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes drift-up {
+  0%   { transform: translateY(20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes confetti-fall {
+  0%   { transform: translate3d(0,-60px,0) rotate(0deg); opacity: 0; }
+  10%  { opacity: 1; }
+  100% { transform: translate3d(var(--cx,0px), 720px, 0) rotate(720deg); opacity: 0; }
+}
+
+@keyframes spin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.pop-in   { animation: pop-in   0.55s cubic-bezier(0.2,1.3,0.4,1) both; }
+.drift-up { animation: drift-up 0.55s ease-out both; }
+
+.confetti {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 10px;
+  height: 14px;
+  border-radius: 2px;
+  animation: confetti-fall 2.6s ease-in forwards;
+}
+
+/* =========================================================
+   Safe area utilities
+   ========================================================= */
+.pt-safe { padding-top: var(--safe-area-inset-top); }
+.pb-safe { padding-bottom: var(--safe-area-inset-bottom); }
+.native-scroll { -webkit-overflow-scrolling: touch; overflow-y: auto; }
+.hw-accelerated { transform: translateZ(0); will-change: transform; }
+
+/* =========================================================
+   Spinner (legacy)
+   ========================================================= */
 .spinner-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  position: fixed; /* Use fixed to cover the entire screen */
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Optional: Adds a semi-transparent overlay */
-  z-index: 9999; /* Ensure it's above other content */
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  z-index: 9999;
 }
-
-/* Spinner itself */
 .spinner {
-  border: 4px solid rgba(255, 255, 255, 0.3); /* Light grey */
-  border-top: 4px solid #ffffff; /* White */
+  border: 4px solid rgba(255,255,255,0.3);
+  border-top: 4px solid #ffffff;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  width: 40px; height: 40px;
   animation: spin 1s linear infinite;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+/* =========================================================
+   Desktop iPhone frame (≥768px)
+   모바일(<768px)은 풀스크린 유지, 데스크탑은 중앙 폰 목업
+   ========================================================= */
+@media (min-width: 768px) {
+  body {
+    background: #050507;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100dvh;
+  }
+
+  .mobile-viewport {
+    width: 390px;
+    height: 844px;
+    min-height: unset;
+    border-radius: 44px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.04) inset,
+      0 40px 120px -30px rgba(0,0,0,0.9),
+      0 0 60px -10px rgba(200,255,62,0.04);
+  }
 }
