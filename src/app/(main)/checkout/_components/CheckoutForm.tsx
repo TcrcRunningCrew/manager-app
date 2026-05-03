@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { ConfirmDialog } from "@/components/molecules/ConfirmDialog";
-import { checkoutAction } from "../actions";
+import { checkoutAction, type CheckoutRankingData } from "../actions";
+import { CheckoutSuccessModal } from "./CheckoutSuccessModal";
 
 const ACTIVITY_OPTIONS = [
   { value: "1", label: "러닝" },
@@ -47,7 +48,13 @@ export default function CheckoutForm() {
 
   const { data: session, status } = useSession();
   const [errorDialog, setErrorDialog] = useState({ open: false, message: "" });
-  const [successDialog, setSuccessDialog] = useState({ open: false, message: "" });
+  const [successModal, setSuccessModal] = useState<{
+    open: boolean;
+    rankingData: CheckoutRankingData | null;
+    date: string;
+    locationLabel: string;
+    activityLabel: string;
+  }>({ open: false, rankingData: null, date: "", locationLabel: "", activityLabel: "" });
   const [userEmail, setUserEmail] = useState("");
   const [userId, setUserId] = useState("");
 
@@ -78,7 +85,17 @@ export default function CheckoutForm() {
     });
 
     if (result.success) {
-      setSuccessDialog({ open: true, message: result.message });
+      const locationLabel =
+        LOCATION_OPTIONS.find((o) => o.value === getValues("location"))?.label ?? "";
+      const activityLabel =
+        ACTIVITY_OPTIONS.find((o) => o.value === getValues("activation"))?.label ?? "";
+      setSuccessModal({
+        open: true,
+        rankingData: result.rankingData ?? null,
+        date: getValues("participationDate"),
+        locationLabel,
+        activityLabel,
+      });
     } else {
       setErrorDialog({ open: true, message: result.message });
     }
@@ -151,13 +168,16 @@ export default function CheckoutForm() {
         onClose={() => setErrorDialog({ open: false, message: "" })}
         message={errorDialog.message}
       />
-      <ConfirmDialog
-        isOpen={successDialog.open}
+      <CheckoutSuccessModal
+        isOpen={successModal.open}
         onClose={() => {
-          setSuccessDialog({ open: false, message: "" });
+          setSuccessModal((s) => ({ ...s, open: false }));
           router.push("/");
         }}
-        message={successDialog.message}
+        date={successModal.date}
+        locationLabel={successModal.locationLabel}
+        activityLabel={successModal.activityLabel}
+        rankingData={successModal.rankingData}
       />
     </div>
   );
