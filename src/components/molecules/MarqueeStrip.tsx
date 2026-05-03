@@ -3,10 +3,10 @@ interface MarqueeStripProps {
 }
 
 export function MarqueeStrip({
-  text = "RUN · RUN · RUN — KEEP THE PACE — ",
+  text = "WE-RUN-TOGETHER / RUN- RUN - RUN-",
 }: MarqueeStripProps) {
   return (
-    <div className="marquee-strip">
+    <div className='marquee-strip'>
       <div>{text}</div>
       <div>{text}</div>
       <div>{text}</div>
