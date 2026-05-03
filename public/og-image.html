@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1200">
+  <title>T.C.R.C OG Image</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #222;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 0;
+      gap: 24px;
+    }
+
+    .og {
+      width: 1200px;
+      height: 600px;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+    }
+
+    .check-icon {
+      width: 120px;
+      height: 160px;
+    }
+
+    .check-icon path {
+      fill: none;
+      stroke: #fff;
+      stroke-width: 16;
+      stroke-linecap: square;
+      stroke-linejoin: miter;
+    }
+
+    .speed-line {
+      stroke: #fff;
+      stroke-width: 6;
+      stroke-linecap: square;
+    }
+
+    .logo {
+      font-family: 'Anton', sans-serif;
+      font-size: 200px;
+      color: #fff;
+      letter-spacing: 0.02em;
+      line-height: 1;
+      font-style: italic;
+      transform: skewX(-12deg);
+    }
+
+    .download-btn {
+      padding: 14px 40px;
+      background: #fff;
+      color: #000;
+      font-family: 'Anton', sans-serif;
+      font-size: 18px;
+      letter-spacing: 0.05em;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .download-btn:hover {
+      opacity: 0.8;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+  <div class="og" id="og">
+    <svg class="check-icon" viewBox="0 0 120 160" style="transform: skewX(-12deg);">
+      <line class="speed-line" x1="5" y1="72" x2="30" y2="72" />
+      <line class="speed-line" x1="0" y1="84" x2="35" y2="84" />
+      <line class="speed-line" x1="8" y1="96" x2="38" y2="96" />
+      <line class="speed-line" x1="12" y1="60" x2="34" y2="60" />
+      <path d="M38 80 L52 108 L105 30" />
+    </svg>
+    <div class="logo">TCRC</div>
+  </div>
+  <button class="download-btn" onclick="download()">DOWNLOAD PNG</button>
+  <script>
+    function download() {
+      html2canvas(document.getElementById('og'), {
+        width: 1200,
+        height: 600,
+        scale: 2
+      }).then(function(canvas) {
+        var link = document.createElement('a');
+        link.download = 'og-image.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    }
+  </script>
+</body>
+</html>
