@@ -55,9 +55,6 @@ export default function CheckoutForm() {
     locationLabel: string;
     activityLabel: string;
   }>({ open: false, rankingData: null, date: "", locationLabel: "", activityLabel: "" });
-  const [userEmail, setUserEmail] = useState("");
-  const [userId, setUserId] = useState("");
-
   useEffect(() => {
     if (
       status === "authenticated" &&
@@ -67,17 +64,11 @@ export default function CheckoutForm() {
     ) {
       setValue("username", session.user.name);
       setValue("userAge", String(session.user.birthYear || ""));
-      setUserEmail(session.user.email);
-      setUserId(session.user.id || "");
     }
   }, [session, setValue, status]);
 
   const onSubmit = async () => {
     const result = await checkoutAction({
-      userId,
-      username: getValues("username"),
-      userEmail,
-      userAge: getValues("userAge"),
       participationDate: getValues("participationDate"),
       activation: getValues("activation"),
       location: getValues("location"),
