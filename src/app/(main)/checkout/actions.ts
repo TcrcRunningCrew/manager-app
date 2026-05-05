@@ -8,6 +8,7 @@ import { sendSlackNotification } from "@/lib/domain/slack/notifications";
 import {
   getParticipationByDateRange,
   getFounderMeetingsByDateRange,
+  findExistingMeeting,
 } from "@/lib/domain/meeting/queries";
 
 export type CheckoutRankingData = {
@@ -71,6 +72,16 @@ export async function checkoutAction(params: {
     const username = dbUser.name ?? session.user.name ?? "";
     const userEmail = dbUser.email ?? session.user.email ?? "";
     const userAge = String(dbUser.birthYear ?? session.user.birthYear ?? "");
+
+    const alreadyChecked = await findExistingMeeting({
+      accountId: userId,
+      meetingDate: participationDate,
+      activation,
+      location,
+    });
+    if (alreadyChecked) {
+      return { success: false, message: "이미 출석체크가 완료된 항목입니다." };
+    }
 
     const result = await insertMeeting({
       accountId: userId,

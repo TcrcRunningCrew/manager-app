@@ -33,7 +33,13 @@ const FOUNDER_OPTIONS = [
 
 export default function CheckoutForm() {
   const router = useRouter();
-  const { register, setValue, handleSubmit, getValues } = useForm({
+  const {
+    register,
+    setValue,
+    handleSubmit,
+    getValues,
+    formState: { isSubmitting },
+  } = useForm({
     shouldFocusError: true,
     mode: "onBlur",
     defaultValues: {
@@ -146,10 +152,17 @@ export default function CheckoutForm() {
         <div style={{ marginTop: 8, animation: "slide-up 0.3s ease-out both", animationDelay: "0.36s" }}>
           <button
             type="submit"
+            disabled={isSubmitting}
+            aria-busy={isSubmitting}
             className="btn btn-primary btn-block btn-tall"
-            style={{ background: "var(--tcrc-accent-green)", color: "#fff" }}
+            style={{
+              background: "var(--tcrc-accent-green)",
+              color: "#fff",
+              opacity: isSubmitting ? 0.6 : 1,
+              cursor: isSubmitting ? "not-allowed" : "pointer",
+            }}
           >
-            출석 체크
+            {isSubmitting ? "처리 중..." : "출석 체크"}
           </button>
         </div>
       </form>
