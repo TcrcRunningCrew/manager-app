@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth/options";
 import { findUserByAccountId } from "@/lib/domain/user/queries";
 import { insertMeeting } from "@/lib/domain/meeting/mutations";
 import { sendSlackNotification } from "@/lib/domain/slack/notifications";
+import { sendPushToAdmins } from "@/lib/push/vapid";
 import {
   getParticipationByDateRange,
   getFounderMeetingsByDateRange,
@@ -32,6 +33,17 @@ function getCurrentMonthRange() {
 
 const ALLOWED_ACTIVATION = new Set(["1", "2", "3", "4"]);
 const ALLOWED_LOCATION = new Set(["1", "2", "3", "4", "5", "6", "7", "8"]);
+
+const LOCATION_MAP: Record<string, string> = {
+  "1": "태평_탄천",
+  "2": "서현_황새울공원",
+  "3": "야탑_탄천종합운동장",
+  "4": "모란_성남종합운동장",
+  "5": "위례",
+  "6": "정자",
+  "7": "판교",
+  "8": "그 외",
+};
 
 export async function checkoutAction(params: {
   participationDate: string;
@@ -105,6 +117,24 @@ export async function checkoutAction(params: {
       );
     } catch (e) {
       console.error("[checkout] slack notification failed:", e);
+    }
+
+    // 운영진 푸시 알림 (비치명적)
+    try {
+      const now = new Date();
+      const month = now.getMonth() + 1;
+      const day = now.getDate();
+      const hour = String(now.getHours()).padStart(2, "0");
+      const minute = String(now.getMinutes()).padStart(2, "0");
+      const locationLabel = LOCATION_MAP[location] ?? location;
+
+      await sendPushToAdmins({
+        title: "🏃 출석 알림",
+        body: `${username}님이 ${locationLabel}에서 ${month}월 ${day}일 ${hour}:${minute} 출석했습니다`,
+        url: "/admin",
+      });
+    } catch (e) {
+      console.error("[checkout] push notification failed:", e);
     }
 
     let rankingData: CheckoutRankingData = {

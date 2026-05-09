@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "../styles/globals.css";
 import SessionProvider from "@/components/providers/SessionProvider";
+import { PwaInstallBanner } from "@/components/molecules/PwaInstallBanner";
 
 export const metadata: Metadata = {
   title: "T.C.R.C",
@@ -78,6 +79,7 @@ export default function RootLayout({
           <div className='mobile-viewport'>
             <main className='main-content'>{children}</main>
           </div>
+          <PwaInstallBanner />
         </SessionProvider>
       </body>
     </html>
