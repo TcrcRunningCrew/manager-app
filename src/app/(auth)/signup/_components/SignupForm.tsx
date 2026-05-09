@@ -41,19 +41,16 @@ export default function SignupForm() {
     const { name, birthYear, email } = getValues();
 
     try {
-      if (
-        status === "authenticated" &&
-        session?.user &&
-        session.user.name &&
-        session.user.id
-      ) {
-        await signupAction({
-          name,
-          birthYear,
-          email,
-          accountId: session.user.id,
-        });
+      if (status !== "authenticated" || !session?.user?.id) {
+        throw new Error("로그인 세션이 없습니다.");
       }
+
+      await signupAction({
+        name,
+        birthYear,
+        email,
+        accountId: session.user.id,
+      });
 
       await update({ name, email, birthYear });
       setSuccessDialog({ open: true, message: "회원가입 완료" });
@@ -67,6 +64,26 @@ export default function SignupForm() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {/* 이메일 동의 안내 */}
+      <div
+        style={{
+          background: "#FEE50022",
+          border: "1px solid #FEE500",
+          borderRadius: "var(--card-radius)",
+          padding: "12px 14px",
+          display: "flex",
+          gap: 10,
+          alignItems: "flex-start",
+          animation: "slide-up 0.3s ease-out both",
+        }}
+      >
+        <span style={{ fontSize: 16, lineHeight: 1.4 }}>⚠️</span>
+        <p style={{ fontSize: 13, color: "var(--tcrc-text-primary)", lineHeight: 1.5, margin: 0 }}>
+          카카오 로그인 시 <strong>이메일 정보 동의</strong>를 허용해주세요.
+          동의하지 않으면 회원가입이 정상적으로 처리되지 않을 수 있습니다.
+        </p>
+      </div>
+
       <div style={{ animation: "slide-up 0.3s ease-out both", animationDelay: "0s" }}>
         <label className='field-label'>이름</label>
         <input

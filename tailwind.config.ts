@@ -163,6 +163,10 @@ const config = {
           "0%":   { transform: "translateY(20px)", opacity: "0" },
           "100%": { transform: "translateY(0)",    opacity: "1" },
         },
+        "sheet-up": {
+          from: { transform: "translateY(100%)" },
+          to:   { transform: "translateY(0)" },
+        },
         "marquee": {
           "0%":   { transform: "translate3d(0,0,0)" },
           "100%": { transform: "translate3d(-100%,0,0)" },
@@ -177,6 +181,7 @@ const config = {
         "pop-in":         "pop-in 0.55s cubic-bezier(0.2,1.3,0.4,1) both",
         "drift-up":       "drift-up 0.55s ease-out both",
         "marquee":        "marquee 18s linear infinite",
+        "sheet-up":       "sheet-up 0.32s cubic-bezier(0.32,0.72,0,1)",
       },
     },
   },

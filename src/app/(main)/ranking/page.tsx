@@ -1,5 +1,3 @@
-"use client";
-
 import { TopBar } from "@/components/organisms/TopBar";
 import { RankingList } from "@/components/organisms/RankingList";
 import { fetchOverallRanking } from "./actions";

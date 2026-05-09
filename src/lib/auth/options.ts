@@ -11,6 +11,10 @@ export const authOptions: AuthOptions = {
       clientSecret: process.env.KAKAO_CLIENT_SECRET || "",
     }),
   ],
+  pages: {
+    // OAuth 에러 발생 시 홈(로그인 화면)으로 보내 재시도 유도
+    error: "/",
+  },
   session: {
     strategy: "jwt",
     maxAge: 2 * 24 * 60 * 60,
@@ -37,17 +41,19 @@ export const authOptions: AuthOptions = {
     async session({ session, token }: { session: any; token: any }) {
       if (session.user) {
         session.user.id = token.sub ?? "";
-      }
-      if (token.birthYear && token.name && token.email && session.user) {
-        session.user.name = token.name;
-        session.user.email = token.email;
-        session.user.birthYear = (token.birthYear as number) ?? 0;
+        // token에 있는 값을 항상 세션에 반영 (birthYear 유무와 무관)
+        if (token.name) session.user.name = token.name;
+        if (token.email) session.user.email = token.email;
+        if (token.birthYear) session.user.birthYear = token.birthYear;
       }
       return session;
     },
     async jwt({ session, token, trigger, user }: any) {
-      if (trigger === "signIn" && user?.birthYear) {
-        token.birthYear = user.birthYear;
+      if (trigger === "signIn" && user) {
+        // signIn 콜백에서 Supabase 값으로 수정된 name/email/birthYear를 명시적으로 저장
+        if (user.name) token.name = user.name;
+        if (user.email) token.email = user.email;
+        if (user.birthYear) token.birthYear = user.birthYear;
       }
       if (trigger === "update") {
         token.email = session.email;

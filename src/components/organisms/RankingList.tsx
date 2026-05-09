@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { MonthSelector } from "@/components/molecules/MonthSelector";
 
@@ -24,7 +24,6 @@ export function RankingList({
   const { data: session, status } = useSession();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [users, setUsers] = useState<RankingUser[]>([]);
-  const [userRanking, setUserRanking] = useState<number>();
   const [animKey, setAnimKey] = useState(0);
 
   const changeMonth = useCallback((increment: number) => {
@@ -44,12 +43,12 @@ export function RankingList({
     });
   }, [currentMonth, fetchRanking]);
 
-  useEffect(() => {
-    if (status === "authenticated" && session?.user?.name) {
-      const ranking = users.findIndex((u) => u.name === session.user.name);
-      setUserRanking(ranking === -1 ? undefined : ranking + 1);
-    }
-  }, [status, session, users]);
+  const userName = status === "authenticated" ? session?.user?.name : undefined;
+  const userRanking = useMemo(() => {
+    if (!userName) return undefined;
+    const idx = users.findIndex((u) => u.name === userName);
+    return idx === -1 ? undefined : idx + 1;
+  }, [userName, users]);
 
   const accentColor = bgColor.includes("yellow")
     ? "var(--tcrc-accent-yellow)"

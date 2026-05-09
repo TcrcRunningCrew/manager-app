@@ -1,5 +1,4 @@
-import { MdLogout } from "react-icons/md";
-import { MdQrCode } from "react-icons/md";
+import { MdLogout, MdQrCode } from "react-icons/md";
 
 export function BellIcon(props: any) {
   return (

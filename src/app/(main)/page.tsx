@@ -1,8 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 import { ConfirmDialog } from "@/components/molecules/ConfirmDialog";
 import { ActionCard } from "@/components/atoms/ActionCard";
 import { StatTile } from "@/components/atoms/StatTile";
@@ -15,31 +16,38 @@ const Lottie = dynamic(() => import("lottie-react"), {
   loading: () => <div style={{ color: "var(--tcrc-text-secondary)" }}>로딩중...</div>,
 });
 
+// useSearchParams는 Suspense boundary 안에서만 안전하게 사용 가능 (Next.js 14)
+function OAuthErrorWatcher({ onError }: { onError: (msg: string) => void }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const error = searchParams.get("error");
+    if (error) {
+      onError("로그인에 실패했습니다. 다시 시도해 주세요.");
+      router.replace("/");
+    }
+  }, [searchParams, router, onError]);
+
+  return null;
+}
+
 export default function Home() {
   const router = useRouter();
   const { data: session, status } = useSession();
 
-  const [loginDialog, setLoginDialog] = useState({ open: false, message: "" });
   const [errorDialog, setErrorDialog] = useState({ open: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [lottieData, setLottieData] = useState<any>(null);
 
-  const handleLoginConfirm = async () => {
-    setLoginDialog({ open: false, message: "" });
+  const handleLoginClick = async () => {
     setIsLoading(true);
     try {
-      await signIn("kakao");
+      await signIn("kakao", { callbackUrl: "/" });
     } catch {
       setErrorDialog({ open: true, message: "로그인 중 에러가 발생했습니다." });
       setIsLoading(false);
     }
-  };
-
-  const handleLoginClick = () => {
-    setLoginDialog({
-      open: true,
-      message: "이메일 정보 동의를 필수로 해주시길 부탁드립니다.",
-    });
   };
 
   useEffect(() => {
@@ -87,13 +95,10 @@ export default function Home() {
   if (status === "unauthenticated") {
     return (
       <>
+        <Suspense>
+          <OAuthErrorWatcher onError={(msg) => setErrorDialog({ open: true, message: msg })} />
+        </Suspense>
         <LoginScreen onLogin={handleLoginClick} />
-        <ConfirmDialog
-          isOpen={loginDialog.open}
-          onClose={handleLoginConfirm}
-          message={loginDialog.message}
-          buttonText="확인"
-        />
         <ConfirmDialog
           isOpen={errorDialog.open}
           onClose={() => setErrorDialog({ open: false, message: "" })}

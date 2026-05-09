@@ -39,26 +39,35 @@ export function ConfirmDialog({
     <dialog
       ref={dialogRef}
       onClose={handleClose}
-      className="fixed inset-0 z-50 bg-transparent"
+      className="fixed inset-0 z-50 bg-transparent p-0 m-0 max-w-none max-h-none w-full h-full"
     >
+      {/* 배경 딤 */}
       <div
-        className="fixed inset-0 bg-black/60 flex items-center justify-center p-4"
+        className="fixed inset-0 bg-black/60"
         onClick={handleClose}
+      />
+      {/* 바텀시트 */}
+      <div
+        className={cn(
+          "fixed bottom-0 left-0 right-0",
+          "bg-tcrc-bg-surface",
+          "rounded-t-[20px] px-5 pt-5 pb-[calc(1.25rem+env(safe-area-inset-bottom,0px))]",
+          "flex flex-col gap-4 animate-sheet-up"
+        )}
+        onClick={(e) => e.stopPropagation()}
       >
-        <div
-          className={cn(
-            "bg-tcrc-bg-surface rounded-tcrc-lg p-5 max-w-sm w-full",
-            "flex flex-col gap-4 animate-scale-in"
-          )}
-          onClick={(e) => e.stopPropagation()}
+        {/* 핸들 바 */}
+        <div className="w-9 h-1 rounded-full bg-tcrc-border mx-auto -mt-1 mb-1" />
+        <p className="text-tcrc-text-primary text-center text-tcrc-body break-words px-2">
+          {message}
+        </p>
+        <Button
+          onClick={handleClose}
+          size="full"
+          style={{ background: "#FEE500", color: "#000" }}
         >
-          <p className="text-tcrc-text-primary text-center text-tcrc-body break-words">
-            {message}
-          </p>
-          <Button onClick={handleClose} size="full">
-            {buttonText}
-          </Button>
-        </div>
+          {buttonText}
+        </Button>
       </div>
     </dialog>
   );
