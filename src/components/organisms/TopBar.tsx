@@ -28,7 +28,8 @@ export function TopBar({
       style={{
         background: accent,
         color: textColor,
-        padding: "20px 20px 22px",
+        padding:
+          "calc(20px + env(safe-area-inset-top)) calc(20px + env(safe-area-inset-right)) 22px calc(20px + env(safe-area-inset-left))",
         display: "flex",
         alignItems: "flex-start",
         justifyContent: "space-between",

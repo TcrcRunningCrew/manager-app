@@ -115,7 +115,7 @@ export default function HomeClient({ isAdmin }: { isAdmin: boolean }) {
       style={{
         display: "flex",
         flexDirection: "column",
-        height: "100%",
+        minHeight: "100%",
         background: "var(--tcrc-bg-primary)",
         color: "var(--tcrc-text-primary)",
       }}
@@ -130,7 +130,12 @@ export default function HomeClient({ isAdmin }: { isAdmin: boolean }) {
       )}
 
       {/* 브랜드 블록 */}
-      <div style={{ padding: "32px 22px 20px" }}>
+      <div
+        style={{
+          padding:
+            "calc(32px + env(safe-area-inset-top)) calc(22px + env(safe-area-inset-right)) 20px calc(22px + env(safe-area-inset-left))",
+        }}
+      >
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             <div className="t-display" style={{ fontSize: 56, color: "var(--tcrc-text-primary)" }}>
@@ -192,7 +197,13 @@ export default function HomeClient({ isAdmin }: { isAdmin: boolean }) {
       <MarqueeStrip />
 
       {/* 액션 카드 */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "20px 20px 32px" }}>
+      <div
+        style={{
+          flex: 1,
+          padding:
+            "20px calc(20px + env(safe-area-inset-right)) calc(32px + env(safe-area-inset-bottom)) calc(20px + env(safe-area-inset-left))",
+        }}
+      >
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <ActionCard
             label="출석체크"

@@ -40,7 +40,7 @@ export default async function AdminPage() {
       style={{
         display: "flex",
         flexDirection: "column",
-        height: "100%",
+        minHeight: "100%",
         background: "var(--tcrc-bg-primary)",
         color: "var(--tcrc-text-primary)",
       }}
@@ -99,7 +99,6 @@ export default async function AdminPage() {
       <div
         style={{
           flex: 1,
-          overflowY: "auto",
           padding:
             "20px calc(16px + env(safe-area-inset-right)) calc(48px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left))",
         }}
