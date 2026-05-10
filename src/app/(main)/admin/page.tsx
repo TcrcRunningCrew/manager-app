@@ -53,7 +53,8 @@ export default async function AdminPage() {
           zIndex: 40,
           background: "var(--tcrc-bg-primary)",
           borderBottom: "1px solid var(--tcrc-line)",
-          padding: "14px 20px",
+          padding:
+            "calc(14px + env(safe-area-inset-top)) calc(20px + env(safe-area-inset-right)) 14px calc(20px + env(safe-area-inset-left))",
           display: "flex",
           alignItems: "center",
           gap: 12,
@@ -95,7 +96,14 @@ export default async function AdminPage() {
       </header>
 
       {/* 본문 */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "20px 16px 48px" }}>
+      <div
+        style={{
+          flex: 1,
+          overflowY: "auto",
+          padding:
+            "20px calc(16px + env(safe-area-inset-right)) calc(48px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left))",
+        }}
+      >
 
         {/* 푸시 알림 설정 */}
         <section style={{ marginBottom: 32 }}>
