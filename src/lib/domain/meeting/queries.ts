@@ -9,7 +9,7 @@ export async function findExistingMeeting(params: {
   const { accountId, meetingDate, activation, location } = params;
   const { data, error } = await supabaseServer
     .from("meeting")
-    .select("id")
+    .select("_id")
     .eq("accountId", accountId)
     .eq("meeting_date", meetingDate)
     .eq("activation", activation)
