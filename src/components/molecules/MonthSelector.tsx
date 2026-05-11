@@ -1,13 +1,15 @@
 "use client";
 
+import { Temporal } from "temporal-polyfill";
+
 interface MonthSelectorProps {
-  currentMonth: Date;
+  currentMonth: Temporal.PlainYearMonth;
   changeMonth: (increment: number) => void;
 }
 
 export function MonthSelector({ currentMonth, changeMonth }: MonthSelectorProps) {
-  const year = currentMonth.getFullYear();
-  const month = String(currentMonth.getMonth() + 1).padStart(2, "0");
+  const year = currentMonth.year;
+  const month = String(currentMonth.month).padStart(2, "0");
 
   return (
     <div style={{ padding: "16px 16px 12px" }}>

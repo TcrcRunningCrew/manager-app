@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useSession } from "next-auth/react";
+import { Temporal } from "temporal-polyfill";
+import { currentYearMonthKST, formatYM, addMonths } from "@/lib/time";
 import { MonthSelector } from "@/components/molecules/MonthSelector";
 
 interface RankingUser {
@@ -22,20 +24,18 @@ export function RankingList({
   fetchRanking,
 }: RankingListProps) {
   const { data: session, status } = useSession();
-  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [currentMonth, setCurrentMonth] = useState<Temporal.PlainYearMonth>(
+    currentYearMonthKST(),
+  );
   const [users, setUsers] = useState<RankingUser[]>([]);
   const [animKey, setAnimKey] = useState(0);
 
   const changeMonth = useCallback((increment: number) => {
-    setCurrentMonth((prev) => {
-      const newMonth = new Date(prev);
-      newMonth.setMonth(newMonth.getMonth() + increment);
-      return newMonth;
-    });
+    setCurrentMonth((prev) => addMonths(prev, increment));
   }, []);
 
   useEffect(() => {
-    const monthStr = currentMonth.toISOString().substring(0, 7);
+    const monthStr = formatYM(currentMonth);
     setUsers([]);
     fetchRanking(monthStr).then((data) => {
       setUsers(data);

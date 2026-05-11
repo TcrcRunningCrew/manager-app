@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
+import { Temporal } from "temporal-polyfill";
 import { MonthSelector } from "@/components/molecules/MonthSelector";
 
 vi.mock("lucide-react", () => ({
@@ -8,7 +9,7 @@ vi.mock("lucide-react", () => ({
 }));
 
 describe("MonthSelector", () => {
-  const jan2025 = new Date(2025, 0, 1);
+  const jan2025 = Temporal.PlainYearMonth.from("2025-01");
 
   it("현재 월을 한국어 형식으로 표시한다", () => {
     render(<MonthSelector currentMonth={jan2025} changeMonth={vi.fn()} />);
@@ -32,7 +33,7 @@ describe("MonthSelector", () => {
   });
 
   it("다른 월도 올바르게 표시한다", () => {
-    const dec2024 = new Date(2024, 11, 1);
+    const dec2024 = Temporal.PlainYearMonth.from("2024-12");
     render(<MonthSelector currentMonth={dec2024} changeMonth={vi.fn()} />);
     expect(screen.getByText(/2024년 12월/)).toBeInTheDocument();
   });
