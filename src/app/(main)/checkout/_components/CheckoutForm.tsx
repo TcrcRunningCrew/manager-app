@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { ConfirmDialog } from "@/components/molecules/ConfirmDialog";
+import { todayInKST, formatYMD } from "@/lib/time";
 import { checkoutAction, type CheckoutRankingData } from "../actions";
 import { CheckoutSuccessModal } from "./CheckoutSuccessModal";
 
@@ -45,7 +46,7 @@ export default function CheckoutForm() {
     defaultValues: {
       username: "",
       userAge: "",
-      participationDate: new Date().toISOString().split("T")[0],
+      participationDate: formatYMD(todayInKST()),
       activation: "1",
       location: "1",
       isFounder: false,
