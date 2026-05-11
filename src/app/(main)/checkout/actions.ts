@@ -11,6 +11,12 @@ import {
   getFounderMeetingsByDateRange,
   findExistingMeeting,
 } from "@/lib/domain/meeting/queries";
+import {
+  currentYearMonthKST,
+  formatYM,
+  monthRangeFromYM,
+  formatKstNotification,
+} from "@/lib/time";
 
 export type CheckoutRankingData = {
   monthlyCount: number;
@@ -21,14 +27,7 @@ export type CheckoutRankingData = {
 };
 
 function getCurrentMonthRange() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth() + 1;
-  const pad = (n: number) => String(n).padStart(2, "0");
-  const startDay = `${year}-${pad(month)}-01`;
-  const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
-  const endDay = `${year}-${pad(month)}-${pad(lastDay)}`;
-  return { startDay, endDay };
+  return monthRangeFromYM(formatYM(currentYearMonthKST()));
 }
 
 const ALLOWED_ACTIVATION = new Set(["1", "2", "3", "4"]);
@@ -121,11 +120,7 @@ export async function checkoutAction(params: {
 
     // 운영진 푸시 알림 (비치명적)
     try {
-      const now = new Date();
-      const month = now.getMonth() + 1;
-      const day = now.getDate();
-      const hour = String(now.getHours()).padStart(2, "0");
-      const minute = String(now.getMinutes()).padStart(2, "0");
+      const { month, day, hour, minute } = formatKstNotification();
       const locationLabel = LOCATION_MAP[location] ?? location;
 
       await sendPushToAdmins({
