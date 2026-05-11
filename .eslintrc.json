@@ -1,6 +1,16 @@
 {
   "extends": "next/core-web-vitals",
   "rules": {
-    "@next/next/no-page-custom-font": "off"
-  }
+    "@next/next/no-page-custom-font": "off",
+    "no-restricted-syntax": [
+      "error",
+      { "selector": "NewExpression[callee.name='Date']", "message": "Use Temporal.* (src/lib/time helpers) instead of new Date()." },
+      { "selector": "CallExpression[callee.object.name='Date'][callee.property.name='now']", "message": "Use Temporal.Now.* instead of Date.now()." },
+      { "selector": "CallExpression[callee.object.name='Date'][callee.property.name='UTC']", "message": "Use Temporal.PlainDate/ZonedDateTime instead of Date.UTC()." },
+      { "selector": "MemberExpression[property.name=/^(getFullYear|getMonth|getDate|getHours|getMinutes|getSeconds|getDay|setMonth|setDate|setHours|setMinutes|toISOString|toLocaleDateString|toLocaleTimeString|toLocaleString)$/]", "message": "Date.prototype.* is banned. Use Temporal via src/lib/time helpers." }
+    ]
+  },
+  "overrides": [
+    { "files": ["src/pages_legacy/**", "src/__tests__/**"], "rules": { "no-restricted-syntax": "off" } }
+  ]
 }
