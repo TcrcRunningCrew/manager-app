@@ -5,13 +5,10 @@ import {
   getParticipationByDateRange,
   getFounderMeetingsByDateRange,
 } from "@/lib/domain/meeting/queries";
+import { monthRangeFromYM } from "@/lib/time";
 
 function getMonthRange(month: string) {
-  const startDay = `${month}-01`;
-  const [year, m] = month.split("-").map(Number);
-  const lastDay = new Date(Date.UTC(year, m, 0)).getUTCDate();
-  const endDay = `${month}-${String(lastDay).padStart(2, "0")}`;
-  return { startDay, endDay };
+  return monthRangeFromYM(month);
 }
 
 export async function fetchOverallRanking(month: string) {
