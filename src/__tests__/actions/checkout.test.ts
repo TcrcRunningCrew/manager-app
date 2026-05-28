@@ -8,18 +8,18 @@ vi.mock("@/lib/domain/meeting/mutations", () => ({
   insertMeeting: vi.fn(),
 }));
 
-vi.mock("@/lib/domain/slack/notifications", () => ({
-  sendSlackNotification: vi.fn(),
+vi.mock("@/lib/domain/discord/notifications", () => ({
+  sendDiscordNotification: vi.fn(),
 }));
 
 import { checkoutAction } from "@/app/(main)/checkout/actions";
 import { findUserByAccountId } from "@/lib/domain/user/queries";
 import { insertMeeting } from "@/lib/domain/meeting/mutations";
-import { sendSlackNotification } from "@/lib/domain/slack/notifications";
+import { sendDiscordNotification } from "@/lib/domain/discord/notifications";
 
 const mockFindUser = vi.mocked(findUserByAccountId);
 const mockInsertMeeting = vi.mocked(insertMeeting);
-const mockSlack = vi.mocked(sendSlackNotification);
+const mockSlack = vi.mocked(sendDiscordNotification);
 
 const defaultParams = {
   userId: "kakao-123",
@@ -27,6 +27,7 @@ const defaultParams = {
   userEmail: "hong@test.com",
   userAge: "1990",
   participationDate: "2025-01-15",
+  participationTime: "07:30",
   activation: "running",
   location: "한강",
   isFounder: false,

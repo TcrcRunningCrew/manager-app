@@ -23,19 +23,34 @@ export const authOptions: AuthOptions = {
   callbacks: {
     async signIn({ user, account }) {
       user.birthYear = "";
+      const providerAccountId = account?.providerAccountId ?? "";
+      if (!providerAccountId) {
+        console.error("[NextAuth] signIn - providerAccountId 누락");
+        return "/?error=oauth_failed";
+      }
+
+      let isExistingUser = false;
       try {
-        const res = await findUserByAccountId(
-          account?.providerAccountId ?? ""
-        );
+        const res = await findUserByAccountId(providerAccountId);
         if (res && res.length > 0 && res[0]) {
+          isExistingUser = true;
           user.email = res[0].email ?? "";
           user.name = res[0].name ?? "";
           user.birthYear = String(res[0].birthYear) ?? "0";
         }
       } catch (err) {
-        // Supabase 조회 실패해도 로그인 자체는 허용
+        // Supabase 조회 실패해도 로그인 자체는 허용 (기존 사용자 보호)
         console.error("[NextAuth] signIn - Supabase 조회 실패:", err);
+        return true;
       }
+
+      // 신규 사용자는 카카오 이메일 동의가 필수.
+      // 기존 사용자는 DB에 이미 이메일이 있으므로 통과.
+      if (!isExistingUser && !user.email) {
+        console.warn("[NextAuth] signIn - 신규 가입자 이메일 동의 누락:", providerAccountId);
+        return "/?error=email_required";
+      }
+
       return true;
     },
     async session({ session, token }: { session: any; token: any }) {

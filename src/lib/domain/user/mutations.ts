@@ -8,9 +8,14 @@ export async function createUser(user: {
 }) {
   const { name, birthYear, email, accountId } = user;
 
+  // accountId UNIQUE 제약을 활용한 upsert. 동시 가입/재시도에서도 안전.
   const { error, data } = await supabaseServer
     .from("user")
-    .insert([{ name, birthYear, email, accountId, activation: true }])
+    .upsert(
+      [{ name, birthYear, email, accountId, activation: true }],
+      { onConflict: "accountId" }
+    )
+    .select()
     .single();
 
   if (error) throw error;
@@ -23,14 +28,17 @@ export async function updateUserInfo(user: {
   email: string;
   accountId: string;
 }) {
-  const { birthYear, email, accountId } = user;
+  const { name, birthYear, email, accountId } = user;
 
   const { error, data } = await supabaseServer
     .from("user")
-    .update({ birthYear })
+    .update({ name, birthYear, email })
     .eq("accountId", accountId)
-    .eq("email", email);
+    .select();
 
   if (error) throw error;
-  return data;
+  if (!data || data.length === 0) {
+    throw new Error(`updateUserInfo: no row matched accountId=${accountId}`);
+  }
+  return data[0];
 }

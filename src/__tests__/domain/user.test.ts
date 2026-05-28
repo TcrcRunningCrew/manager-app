@@ -18,6 +18,7 @@ function createChain(data: unknown = null, error: unknown = null) {
     select: vi.fn().mockReturnThis(),
     eq: vi.fn().mockReturnThis(),
     insert: vi.fn().mockReturnThis(),
+    upsert: vi.fn().mockReturnThis(),
     update: vi.fn().mockReturnThis(),
     single: vi.fn().mockResolvedValue(resolved),
     then: (onfulfilled: (v: typeof resolved) => unknown, onrejected?: (e: unknown) => unknown) =>
@@ -113,7 +114,7 @@ describe("createUser", () => {
     accountId: "kakao-123",
   };
 
-  it("user 테이블에 사용자를 삽입한다", async () => {
+  it("user 테이블에 사용자를 upsert한다", async () => {
     mockFrom.mockReturnValue(createChain({ id: 1 }) as ReturnType<typeof supabaseServer.from>);
 
     await createUser(newUser);
@@ -122,8 +123,10 @@ describe("createUser", () => {
   });
 
   it("에러가 발생하면 throw한다", async () => {
-    const error = new Error("Insert error");
-    mockFrom.mockReturnValue(createChain(null, error) as ReturnType<typeof supabaseServer.from>);
+    const chain = createChain(null, new Error("Insert error"));
+    // createUser는 .upsert(...).select().single() 체인 → single이 마지막
+    chain.single = vi.fn().mockResolvedValue({ data: null, error: new Error("Insert error") });
+    mockFrom.mockReturnValue(chain as ReturnType<typeof supabaseServer.from>);
     await expect(createUser(newUser)).rejects.toThrow("Insert error");
   });
 });
@@ -139,14 +142,22 @@ describe("updateUserInfo", () => {
   };
 
   it("user 테이블에서 사용자 정보를 업데이트한다", async () => {
-    mockFrom.mockReturnValue(createChain([]) as ReturnType<typeof supabaseServer.from>);
+    // 업데이트 성공 시 1행 반환 — accountId WHERE에만 매칭
+    mockFrom.mockReturnValue(
+      createChain([{ accountId: "kakao-123" }]) as ReturnType<typeof supabaseServer.from>
+    );
 
     await updateUserInfo(userData);
 
     expect(mockFrom).toHaveBeenCalledWith("user");
   });
 
-  it("에러가 발생하면 throw한다", async () => {
+  it("매칭되는 행이 없으면 에러를 throw한다", async () => {
+    mockFrom.mockReturnValue(createChain([]) as ReturnType<typeof supabaseServer.from>);
+    await expect(updateUserInfo(userData)).rejects.toThrow(/no row matched/);
+  });
+
+  it("DB 에러가 발생하면 throw한다", async () => {
     const error = new Error("Update error");
     mockFrom.mockReturnValue(createChain(null, error) as ReturnType<typeof supabaseServer.from>);
     await expect(updateUserInfo(userData)).rejects.toThrow("Update error");

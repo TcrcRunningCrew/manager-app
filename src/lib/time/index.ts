@@ -55,3 +55,23 @@ export function formatKstNotification(
     minute: String(z.minute).padStart(2, "0"),
   };
 }
+
+// 폼의 <input type="time"> 기본값으로 쓰기 위한 KST 현재 "HH:MM" 문자열
+export function currentTimeKST(): string {
+  const z = nowInKST();
+  return `${String(z.hour).padStart(2, "0")}:${String(z.minute).padStart(2, "0")}`;
+}
+
+// 폼이 보내준 "YYYY-MM-DD" + "HH:MM" (KST wall-clock) 을 알림용 parts로 변환
+export function kstNotificationFromDateTime(
+  date: string,
+  time: string,
+): KstNotificationParts {
+  const plain = Temporal.PlainDateTime.from(`${date}T${time}`);
+  return {
+    month: plain.month,
+    day: plain.day,
+    hour: String(plain.hour).padStart(2, "0"),
+    minute: String(plain.minute).padStart(2, "0"),
+  };
+}

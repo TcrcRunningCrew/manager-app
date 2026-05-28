@@ -10,6 +10,7 @@ import { StatTile } from "@/components/atoms/StatTile";
 import { MarqueeStrip } from "@/components/molecules/MarqueeStrip";
 import { LoginScreen } from "./LoginScreen";
 import { HomeAdminButton } from "./HomeAdminButton";
+import { InAppBrowserGuard } from "@/components/molecules/InAppBrowserGuard";
 import dynamic from "next/dynamic";
 
 const Lottie = dynamic(() => import("lottie-react"), {
@@ -24,10 +25,17 @@ function OAuthErrorWatcher({ onError }: { onError: (msg: string) => void }) {
 
   useEffect(() => {
     const error = searchParams.get("error");
-    if (error) {
-      onError("로그인에 실패했습니다. 다시 시도해 주세요.");
-      router.replace("/");
+    if (!error) return;
+
+    let message = "로그인에 실패했습니다. 다시 시도해 주세요.";
+    if (error === "email_required") {
+      message =
+        "회원가입에는 카카오 이메일 동의가 필요합니다.\n카카오 로그인 화면에서 이메일 항목을 허용한 뒤 다시 시도해주세요.";
+    } else if (error === "oauth_failed") {
+      message = "카카오 로그인에 실패했습니다. 잠시 후 다시 시도해주세요.";
     }
+    onError(message);
+    router.replace("/");
   }, [searchParams, router, onError]);
 
   return null;
@@ -96,6 +104,7 @@ export default function HomeClient({ isAdmin }: { isAdmin: boolean }) {
   if (status === "unauthenticated") {
     return (
       <>
+        <InAppBrowserGuard />
         <Suspense>
           <OAuthErrorWatcher onError={(msg) => setErrorDialog({ open: true, message: msg })} />
         </Suspense>

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { ConfirmDialog } from "@/components/molecules/ConfirmDialog";
-import { signupAction } from "../actions";
+import { signupAction, reportSignupError } from "../actions";
 
 export default function SignupForm() {
   const router = useRouter();
@@ -25,6 +25,7 @@ export default function SignupForm() {
     open: false,
     message: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (
@@ -38,29 +39,67 @@ export default function SignupForm() {
   }, [session, setValue, status]);
 
   async function signUpUser() {
-    const { name, birthYear, email } = getValues();
+    if (isSubmitting) return;
 
-    try {
-      if (status !== "authenticated" || !session?.user?.id) {
-        throw new Error("로그인 세션이 없습니다.");
-      }
+    const accountId = session?.user?.id;
+    const userAgent = typeof navigator !== "undefined" ? navigator.userAgent : "";
 
-      await signupAction({
-        name,
-        birthYear,
-        email,
-        accountId: session.user.id,
-      });
-
-      await update({ name, email, birthYear });
-      setSuccessDialog({ open: true, message: "회원가입 완료" });
-    } catch {
+    if (status !== "authenticated" || !accountId) {
+      const message = `로그인 세션이 없습니다. (status=${status})`;
+      console.error("[signup]", message);
+      void reportSignupError({ stage: "session-guard", message, userAgent });
       setErrorDialog({
         open: true,
-        message: "회원가입 에러 발생, 운영진에게 문의하세요.",
+        message: "로그인 정보가 만료되었습니다. 다시 로그인해주세요.",
+      });
+      return;
+    }
+
+    const raw = getValues();
+    // birthYear가 4자리(예: 1994)로 자동완성된 경우 뒤 2자리만 저장
+    const birthYear = raw.birthYear.length === 4 ? raw.birthYear.slice(-2) : raw.birthYear;
+    const { name, email } = raw;
+
+    setIsSubmitting(true);
+    try {
+      await signupAction({ name, birthYear, email, accountId });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error("[signup] signupAction failed", err);
+      void reportSignupError({
+        stage: "signupAction",
+        accountId,
+        message,
+        userAgent,
+      });
+      setErrorDialog({
+        open: true,
+        message: "회원가입 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.",
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
+    // 세션 동기화는 별도. 실패해도 가입 자체는 성공으로 처리.
+    try {
+      await update({ name, email, birthYear });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error("[signup] session update failed (non-fatal)", err);
+      void reportSignupError({
+        stage: "session-update",
+        accountId,
+        message,
+        userAgent,
       });
     }
+
+    setSuccessDialog({ open: true, message: "회원가입 완료" });
+    setIsSubmitting(false);
   }
+
+  const buttonDisabled =
+    isSubmitting || status === "loading" || status === "unauthenticated";
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -89,6 +128,7 @@ export default function SignupForm() {
         <input
           className='field-input ios-input'
           placeholder='홍길동'
+          autoComplete='name'
           {...register("name", { required: true, maxLength: 5, minLength: 2 })}
         />
         {formState.errors.name && (
@@ -102,13 +142,14 @@ export default function SignupForm() {
         <label className='field-label'>년생</label>
         <input
           className='field-input ios-input'
-          placeholder='94'
+          placeholder='94 또는 1994'
           inputMode='numeric'
-          {...register("birthYear", { required: true, pattern: /^\d{2}$/ })}
+          autoComplete='off'
+          {...register("birthYear", { required: true, pattern: /^(\d{2}|\d{4})$/ })}
         />
         {formState.errors.birthYear && (
           <p style={{ marginTop: 6, fontSize: 12, color: "var(--tcrc-status-error)" }}>
-            태어난연도의 뒤 2글자만 입력해주세요 ex) 1992년생: 92
+            태어난연도를 2자리(94) 또는 4자리(1994)로 입력해주세요.
           </p>
         )}
       </div>
@@ -119,9 +160,10 @@ export default function SignupForm() {
           className='field-input ios-input'
           placeholder='abc@gmail.com'
           type='email'
+          autoComplete='email'
           {...register("email", {
             required: true,
-            pattern: /^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/,
+            pattern: /^[a-zA-Z0-9+\-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/,
           })}
         />
         {formState.errors.email && (
@@ -133,11 +175,19 @@ export default function SignupForm() {
 
       <div style={{ marginTop: 8, animation: "slide-up 0.3s ease-out both", animationDelay: "0.21s" }}>
         <button
+          type='button'
           className='btn btn-block btn-tall'
-          style={{ background: "var(--tcrc-accent-green)", color: "#fff" }}
+          style={{
+            background: "var(--tcrc-accent-green)",
+            color: "#fff",
+            opacity: buttonDisabled ? 0.6 : 1,
+            pointerEvents: buttonDisabled ? "none" : "auto",
+          }}
+          disabled={buttonDisabled}
+          aria-busy={isSubmitting}
           onClick={handleSubmit(signUpUser)}
         >
-          회원가입
+          {isSubmitting ? "처리 중..." : status === "loading" ? "세션 확인 중..." : "회원가입"}
         </button>
       </div>
 

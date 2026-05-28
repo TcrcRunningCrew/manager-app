@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/options";
 import { findUserByAccountId } from "@/lib/domain/user/queries";
 import { insertMeeting } from "@/lib/domain/meeting/mutations";
-import { sendSlackNotification } from "@/lib/domain/slack/notifications";
+import { sendDiscordNotification } from "@/lib/domain/discord/notifications";
 import { sendPushToAdmins } from "@/lib/push/vapid";
 import {
   getParticipationByDateRange,
@@ -15,7 +15,7 @@ import {
   currentYearMonthKST,
   formatYM,
   monthRangeFromYM,
-  formatKstNotification,
+  kstNotificationFromDateTime,
 } from "@/lib/time";
 
 export type CheckoutRankingData = {
@@ -46,6 +46,7 @@ const LOCATION_MAP: Record<string, string> = {
 
 export async function checkoutAction(params: {
   participationDate: string;
+  participationTime: string;
   activation: string;
   location: string;
   isFounder: boolean | string;
@@ -56,11 +57,14 @@ export async function checkoutAction(params: {
       return { success: false, message: "로그인이 필요합니다." };
     }
 
-    const { participationDate, activation, location } = params;
+    const { participationDate, participationTime, activation, location } = params;
     const isFounder = params.isFounder === true || params.isFounder === "true";
 
     if (!/^\d{4}-\d{2}-\d{2}$/.test(participationDate)) {
       return { success: false, message: "참여일 형식이 올바르지 않습니다." };
+    }
+    if (!/^\d{2}:\d{2}$/.test(participationTime)) {
+      return { success: false, message: "참여 시각 형식이 올바르지 않습니다." };
     }
     if (!ALLOWED_ACTIVATION.has(activation)) {
       return { success: false, message: "운동 종류가 올바르지 않습니다." };
@@ -109,18 +113,21 @@ export async function checkoutAction(params: {
       return { success: false, message: "출석체크 에러 운영진 문의" };
     }
 
-    // Slack 알림은 비치명적: 실패해도 출석은 성공 처리
+    // Discord 알림은 비치명적: 실패해도 출석은 성공 처리
     try {
-      await sendSlackNotification(
+      await sendDiscordNotification(
         `출석/${participationDate}/${username}/${userAge}/${userEmail}/activation: ${activation}/location:${location}/founder: ${isFounder}`
       );
     } catch (e) {
-      console.error("[checkout] slack notification failed:", e);
+      console.error("[checkout] discord notification failed:", e);
     }
 
-    // 운영진 푸시 알림 (비치명적)
+    // 운영진 푸시 알림 (비치명적). 시각은 폼에서 입력한 KST 기준 참여 시각.
     try {
-      const { month, day, hour, minute } = formatKstNotification();
+      const { month, day, hour, minute } = kstNotificationFromDateTime(
+        participationDate,
+        participationTime,
+      );
       const locationLabel = LOCATION_MAP[location] ?? location;
 
       await sendPushToAdmins({

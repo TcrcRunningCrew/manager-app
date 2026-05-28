@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { ConfirmDialog } from "@/components/molecules/ConfirmDialog";
-import { todayInKST, formatYMD } from "@/lib/time";
+import { todayInKST, formatYMD, currentTimeKST } from "@/lib/time";
 import { checkoutAction, type CheckoutRankingData } from "../actions";
 import { CheckoutSuccessModal } from "./CheckoutSuccessModal";
 
@@ -47,6 +47,7 @@ export default function CheckoutForm() {
       username: "",
       userAge: "",
       participationDate: formatYMD(todayInKST()),
+      participationTime: currentTimeKST(),
       activation: "1",
       location: "1",
       isFounder: false,
@@ -77,6 +78,7 @@ export default function CheckoutForm() {
   const onSubmit = async () => {
     const result = await checkoutAction({
       participationDate: getValues("participationDate"),
+      participationTime: getValues("participationTime"),
       activation: getValues("activation"),
       location: getValues("location"),
       isFounder: getValues("isFounder"),
@@ -121,6 +123,16 @@ export default function CheckoutForm() {
         <div style={{ animation: "slide-up 0.3s ease-out both", animationDelay: "0.12s" }}>
           <label className="field-label">참여일</label>
           <input className="field-input" type="date" {...register("participationDate")} />
+        </div>
+
+        <div style={{ animation: "slide-up 0.3s ease-out both", animationDelay: "0.15s" }}>
+          <label className="field-label">참여 시각</label>
+          <input
+            className="field-input"
+            type="time"
+            step={60}
+            {...register("participationTime", { required: true, pattern: /^\d{2}:\d{2}$/ })}
+          />
         </div>
 
         <div style={{ animation: "slide-up 0.3s ease-out both", animationDelay: "0.18s" }}>
