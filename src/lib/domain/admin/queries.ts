@@ -55,6 +55,41 @@ export async function getRecentCheckouts(limit = 30): Promise<RecentCheckout[]> 
   return (data ?? []) as RecentCheckout[];
 }
 
+export type CheckoutFilter = {
+  from?: string | null;
+  to?: string | null;
+};
+
+export async function getCheckoutsPage(params: {
+  filter?: CheckoutFilter;
+  limit: number;
+  offset: number;
+}): Promise<{ items: RecentCheckout[]; hasMore: boolean }> {
+  const { filter, limit, offset } = params;
+
+  let query = supabaseServer
+    .from("meeting")
+    .select("_id, accountId, name, birthYear, meeting_date, meeting_time, activation, location, founder")
+    .order("meeting_date", { ascending: false })
+    .order("meeting_time", { ascending: false, nullsFirst: false })
+    .order("_id", { ascending: false });
+
+  if (filter?.from && /^\d{4}-\d{2}-\d{2}$/.test(filter.from)) {
+    query = query.gte("meeting_date", filter.from);
+  }
+  if (filter?.to && /^\d{4}-\d{2}-\d{2}$/.test(filter.to)) {
+    query = query.lte("meeting_date", filter.to);
+  }
+
+  // limit+1 트릭: 한 건 더 가져와서 hasMore 판단
+  const { data, error } = await query.range(offset, offset + limit);
+
+  if (error) throw error;
+  const rows = (data ?? []) as RecentCheckout[];
+  const hasMore = rows.length > limit;
+  return { items: hasMore ? rows.slice(0, limit) : rows, hasMore };
+}
+
 export async function getAdminPushStatus(): Promise<{ accountId: string; name: string; hasSub: boolean }[]> {
   const { data: admins, error: adminError } = await supabaseServer
     .from("user")

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireAdminAction } from "@/lib/auth/admin-guard";
 import { updateMeeting, deleteMeeting, type MeetingUpdate } from "@/lib/domain/meeting/mutations";
+import { getCheckoutsPage, type CheckoutFilter, type RecentCheckout } from "@/lib/domain/admin/queries";
 
 const ALLOWED_ACTIVATION = new Set(["1", "2", "3", "4"]);
 const ALLOWED_LOCATION = new Set(["1", "2", "3", "4", "5", "6", "7", "8"]);
@@ -51,5 +52,26 @@ export async function deleteMeetingAction(
   } catch (e) {
     console.error("[admin/activity] deleteMeeting failed", e);
     return { ok: false, message: "삭제 중 오류가 발생했습니다." };
+  }
+}
+
+export async function fetchMoreCheckoutsAction(params: {
+  filter: CheckoutFilter;
+  offset: number;
+  limit: number;
+}): Promise<{ ok: true; items: RecentCheckout[]; hasMore: boolean } | { ok: false; message: string }> {
+  try {
+    await requireAdminAction();
+    const safeLimit = Math.min(Math.max(params.limit, 1), 100);
+    const safeOffset = Math.max(params.offset, 0);
+    const { items, hasMore } = await getCheckoutsPage({
+      filter: params.filter,
+      limit: safeLimit,
+      offset: safeOffset,
+    });
+    return { ok: true, items, hasMore };
+  } catch (e) {
+    console.error("[admin/activity] fetchMore failed", e);
+    return { ok: false, message: "추가 데이터를 불러오지 못했습니다." };
   }
 }

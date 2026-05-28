@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useMemo, useDeferredValue } from "react";
 import { useRouter } from "next/navigation";
 import { toggleAdminAction, toggleActivationAction } from "../actions";
 import type { AdminUser } from "@/lib/domain/admin/queries";
@@ -58,8 +58,25 @@ export function AdminUserList({ users, currentAccountId }: Props) {
   const [pending, startTransition] = useTransition();
   const [optimistic, setOptimistic] = useState<Record<string, Partial<AdminUser>>>({});
   const [proxyUser, setProxyUser] = useState<AdminUser | null>(null);
+  const [query, setQuery] = useState("");
+  const deferredQuery = useDeferredValue(query);
 
   const get = (u: AdminUser): AdminUser => ({ ...u, ...(optimistic[u.accountId] ?? {}) });
+
+  const filteredUsers = useMemo(() => {
+    const q = deferredQuery.trim().toLowerCase();
+    if (!q) return users;
+    return users.filter((u) => {
+      const merged = get(u);
+      return (
+        merged.name?.toLowerCase().includes(q) ||
+        merged.email?.toLowerCase().includes(q) ||
+        String(merged.birthYear ?? "").includes(q)
+      );
+    });
+    // optimistic 변동도 검색 반영
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [users, deferredQuery, optimistic]);
 
   const handleToggleAdmin = (user: AdminUser) => {
     const cur = get(user);
@@ -81,8 +98,98 @@ export function AdminUserList({ users, currentAccountId }: Props) {
 
   return (
     <>
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {users.map((rawUser) => {
+      <div
+        style={{
+          position: "sticky",
+          top: "calc(56px + env(safe-area-inset-top))",
+          zIndex: 10,
+          background: "var(--tcrc-bg-primary)",
+          paddingBottom: 10,
+          marginBottom: 4,
+        }}
+      >
+        <div style={{ position: "relative" }}>
+          <span
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              left: 12,
+              top: "50%",
+              transform: "translateY(-50%)",
+              color: "var(--tcrc-text-tertiary)",
+              fontSize: 14,
+              pointerEvents: "none",
+            }}
+          >
+            🔍
+          </span>
+          <input
+            type="search"
+            inputMode="search"
+            placeholder="이름, 이메일, 년생으로 검색"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            aria-label="회원 검색"
+            style={{
+              width: "100%",
+              padding: "10px 36px 10px 36px",
+              borderRadius: 10,
+              border: "1px solid var(--tcrc-line)",
+              background: "var(--tcrc-bg-surface)",
+              color: "var(--tcrc-text-primary)",
+              fontSize: 14,
+              outline: "none",
+            }}
+          />
+          {query && (
+            <button
+              type="button"
+              onClick={() => setQuery("")}
+              aria-label="검색어 지우기"
+              style={{
+                position: "absolute",
+                right: 8,
+                top: "50%",
+                transform: "translateY(-50%)",
+                background: "var(--tcrc-bg-muted)",
+                border: "none",
+                borderRadius: "50%",
+                width: 22,
+                height: 22,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 12,
+                color: "var(--tcrc-text-secondary)",
+                cursor: "pointer",
+                padding: 0,
+              }}
+            >
+              ✕
+            </button>
+          )}
+        </div>
+        {query && (
+          <div style={{ fontSize: 11, color: "var(--tcrc-text-tertiary)", marginTop: 6, paddingLeft: 4 }}>
+            {filteredUsers.length}명 일치 · 전체 {users.length}명
+          </div>
+        )}
+      </div>
+
+      {filteredUsers.length === 0 ? (
+        <div
+          style={{
+            padding: "40px 16px",
+            textAlign: "center",
+            color: "var(--tcrc-text-tertiary)",
+            fontSize: 14,
+          }}
+        >
+          &ldquo;{query}&rdquo; 검색 결과가 없습니다.
+        </div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {filteredUsers.map((rawUser) => {
           const u = get(rawUser);
           const isMe = u.accountId === currentAccountId;
           return (
@@ -195,7 +302,8 @@ export function AdminUserList({ users, currentAccountId }: Props) {
             </div>
           );
         })}
-      </div>
+        </div>
+      )}
 
       {proxyUser && (
         <ProxyCheckoutDialog
