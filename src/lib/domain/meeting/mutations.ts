@@ -6,6 +6,7 @@ export async function insertMeeting(params: {
   email: string;
   birthYear: string;
   meeting_date: string;
+  meeting_time?: string | null;
   activation: string;
   location: string;
   founder: boolean;

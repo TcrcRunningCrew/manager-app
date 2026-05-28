@@ -104,6 +104,7 @@ export async function checkoutAction(params: {
       email: userEmail,
       birthYear: userAge,
       meeting_date: participationDate,
+      meeting_time: participationTime,
       activation,
       location,
       founder: isFounder,
