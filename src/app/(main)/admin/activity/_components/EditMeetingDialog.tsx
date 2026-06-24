@@ -119,7 +119,7 @@ export function EditMeetingDialog({ checkout, onClose, onDone }: Props) {
             <input className="field-input" type="date" value={meetingDate} onChange={(e) => setMeetingDate(e.target.value)} />
           </div>
           <div>
-            <label className="field-label">참여 시각</label>
+            <label className="field-label">모임 개설 시간</label>
             <input className="field-input" type="time" step={60} value={meetingTime} onChange={(e) => setMeetingTime(e.target.value)} />
           </div>
           <div>

@@ -126,7 +126,7 @@ export default function CheckoutForm() {
         </div>
 
         <div style={{ animation: "slide-up 0.3s ease-out both", animationDelay: "0.15s" }}>
-          <label className="field-label">참여 시각</label>
+          <label className="field-label">모임 개설 시간</label>
           <input
             className="field-input"
             type="time"

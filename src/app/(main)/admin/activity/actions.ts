@@ -23,7 +23,7 @@ export async function updateMeetingAction(
       changes.meeting_time !== null &&
       !/^\d{2}:\d{2}$/.test(changes.meeting_time)
     ) {
-      return { ok: false, message: "참여 시각 형식이 올바르지 않습니다." };
+      return { ok: false, message: "모임 개설 시간 형식이 올바르지 않습니다." };
     }
     if (changes.activation !== undefined && !ALLOWED_ACTIVATION.has(changes.activation)) {
       return { ok: false, message: "운동 종류가 올바르지 않습니다." };
