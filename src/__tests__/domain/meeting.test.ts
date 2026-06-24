@@ -10,6 +10,7 @@ import {
   getMeetingsByDateRange,
   getParticipationByDateRange,
   getFounderMeetingsByDateRange,
+  getUserMonthlyCounts,
 } from "@/lib/domain/meeting/queries";
 import { insertMeeting, updateMeeting, deleteMeeting } from "@/lib/domain/meeting/mutations";
 import { supabaseServer } from "@/lib/supabase/server";
@@ -115,6 +116,48 @@ describe("getFounderMeetingsByDateRange", () => {
     await expect(
       getFounderMeetingsByDateRange("2025-01-01", "2025-01-31")
     ).rejects.toThrow("Founder query error");
+  });
+});
+
+// --- getUserMonthlyCounts ---
+
+describe("getUserMonthlyCounts", () => {
+  it("accountId로 필터링된 참여/개설 수를 반환한다", async () => {
+    const rows = [{ founder: false }, { founder: true }, { founder: true }];
+    mockFrom.mockReturnValue(createChain(rows) as ReturnType<typeof supabaseServer.from>);
+
+    const result = await getUserMonthlyCounts({
+      accountId: "kakao-123",
+      startDay: "2026-06-01",
+      endDay: "2026-06-30",
+    });
+
+    expect(mockFrom).toHaveBeenCalledWith("meeting");
+    expect(result).toEqual({ participation: 3, founder: 2 });
+  });
+
+  it("데이터가 없으면 0을 반환한다", async () => {
+    mockFrom.mockReturnValue(createChain(null) as ReturnType<typeof supabaseServer.from>);
+
+    const result = await getUserMonthlyCounts({
+      accountId: "kakao-123",
+      startDay: "2026-06-01",
+      endDay: "2026-06-30",
+    });
+
+    expect(result).toEqual({ participation: 0, founder: 0 });
+  });
+
+  it("에러가 발생하면 throw한다", async () => {
+    const error = new Error("Count query failed");
+    mockFrom.mockReturnValue(createChain(null, error) as ReturnType<typeof supabaseServer.from>);
+    await expect(
+      getUserMonthlyCounts({
+        accountId: "kakao-123",
+        startDay: "2026-06-01",
+        endDay: "2026-06-30",
+      })
+    ).rejects.toThrow("Count query failed");
   });
 });
 

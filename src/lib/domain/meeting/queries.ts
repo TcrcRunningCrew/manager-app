@@ -53,3 +53,24 @@ export async function getFounderMeetingsByDateRange(startDay: string, endDay: st
   if (error) throw error;
   return data;
 }
+
+export async function getUserMonthlyCounts(params: {
+  accountId: string;
+  startDay: string;
+  endDay: string;
+}) {
+  const { accountId, startDay, endDay } = params;
+  const { data, error } = await supabaseServer
+    .from("meeting")
+    .select("founder")
+    .eq("accountId", accountId)
+    .gte("meeting_date", startDay)
+    .lte("meeting_date", endDay);
+
+  if (error) throw error;
+  const rows = data ?? [];
+  return {
+    participation: rows.length,
+    founder: rows.filter((r) => r.founder).length,
+  };
+}

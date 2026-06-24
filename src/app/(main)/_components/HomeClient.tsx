@@ -41,7 +41,17 @@ function OAuthErrorWatcher({ onError }: { onError: (msg: string) => void }) {
   return null;
 }
 
-export default function HomeClient({ isAdmin }: { isAdmin: boolean }) {
+interface HomeClientProps {
+  isAdmin: boolean;
+  monthlyParticipation: number;
+  monthlyFounder: number;
+}
+
+export default function HomeClient({
+  isAdmin,
+  monthlyParticipation,
+  monthlyFounder,
+}: HomeClientProps) {
   const router = useRouter();
   const { data: session, status } = useSession();
 
@@ -245,8 +255,18 @@ export default function HomeClient({ isAdmin }: { isAdmin: boolean }) {
             />
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 4 }}>
-            <StatTile label="이번 달 참여" value="—" unit="회" color="var(--tcrc-bg-surface)" />
-            <StatTile label="이번 달 개설" value="—" unit="회" color="var(--tcrc-bg-surface)" />
+            <StatTile
+              label="이번 달 참여"
+              value={monthlyParticipation}
+              unit="회"
+              color="var(--tcrc-bg-surface)"
+            />
+            <StatTile
+              label="이번 달 개설"
+              value={monthlyFounder}
+              unit="회"
+              color="var(--tcrc-bg-surface)"
+            />
           </div>
           {isAdmin && (
             <div style={{ marginTop: 8 }}>
