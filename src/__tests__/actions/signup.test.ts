@@ -1,5 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
+vi.mock("next-auth", () => ({
+  getServerSession: vi.fn(),
+}));
+
+vi.mock("@/lib/auth/options", () => ({
+  authOptions: {},
+}));
+
 vi.mock("@/lib/domain/user/queries", () => ({
   findUserByAccountId: vi.fn(),
 }));
@@ -14,97 +22,100 @@ vi.mock("@/lib/domain/discord/notifications", () => ({
 }));
 
 import { signupAction } from "@/app/(auth)/signup/actions";
+import { getServerSession } from "next-auth";
 import { findUserByAccountId } from "@/lib/domain/user/queries";
 import { createUser, updateUserInfo } from "@/lib/domain/user/mutations";
 import { sendDiscordNotification } from "@/lib/domain/discord/notifications";
 
+const mockSession = vi.mocked(getServerSession);
 const mockFindUser = vi.mocked(findUserByAccountId);
 const mockCreateUser = vi.mocked(createUser);
 const mockUpdateUser = vi.mocked(updateUserInfo);
-const mockSlack = vi.mocked(sendDiscordNotification);
+const mockDiscord = vi.mocked(sendDiscordNotification);
 
-const defaultParams = {
+const ACCOUNT_ID = "kakao-123";
+const VALID_PARAMS = {
   name: "홍길동",
   birthYear: "1990",
   email: "hong@test.com",
-  accountId: "kakao-123",
 };
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mockSlack.mockResolvedValue(undefined);
+  mockDiscord.mockResolvedValue(undefined);
+  mockSession.mockResolvedValue({ user: { id: ACCOUNT_ID } } as any);
 });
 
 describe("signupAction", () => {
+  it("세션이 없으면 unauthenticated 실패", async () => {
+    mockSession.mockResolvedValue(null as any);
+    const result = await signupAction(VALID_PARAMS);
+    expect(result).toEqual({ success: false, reason: "unauthenticated" });
+    expect(mockFindUser).not.toHaveBeenCalled();
+  });
+
+  it("name 형식이 어긋나면 invalid_name 실패", async () => {
+    const result = await signupAction({ ...VALID_PARAMS, name: "a" });
+    expect(result).toEqual({ success: false, reason: "invalid_name" });
+  });
+
+  it("birthYear 형식이 어긋나면 invalid_birth_year 실패", async () => {
+    const result = await signupAction({ ...VALID_PARAMS, birthYear: "abc" });
+    expect(result).toEqual({ success: false, reason: "invalid_birth_year" });
+  });
+
+  it("email 형식이 어긋나면 invalid_email 실패", async () => {
+    const result = await signupAction({ ...VALID_PARAMS, email: "not-an-email" });
+    expect(result).toEqual({ success: false, reason: "invalid_email" });
+  });
+
   it("신규 회원이면 createUser를 호출한다", async () => {
-    mockFindUser.mockResolvedValue([]);
+    mockFindUser.mockResolvedValue([] as any);
     mockCreateUser.mockResolvedValue(undefined as any);
 
-    const result = await signupAction(defaultParams);
+    const result = await signupAction(VALID_PARAMS);
 
-    expect(mockCreateUser).toHaveBeenCalledWith(defaultParams);
+    expect(mockCreateUser).toHaveBeenCalledWith({
+      name: "홍길동",
+      birthYear: "90",
+      email: "hong@test.com",
+      accountId: ACCOUNT_ID,
+    });
     expect(mockUpdateUser).not.toHaveBeenCalled();
     expect(result).toEqual({ success: true, mode: "create" });
   });
 
   it("기존 회원이면 updateUserInfo를 호출한다", async () => {
-    mockFindUser.mockResolvedValue([{ accountId: "kakao-123" }] as any);
+    mockFindUser.mockResolvedValue([{ accountId: ACCOUNT_ID }] as any);
     mockUpdateUser.mockResolvedValue(undefined as any);
 
-    const result = await signupAction(defaultParams);
+    const result = await signupAction(VALID_PARAMS);
 
-    expect(mockUpdateUser).toHaveBeenCalledWith(defaultParams);
+    expect(mockUpdateUser).toHaveBeenCalledWith({
+      name: "홍길동",
+      birthYear: "90",
+      email: "hong@test.com",
+      accountId: ACCOUNT_ID,
+    });
     expect(mockCreateUser).not.toHaveBeenCalled();
     expect(result).toEqual({ success: true, mode: "update" });
   });
 
-  it("조회 결과가 null이면 신규 회원으로 처리한다", async () => {
-    mockFindUser.mockResolvedValue(null as any);
+  it("클라이언트가 보낸 accountId는 무시되고 세션의 id가 사용된다", async () => {
+    mockFindUser.mockResolvedValue([] as any);
     mockCreateUser.mockResolvedValue(undefined as any);
 
-    await signupAction(defaultParams);
+    await signupAction({ ...VALID_PARAMS, accountId: "ATTACKER-ID" } as any);
 
-    expect(mockCreateUser).toHaveBeenCalled();
-  });
-
-  it("신규/수정에 따라 슬랙 메시지가 다르다", async () => {
-    mockFindUser.mockResolvedValue([]);
-    mockCreateUser.mockResolvedValue(undefined as any);
-    await signupAction(defaultParams);
-    expect(mockSlack).toHaveBeenCalledWith(
-      `회원등록/${defaultParams.name}/${defaultParams.birthYear}/${defaultParams.email}`
+    expect(mockCreateUser).toHaveBeenCalledWith(
+      expect.objectContaining({ accountId: ACCOUNT_ID }),
     );
-
-    mockSlack.mockClear();
-    mockFindUser.mockResolvedValue([{ accountId: "kakao-123" }] as any);
-    mockUpdateUser.mockResolvedValue(undefined as any);
-    await signupAction(defaultParams);
-    expect(mockSlack).toHaveBeenCalledWith(
-      `회원수정/${defaultParams.name}/${defaultParams.birthYear}/${defaultParams.email}`
-    );
-  });
-
-  it("Slack 알림이 실패해도 가입은 성공으로 처리한다", async () => {
-    mockFindUser.mockResolvedValue([]);
-    mockCreateUser.mockResolvedValue(undefined as any);
-    mockSlack.mockRejectedValueOnce(new Error("Slack down"));
-
-    const result = await signupAction(defaultParams);
-
-    expect(result).toEqual({ success: true, mode: "create" });
   });
 
   it("DB 쓰기 실패는 그대로 throw한다", async () => {
-    mockFindUser.mockResolvedValue([]);
+    mockFindUser.mockResolvedValue([] as any);
     mockCreateUser.mockRejectedValueOnce(new Error("duplicate key"));
 
-    await expect(signupAction(defaultParams)).rejects.toThrow("duplicate key");
-  });
-
-  it("accountId가 비어있으면 즉시 에러", async () => {
-    await expect(
-      signupAction({ ...defaultParams, accountId: "" })
-    ).rejects.toThrow(/accountId/);
-    expect(mockFindUser).not.toHaveBeenCalled();
+    await expect(signupAction(VALID_PARAMS)).rejects.toThrow("duplicate key");
   });
 });
