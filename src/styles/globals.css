@@ -245,7 +245,7 @@
 .field-input[type="date"]::-webkit-date-and-time-value,
 .field-input[type="time"]::-webkit-date-and-time-value,
 .field-input[type="datetime-local"]::-webkit-date-and-time-value {
-  text-align: center;
+  text-align: left;
   min-width: 0;
   width: 100%;
 }
