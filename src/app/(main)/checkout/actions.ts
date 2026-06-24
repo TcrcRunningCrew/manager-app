@@ -64,7 +64,7 @@ export async function checkoutAction(params: {
       return { success: false, message: "참여일 형식이 올바르지 않습니다." };
     }
     if (!/^\d{2}:\d{2}$/.test(participationTime)) {
-      return { success: false, message: "참여 시각 형식이 올바르지 않습니다." };
+      return { success: false, message: "모임 개설 시간 형식이 올바르지 않습니다." };
     }
     if (!ALLOWED_ACTIVATION.has(activation)) {
       return { success: false, message: "운동 종류가 올바르지 않습니다." };
