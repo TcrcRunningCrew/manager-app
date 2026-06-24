@@ -216,6 +216,9 @@
 .field-input,
 .field-select {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   height: 52px;
   padding: 0 16px;
   background: var(--tcrc-bg-inset);
@@ -227,6 +230,24 @@
   font-weight: 600;
   outline: none;
   transition: border-color 0.15s ease;
+}
+
+/* iOS Safari: native date/time inputs have an intrinsic min-width from
+   the picker shadow DOM that overflows the container. Reset appearance
+   and let the inner value element shrink to fit. */
+.field-input[type="date"],
+.field-input[type="time"],
+.field-input[type="datetime-local"] {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+}
+.field-input[type="date"]::-webkit-date-and-time-value,
+.field-input[type="time"]::-webkit-date-and-time-value,
+.field-input[type="datetime-local"]::-webkit-date-and-time-value {
+  text-align: center;
+  min-width: 0;
+  width: 100%;
 }
 .field-input:focus,
 .field-select:focus {
