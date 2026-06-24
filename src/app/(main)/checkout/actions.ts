@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidateTag } from "next/cache";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/options";
 import { findUserByAccountId } from "@/lib/domain/user/queries";
@@ -10,6 +11,7 @@ import {
   getParticipationByDateRange,
   getFounderMeetingsByDateRange,
   findExistingMeeting,
+  MEETING_CACHE_TAG,
 } from "@/lib/domain/meeting/queries";
 import {
   currentYearMonthKST,
@@ -74,7 +76,17 @@ export async function checkoutAction(params: {
     }
 
     const userId = session.user.id;
-    const data = await findUserByAccountId(userId);
+    // 두 호출은 서로 의존성이 없으므로 병렬로 묶어 한 라운드트립을 줄임.
+    const [data, alreadyChecked] = await Promise.all([
+      findUserByAccountId(userId),
+      findExistingMeeting({
+        accountId: userId,
+        meetingDate: participationDate,
+        activation,
+        location,
+      }),
+    ]);
+
     if (!data || data.length === 0) {
       return { success: false, message: "회원이 아닙니다. 회원가입 바랍니다" };
     }
@@ -88,12 +100,6 @@ export async function checkoutAction(params: {
     const userEmail = dbUser.email ?? session.user.email ?? "";
     const userAge = String(dbUser.birthYear ?? session.user.birthYear ?? "");
 
-    const alreadyChecked = await findExistingMeeting({
-      accountId: userId,
-      meetingDate: participationDate,
-      activation,
-      location,
-    });
     if (alreadyChecked) {
       return { success: false, message: "이미 출석체크가 완료된 항목입니다." };
     }
@@ -114,30 +120,26 @@ export async function checkoutAction(params: {
       return { success: false, message: "출석체크 에러 운영진 문의" };
     }
 
-    // Discord 알림은 비치명적: 실패해도 출석은 성공 처리
-    try {
-      await sendDiscordNotification(
-        `출석/${participationDate}/${username}/${userAge}/${userEmail}/activation: ${activation}/location:${location}/founder: ${isFounder}`
-      );
-    } catch (e) {
-      console.error("[checkout] discord notification failed:", e);
-    }
+    // 캐시된 랭킹 쿼리(domain/meeting/queries.ts)를 무효화해 다음 진입 시 최신 데이터로 갱신.
+    revalidateTag(MEETING_CACHE_TAG);
 
-    // 운영진 푸시 알림 (비치명적). 시각은 폼에서 입력한 KST 기준 참여 시각.
-    try {
+    // Discord 알림과 운영진 푸시는 모두 비치명적 부수효과.
+    // 응답 critical path 에서 분리해 fire-and-forget 으로 발사.
+    void sendDiscordNotification(
+      `출석/${participationDate}/${username}/${userAge}/${userEmail}/activation: ${activation}/location:${location}/founder: ${isFounder}`,
+    ).catch((e) => console.error("[checkout] discord notification failed:", e));
+
+    {
       const { month, day, hour, minute } = kstNotificationFromDateTime(
         participationDate,
         participationTime,
       );
       const locationLabel = LOCATION_MAP[location] ?? location;
-
-      await sendPushToAdmins({
+      void sendPushToAdmins({
         title: "🏃 출석 알림",
         body: `${username}님이 ${locationLabel}에서 ${month}월 ${day}일 ${hour}:${minute} 출석했습니다`,
         url: "/admin",
-      });
-    } catch (e) {
-      console.error("[checkout] push notification failed:", e);
+      }).catch((e) => console.error("[checkout] push notification failed:", e));
     }
 
     let rankingData: CheckoutRankingData = {

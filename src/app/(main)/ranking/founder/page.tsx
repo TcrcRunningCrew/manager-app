@@ -1,10 +1,12 @@
-"use client";
-
 import { TopBar } from "@/components/organisms/TopBar";
 import { RankingList } from "@/components/organisms/RankingList";
+import { currentYearMonthKST, formatYM } from "@/lib/time";
 import { fetchFounderRanking } from "../actions";
 
-export default function FounderPage() {
+export default async function FounderPage() {
+  const initialMonth = formatYM(currentYearMonthKST());
+  const initialUsers = await fetchFounderRanking(initialMonth);
+
   return (
     <div
       style={{
@@ -25,6 +27,8 @@ export default function FounderPage() {
         bgColor="bg-tcrc-accent-blue"
         scoreLabel="개설횟수"
         fetchRanking={fetchFounderRanking}
+        initialMonth={initialMonth}
+        initialUsers={initialUsers}
       />
     </div>
   );

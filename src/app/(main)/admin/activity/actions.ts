@@ -1,8 +1,9 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { requireAdminAction } from "@/lib/auth/admin-guard";
 import { updateMeeting, deleteMeeting, type MeetingUpdate } from "@/lib/domain/meeting/mutations";
+import { MEETING_CACHE_TAG } from "@/lib/domain/meeting/queries";
 import { getCheckoutsPage, type CheckoutFilter, type RecentCheckout } from "@/lib/domain/admin/queries";
 
 const ALLOWED_ACTIVATION = new Set(["1", "2", "3", "4"]);
@@ -33,6 +34,7 @@ export async function updateMeetingAction(
     }
 
     await updateMeeting(id, changes);
+    revalidateTag(MEETING_CACHE_TAG);
     revalidatePath("/admin/activity");
     return { ok: true };
   } catch (e) {
@@ -47,6 +49,7 @@ export async function deleteMeetingAction(
   try {
     await requireAdminAction();
     await deleteMeeting(id);
+    revalidateTag(MEETING_CACHE_TAG);
     revalidatePath("/admin/activity");
     return { ok: true };
   } catch (e) {

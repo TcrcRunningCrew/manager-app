@@ -16,18 +16,24 @@ interface RankingListProps {
   bgColor?: string;
   scoreLabel: string;
   fetchRanking: (month: string) => Promise<RankingUser[]>;
+  /** RSC 가 첫 진입 월의 데이터를 서버에서 prefetch 해 hydrate 하기 위한 초기 값 */
+  initialUsers?: RankingUser[];
+  /** initialUsers 가 어느 월에 해당하는지 (formatYM 문자열). 같은 월에 한정해 첫 fetch 를 스킵 */
+  initialMonth?: string;
 }
 
 export function RankingList({
   bgColor = "bg-tcrc-accent-yellow",
   scoreLabel,
   fetchRanking,
+  initialUsers,
+  initialMonth,
 }: RankingListProps) {
   const { data: session, status } = useSession();
   const [currentMonth, setCurrentMonth] = useState<Temporal.PlainYearMonth>(
     currentYearMonthKST(),
   );
-  const [users, setUsers] = useState<RankingUser[]>([]);
+  const [users, setUsers] = useState<RankingUser[]>(initialUsers ?? []);
   const [animKey, setAnimKey] = useState(0);
 
   const changeMonth = useCallback((increment: number) => {
@@ -36,12 +42,16 @@ export function RankingList({
 
   useEffect(() => {
     const monthStr = formatYM(currentMonth);
+    // 서버가 prefetch 해서 내려준 월과 동일하면 첫 fetch 를 스킵 (cold start 라운드트립 제거).
+    if (initialMonth && initialUsers && monthStr === initialMonth) {
+      return;
+    }
     setUsers([]);
     fetchRanking(monthStr).then((data) => {
       setUsers(data);
       setAnimKey((k) => k + 1);
     });
-  }, [currentMonth, fetchRanking]);
+  }, [currentMonth, fetchRanking, initialMonth, initialUsers]);
 
   const userName = status === "authenticated" ? session?.user?.name : undefined;
   const userRanking = useMemo(() => {

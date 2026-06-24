@@ -1,11 +1,11 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { requireAdminAction } from "@/lib/auth/admin-guard";
 import { setUserAdminStatus, setUserActivation } from "@/lib/domain/admin/mutations";
 import { findUserByAccountId } from "@/lib/domain/user/queries";
 import { insertMeeting } from "@/lib/domain/meeting/mutations";
-import { findExistingMeeting } from "@/lib/domain/meeting/queries";
+import { findExistingMeeting, MEETING_CACHE_TAG } from "@/lib/domain/meeting/queries";
 import { sendDiscordNotification } from "@/lib/domain/discord/notifications";
 import { sendPushToAdmins } from "@/lib/push/vapid";
 import { kstNotificationFromDateTime } from "@/lib/time";
@@ -98,25 +98,22 @@ export async function proxyCheckoutAction(params: {
       founder: isFounder,
     });
 
-    // 비치명적 알림
-    try {
-      await sendDiscordNotification(
-        `대리출석/${participationDate} ${participationTime}/${username}/${userAge}/${userEmail}/장소:${location}/개설자:${isFounder}/by ${adminId}`
-      );
-    } catch (e) {
-      console.error("[admin/users] discord notification failed", e);
-    }
+    // 캐시된 랭킹 쿼리 무효화
+    revalidateTag(MEETING_CACHE_TAG);
 
-    try {
+    // 비치명적 알림은 fire-and-forget — 운영진 응답 critical path 에서 분리.
+    void sendDiscordNotification(
+      `대리출석/${participationDate} ${participationTime}/${username}/${userAge}/${userEmail}/장소:${location}/개설자:${isFounder}/by ${adminId}`,
+    ).catch((e) => console.error("[admin/users] discord notification failed", e));
+
+    {
       const { month, day, hour, minute } = kstNotificationFromDateTime(participationDate, participationTime);
       const locationLabel = LOCATION_MAP[location] ?? location;
-      await sendPushToAdmins({
+      void sendPushToAdmins({
         title: "🏃 출석 알림 (대리)",
         body: `${username}님이 ${locationLabel}에서 ${month}월 ${day}일 ${hour}:${minute} 출석했습니다 (대리)`,
         url: "/admin/activity",
-      });
-    } catch (e) {
-      console.error("[admin/users] push failed", e);
+      }).catch((e) => console.error("[admin/users] push failed", e));
     }
 
     revalidatePath("/admin/users");

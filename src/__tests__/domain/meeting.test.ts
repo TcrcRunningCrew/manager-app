@@ -1,5 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
+// unstable_cache 는 Next.js 의 incrementalCache 컨텍스트가 없으면 동작하지 않으므로
+// 테스트 환경에서는 pass-through 로 모킹 (캐싱은 통합 환경에서 검증).
+vi.mock("next/cache", () => ({
+  unstable_cache: (fn: (...args: unknown[]) => unknown) => fn,
+  revalidateTag: vi.fn(),
+  revalidatePath: vi.fn(),
+}));
+
 vi.mock("@/lib/supabase/server", () => ({
   supabaseServer: {
     from: vi.fn(),
