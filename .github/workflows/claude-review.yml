@@ -1,0 +1,77 @@
+name: Claude PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+# 동일 PR 에서 push 가 빠르게 연달아 일어나면 진행중 작업을 취소하고 최신만 리뷰
+concurrency:
+  group: claude-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    # 봇/Dependabot 등은 스킵
+    if: ${{ github.event.pull_request.user.type == 'User' }}
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Claude security & architecture review
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          track_progress: true
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+
+            이 PR 의 변경 사항을 검토하고, GitHub 인라인 리뷰 코멘트로 발견 사항을 남기세요.
+            가벼운 잡음을 줄이고 다음 두 축에 집중합니다.
+
+            ## 1. 보안 검토 (Security)
+            - 인증/세션 우회: `getServerSession` 결과를 trust 하지 않고 클라이언트 입력을
+              그대로 DB 키로 쓰지 않는지.
+            - 권한/접근 통제: `accountId` 등 사용자 식별자가 server-only 출처에서만 오는지.
+            - SQL injection / 파라미터 바인딩: Supabase 호출에서 raw string 합성이 없는지.
+            - 타 사용자 데이터 노출: 응답에 본인 외 데이터가 섞이지 않는지.
+            - XSS: `dangerouslySetInnerHTML` 사용 시 신뢰 가능한 소스인지.
+            - CSRF: state 변경 액션이 Server Action 으로만 노출되는지.
+            - 시크릿/PII 로그: console.log/Discord/Slack 전송에 토큰·개인정보 누출 없는지.
+
+            ## 2. 아키텍처 검토 (`CLAUDE.md` 규칙 기준)
+            아래 규칙을 위반하면 인라인 코멘트로 짚어 주세요.
+
+            - **BFF 패턴**: 데이터 mutation 은 `actions.ts` (Server Action) 만 사용.
+              클라이언트에서 `@/lib/supabase/client` 로 write 호출 금지.
+            - **Domain layer isolation**: `src/lib/domain/**` 는 `@/components`, `@/app`,
+              `next/*`, `react` 를 import 하지 않는다. `queries.ts` 와 `mutations.ts` 분리.
+            - **RSC = thin shell**: `page.tsx` 는 세션/도메인 호출 + 클라이언트 위임만.
+              비즈니스 로직 금지.
+            - **Atomic Design**: atoms 는 단일 책임/무상태, molecules 는 2+ atoms 조합,
+              organisms 만 데이터 인식.
+            - **Naming**: 컴포넌트 PascalCase, 도메인/유틸 camelCase, 페이지 전용은
+              `_components/` 디렉터리.
+            - **N+1 금지**: 반복문 안에서 DB 쿼리 호출 패턴이면 batch 화 가능성을 지적.
+            - **Design tokens**: 색/간격/라운드는 `tcrc-*` 토큰/CSS 변수 사용, 임의 hex/px
+              남발 지양.
+            - **Layout**: `position: fixed` 헤더는 스크롤 컨테이너 안에서 깨지므로
+              `sticky top-0` 사용. 루트 레이아웃의 `mobile-viewport` 컨테이너 가정 유지.
+
+            ## 출력 가이드
+            - 발견 사항은 가능하면 **인라인 리뷰 코멘트**로 (파일:라인 지정).
+            - PR 전체 요약은 최상단 한 단락으로 짧게 — what/why/risk 만.
+            - 추측성·스타일 트집은 자제. 실제 버그 위험 / 규칙 위반 / 보안 이슈만.
+            - 위반이 없으면 "보안 / 아키텍처 규칙 위반 없음" 으로 명시.
+            - 답변은 한국어로.
+
+          # CI 안에서 Claude 가 쓸 수 있는 도구를 리뷰에 필요한 만큼만 허용
+          claude_args: |
+            --allowed-tools "Bash(gh pr:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(git log:*),Bash(git diff:*),Bash(rg:*),Bash(find:*),Read,Glob,Grep"
