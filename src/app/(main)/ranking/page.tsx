@@ -1,8 +1,12 @@
 import { TopBar } from "@/components/organisms/TopBar";
 import { RankingList } from "@/components/organisms/RankingList";
+import { currentYearMonthKST, formatYM } from "@/lib/time";
 import { fetchOverallRanking } from "./actions";
 
-export default function RankingPage() {
+export default async function RankingPage() {
+  const initialMonth = formatYM(currentYearMonthKST());
+  const initialUsers = await fetchOverallRanking(initialMonth);
+
   return (
     <div
       style={{
@@ -23,6 +27,8 @@ export default function RankingPage() {
         bgColor="bg-tcrc-accent-yellow"
         scoreLabel="종합점수"
         fetchRanking={fetchOverallRanking}
+        initialMonth={initialMonth}
+        initialUsers={initialUsers}
       />
     </div>
   );

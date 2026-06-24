@@ -1,10 +1,12 @@
-"use client";
-
 import { TopBar } from "@/components/organisms/TopBar";
 import { RankingList } from "@/components/organisms/RankingList";
+import { currentYearMonthKST, formatYM } from "@/lib/time";
 import { fetchParticipationRanking } from "../actions";
 
-export default function ParticipationPage() {
+export default async function ParticipationPage() {
+  const initialMonth = formatYM(currentYearMonthKST());
+  const initialUsers = await fetchParticipationRanking(initialMonth);
+
   return (
     <div
       style={{
@@ -25,6 +27,8 @@ export default function ParticipationPage() {
         bgColor="bg-tcrc-accent-blue"
         scoreLabel="참여횟수"
         fetchRanking={fetchParticipationRanking}
+        initialMonth={initialMonth}
+        initialUsers={initialUsers}
       />
     </div>
   );
