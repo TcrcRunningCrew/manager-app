@@ -234,13 +234,39 @@
 
 /* iOS Safari: native date/time inputs have an intrinsic min-width from
    the picker shadow DOM that overflows the container. Reset appearance
-   and let the inner value element shrink to fit. */
+   and let the inner value element shrink to fit.
+   브라우저/엔진 (Chromium / WebKit) 별로 다르게 그려지는 native indicator 도
+   숨기고 .field-select 와 동일한 chevron 을 그려 데스크탑/iOS 외형 통일. */
 .field-input[type="date"],
 .field-input[type="time"],
 .field-input[type="datetime-local"] {
   -webkit-appearance: none;
   appearance: none;
   display: block;
+  /* select 와 동일한 모양의 chevron — 두 개의 사선 그라데이션을 합쳐 ▼ 형태 */
+  background-image: linear-gradient(45deg, transparent 50%, var(--tcrc-text-secondary) 50%),
+                    linear-gradient(135deg, var(--tcrc-text-secondary) 50%, transparent 50%);
+  background-position: calc(100% - 18px) 22px, calc(100% - 13px) 22px;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 40px;
+}
+/* Chromium 의 기본 date/time picker 인디케이터 (캘린더 아이콘 / X 등) 제거 */
+.field-input[type="date"]::-webkit-calendar-picker-indicator,
+.field-input[type="time"]::-webkit-calendar-picker-indicator,
+.field-input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  width: 40px;
+  height: 100%;
+  cursor: pointer;
+}
+.field-input[type="date"]::-webkit-clear-button,
+.field-input[type="date"]::-webkit-inner-spin-button,
+.field-input[type="time"]::-webkit-clear-button,
+.field-input[type="time"]::-webkit-inner-spin-button {
+  display: none;
 }
 .field-input[type="date"]::-webkit-date-and-time-value,
 .field-input[type="time"]::-webkit-date-and-time-value,
