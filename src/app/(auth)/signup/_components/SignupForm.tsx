@@ -62,13 +62,26 @@ export default function SignupForm() {
 
     setIsSubmitting(true);
     try {
-      await signupAction({ name, birthYear, email, accountId });
+      const result = await signupAction({ name, birthYear, email });
+      if (!result.success) {
+        const messageByReason: Record<string, string> = {
+          unauthenticated: "로그인이 필요합니다. 다시 로그인해주세요.",
+          invalid_name: "이름을 2~5 글자까지 입력해주세요.",
+          invalid_birth_year: "태어난 연도를 2자리 또는 4자리로 입력해주세요.",
+          invalid_email: "이메일 형식이 올바르지 않습니다.",
+        };
+        setErrorDialog({
+          open: true,
+          message: messageByReason[result.reason] ?? "입력값을 확인해주세요.",
+        });
+        setIsSubmitting(false);
+        return;
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       console.error("[signup] signupAction failed", err);
       void reportSignupError({
         stage: "signupAction",
-        accountId,
         message,
         userAgent,
       });
@@ -88,7 +101,6 @@ export default function SignupForm() {
       console.error("[signup] session update failed (non-fatal)", err);
       void reportSignupError({
         stage: "session-update",
-        accountId,
         message,
         userAgent,
       });
